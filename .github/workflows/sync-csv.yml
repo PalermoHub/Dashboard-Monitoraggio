@@ -1,0 +1,104 @@
+name: Sync CSV from Google Sheet
+
+on:
+  schedule:
+    # Esegui ogni ora
+    - cron: '0 * * * *'
+  workflow_dispatch: # Permette esecuzione manuale
+
+jobs:
+  sync-csv:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Download CSV from Google Sheet
+      run: |
+        # URL del tuo Google Sheet
+        SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRlCr9IBCVP3rpbY7YCGNFKR-mqjqejWSx2DqKPiWkHbf0Xe7PkJ0xM7pNyPCbetPdRiL9qq11YbYW4/pub?gid=318461464&single=true&output=csv"
+        
+        # Scarica il CSV
+        curl -s "$SHEET_URL" -o new_data.csv
+        
+        # Verifica che il download sia andato a buon fine
+        if [ ! -s new_data.csv ]; then
+          echo "❌ Errore: File CSV vuoto o non scaricato"
+          exit 1
+        fi
+        
+        echo "✅ CSV scaricato con successo"
+        
+    - name: Check for changes
+      id: changes
+      run: |
+        # Controlla se ci sono differenze con il file esistente
+        if [ -f "data.csv" ]; then
+          if cmp -s "data.csv" "new_data.csv"; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "📊 Nessuna modifica rilevata"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "🔄 Modifiche rilevate"
+          fi
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "🆕 Primo caricamento"
+        fi
+        
+    - name: Backup and update files
+      if: steps.changes.outputs.changes == 'true'
+      run: |
+        # Crea timestamp
+        DATE=$(date -u +"%Y-%m-%d")
+        TIME=$(date -u +"%H-%M")
+        HOUR=$(date -u +"%H")
+        
+        # Crea directory per backup se non esiste
+        mkdir -p "backups/$DATE"
+        
+        # Se esiste data.csv, fai backup solo se non è della stessa ora
+        if [ -f "data.csv" ]; then
+          BACKUP_FILE="backups/$DATE/data_$TIME.csv"
+          if [ ! -f "$BACKUP_FILE" ]; then
+            cp "data.csv" "$BACKUP_FILE"
+            echo "💾 Backup creato: $BACKUP_FILE"
+          fi
+        fi
+        
+        # Aggiorna il file principale
+        mv "new_data.csv" "data.csv"
+        echo "🔄 File principale aggiornato"
+        
+        # Pulizia giornaliera: mantieni solo l'ultimo backup se è dopo le 22:00
+        if [ "$HOUR" -ge "22" ]; then
+          echo "🧹 Avvio pulizia giornaliera..."
+          
+          # Trova l'ultimo file della giornata
+          LATEST_FILE=$(ls -t "backups/$DATE"/data_*.csv 2>/dev/null | head -1)
+          
+          if [ -n "$LATEST_FILE" ]; then
+            # Elimina tutti i file tranne l'ultimo
+            find "backups/$DATE" -name "data_*.csv" -not -path "$LATEST_FILE" -delete
+            echo "✅ Pulizia completata. Mantenuto: $(basename "$LATEST_FILE")"
+          fi
+        fi
+        
+    - name: Commit and push changes
+      if: steps.changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add .
+        git commit -m "🔄 Auto-sync CSV data $(date -u '+%Y-%m-%d %H:%M UTC')"
+        git push
+        
+        echo "✅ Modifiche salvate su GitHub"
+        
+    - name: No changes
+      if: steps.changes.outputs.changes == 'false'
+      run: |
+        echo "ℹ️ Nessuna modifica da salvare"
+        rm -f new_data.csv
