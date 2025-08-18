@@ -10,6 +10,8 @@ on:
 jobs:
   sync-csv:
     runs-on: ubuntu-latest
+    # Esegui solo sul branch main
+    if: github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout repository
@@ -20,7 +22,7 @@ jobs:
         # URL del tuo Google Sheet
         SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRlCr9IBCVP3rpbY7YCGNFKR-mqjqejWSx2DqKPiWkHbf0Xe7PkJ0xM7pNyPCbetPdRiL9qq11YbYW4/pub?gid=318461464&single=true&output=csv"
         
-        echo "🔄 Scaricamento CSV da Google Sheets..."
+        echo "📄 Scaricamento CSV da Google Sheets..."
         
         # Scarica seguendo redirect con retry
         for i in {1..3}; do
