@@ -141,4 +141,3 @@ jobs:
       run: |
         echo "ℹ️ Nessuna modifica da salvare"
         rm -f new_monit_patti_pa.csv
-        
