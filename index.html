@@ -3,470 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard di monitoraggio dei Patti di Collaborazione del Comune di Palermo">
+    <meta name="theme-color" content="#1e293b">
+    
     <link rel="shortcut icon" href="img/favicon.ico"/> 
     <link rel="icon" href="img/favicon.png" type="image/png"/> 
+    
     <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="css/patti_pa.css"> 
     
-    <!-- Leaflet CSS -->
+    <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-    
-    <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    
-    <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
-    <style>
-        /* Layout a 3 sezioni: Header, Main, Footer */
-        .three-section-layout {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        /* SEZIONE 1: Header */
-        .header-section {
-            flex-shrink: 0;
-            background: linear-gradient(to right, #2563eb, #1e40af);
-            height: 70px;
-        }
-        
-        /* SEZIONE 2: Contenuto principale */
-        .main-section {
-            flex: 1;
-            min-height: 0;
-            overflow: hidden;
-            background-color: #f9fafb;
-        }
-        
-        /* SEZIONE 3: Footer */
-        .footer-section {
-            flex-shrink: 0;
-            background-color: #1f2937;
-            height: 60px;
-        }
-        
-        /* Layout interno della sezione principale */
-        .main-content-grid {
-            height: 100%;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 1rem;
-            padding: 1rem;
-        }
-        
-        /* Sidebar filtri */
-        .filters-sidebar {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            overflow-y: auto;
-            height: 100%;
-        }
-        
-        /* Area principale destra */
-        .main-right-area {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            height: 100%;
-            min-height: 0;
-        }
-        
-        /* Container mappa */
-        .map-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            flex: 1;
-            min-height: 0;
-            position: relative;
-        }
-        
-        .map-area {
-            height: 100%;
-            min-height: 300px;
-        }
-        
-        /* Legenda e statistiche */
-        .bottom-info {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 1rem;
-            height: 120px;
-        }
-        
-        .legend-area {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .stats-area {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 0.5rem;
-            height: 100%;
-        }
-        
-        .stat-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 0.75rem;
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
-            line-height: 1.1;
-        }
-        
-        /* Responsive per tablet/mobile */
-        @media (max-width: 1024px) {
-            .main-content-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-                gap: 0.75rem;
-                padding: 0.75rem;
-            }
-            
-            .filters-sidebar {
-                height: auto;
-                max-height: 200px;
-            }
-            
-            .map-area {
-                min-height: 250px;
-            }
-            
-            .bottom-info {
-                grid-template-columns: 1fr;
-                height: auto;
-                gap: 0.75rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .header-section {
-                height: 60px;
-            }
-            
-            .footer-section {
-                height: 50px;
-            }
-        }
-        
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .stat-value {
-                font-size: 1rem;
-            }
-            
-            .stat-label {
-                font-size: 0.65rem;
-            }
-        }
-        
-        /* Chart compatto */
-        .chart-container {
-            position: relative;
-            height: 150px;
-            width: 100%;
-        }
-        
-        /* Scrollbar personalizzata */
-        .filters-sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .filters-sidebar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 2px;
-        }
-        
-        .filters-sidebar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 2px;
-        }
-        
-        .autocomplete-container {
-            position: relative;
-        }
-
-        .autocomplete-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #d1d5db;
-            border-top: none;
-            border-radius: 0 0 0.5rem 0.5rem;
-            max-height: 120px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .autocomplete-suggestion {
-            padding: 0.375rem;
-            cursor: pointer;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 0.75rem;
-        }
-
-        .autocomplete-suggestion:hover,
-        .autocomplete-suggestion.highlighted {
-            background-color: #f3f4f6;
-        }
-
-        .autocomplete-suggestion:last-child {
-            border-bottom: none;
-        }
-        
-        /* Mini mappa nella modale */
-        .modal-mini-map {
-            height: 200px !important;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        /* Layout modale ottimizzato */
-        .modal-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .modal-content {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
-<body class="three-section-layout">
-    <!-- SEZIONE 1: HEADER -->
-    <header class="header-section text-white shadow-lg">
-        <div class="h-full px-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <i data-lucide="map-pin" class="h-6 w-6"></i>
-                <div>
-                    <h1 class="text-lg font-bold">Dashboard di Monitoraggio Cittadino</h1>
-                    <p class="text-blue-100 text-xs">Patti di Collaborazione - Città di Palermo</p>
-                </div>
+
+<body class="dashboard-layout">
+    <!-- HEADER -->
+    <header class="dashboard-header" role="banner">
+        <div class="header-brand">
+            <i data-lucide="map-pin" class="h-6 w-6" aria-hidden="true"></i>
+            <div>
+                <h1 class="header-title">Dashboard di Monitoraggio Cittadino</h1>
+                <p class="header-subtitle">Patti di Collaborazione - Città di Palermo</p>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="infoBtn" class="bg-blue-500 hover:bg-blue-400 text-white p-2 rounded-full transition-colors" title="Informazioni">
-                    <i data-lucide="info" class="h-4 w-4"></i>
-                </button>
-                <div class="text-right">
-                    <p class="text-xs text-blue-100">Ultimo aggiornamento</p>
-                    <p class="font-medium text-xs" id="lastUpdate">Caricamento...</p>
-                </div>
+        </div>
+        
+        <div class="header-actions">
+            <button id="infoBtn" 
+                    class="btn-icon" 
+                    title="Informazioni sulla dashboard"
+                    aria-label="Apri informazioni sulla dashboard">
+                <i data-lucide="info" class="h-5 w-5" aria-hidden="true"></i>
+            </button>
+            
+            <div class="header-info" role="status" aria-live="polite">
+                <p>Ultimo aggiornamento</p>
+                <time id="lastUpdate">Caricamento...</time>
             </div>
         </div>
     </header>
 
-    <!-- SEZIONE 2: CONTENUTO PRINCIPALE -->
-    <main class="main-section">
-        <div class="main-content-grid">
-            <!-- Sidebar Filtri -->
-            <aside class="filters-sidebar">
-                <div class="flex items-center space-x-2 mb-4">
-                    <i data-lucide="filter" class="h-4 w-4 text-blue-600"></i>
-                    <h2 class="text-sm font-semibold text-gray-800">Filtri</h2>
-				<!--	 <span class="beta-badge">Beta Version</span> -->
-                </div>
-                                       
-                   			
-                <div class="space-y-3 mb-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
-                            Stato di Avanzamento
-                        </label>
-                        <select id="filterStato" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs">
-                            <option value="">Tutti gli stati</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">UPL</label>
-                        <select id="filterUpl" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs">
-                            <option value="">Tutte le UPL</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Quartiere</label>
-                        <select id="filterQuartiere" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs">
-                            <option value="">Tutti i quartieri</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Circoscrizione</label>
-                        <select id="filterCircoscrizione" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs">
-                            <option value="">Tutte le circoscrizioni</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Cerca nel titolo</label>
-                        <div class="autocomplete-container">
-                            <input id="filterTitolo" type="text" placeholder="Inserisci parole chiave..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs">
-                            <div id="autocompleteSuggestions" class="autocomplete-suggestions hidden"></div>
-                        </div>
-                    </div>
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-main" role="main">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar" role="complementary" aria-label="Filtri di ricerca">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">
+                    <i data-lucide="filter" class="h-5 w-5" aria-hidden="true"></i>
+                    Filtri
+                </h2>
+                
+                <button class="mobile-toggle" 
+                        id="mobileFiltersToggle"
+                        aria-label="Mostra/nascondi filtri"
+                        aria-expanded="false">
+                    <i data-lucide="sliders-horizontal" class="h-4 w-4" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content" id="filtersContent">
+                <!-- Filter Groups -->
+                <div class="filter-group">
+                    <label for="filterStato" class="filter-label">
+                        Stato di Avanzamento
+                    </label>
+                    <select id="filterStato" 
+                            class="filter-select" 
+                            aria-describedby="stato-help">
+                        <option value="">Tutti gli stati</option>
+                    </select>
                 </div>
 
-                <!-- Pulsanti azioni -->
-                <div class="flex space-x-2 mb-4">
-                    <button id="clearFilters" class="flex-1 bg-gray-500 text-white py-1.5 px-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center space-x-1 text-xs" title="Reset filtri">
-                        <i data-lucide="refresh-cw" class="h-3 w-3"></i>
+                <div class="filter-group">
+                    <label for="filterUpl" class="filter-label">UPL</label>
+                    <select id="filterUpl" 
+                            class="filter-select"
+                            aria-describedby="upl-help">
+                        <option value="">Tutte le UPL</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterQuartiere" class="filter-label">Quartiere</label>
+                    <select id="filterQuartiere" 
+                            class="filter-select"
+                            aria-describedby="quartiere-help">
+                        <option value="">Tutti i quartieri</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCircoscrizione" class="filter-label">Circoscrizione</label>
+                    <select id="filterCircoscrizione" 
+                            class="filter-select"
+                            aria-describedby="circoscrizione-help">
+                        <option value="">Tutte le circoscrizioni</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTitolo" class="filter-label">Cerca nel titolo</label>
+                    <div class="autocomplete-container">
+                        <input id="filterTitolo" 
+                               type="text" 
+                               class="filter-input"
+                               placeholder="Inserisci parole chiave..."
+                               aria-describedby="titolo-help"
+                               autocomplete="off">
+                        <div id="autocompleteSuggestions" 
+                             class="autocomplete-suggestions hidden"
+                             role="listbox"
+                             aria-label="Suggerimenti di ricerca"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="clearFilters" 
+                            class="btn btn-secondary"
+                            aria-label="Cancella tutti i filtri applicati">
+                        <i data-lucide="refresh-cw" class="h-4 w-4" aria-hidden="true"></i>
                         <span>Reset</span>
                     </button>
-                    <button id="showTableBtn" class="flex-1 bg-blue-600 text-white py-1.5 px-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1 text-xs" title="Visualizza elenco richieste Patti di Collaborazione">
-                        <i data-lucide="table" class="h-3 w-3"></i>
+                    
+                    <button id="showTableBtn" 
+                            class="btn btn-primary"
+                            aria-label="Visualizza i dati in formato tabella">
+                        <i data-lucide="table" class="h-4 w-4" aria-hidden="true"></i>
                         <span>Elenco</span>
                     </button>
                 </div>
 
-                <!-- Grafico Patti per Stato -->
-                <div class="border-t pt-4">
-                    <div class="flex items-center space-x-2 mb-3">
-                        <i data-lucide="bar-chart-3" class="h-4 w-4 text-blue-600"></i>
-                        <h3 class="font-semibold text-gray-800 text-xs">Patti per Stato</h3>
-                    </div>
-                    <div class="chart-container">
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
+                        Patti per Stato
+                    </h3>
+                    
+                    <div class="chart-container" role="img" aria-label="Grafico distribuzione patti per stato">
                         <canvas id="statusChart"></canvas>
                     </div>
-                    <div class="mt-1 text-xs text-gray-500 text-center">
-                        Clicca sulle barre per filtrare<br><br><span class="beta-badge">Beta Version</span>
-						
-						
-                    </div> 
+                    
+                    <div class="chart-info">
+                        <p>Clicca sulle barre per filtrare</p>
+                        <span class="beta-badge">Beta Version</span>
+                    </div>
                 </div>
-            </aside>
+            </div>
+        </aside>
 
-            <!-- Area principale destra -->
-            <div class="main-right-area">
-                <!-- Mappa -->
-                <div class="map-container">
-                    <div id="map" class="map-area">
-                        <!-- Controlli layer e centra (destra) -->
-                        <div class="absolute top-4 right-4 z-[1000] space-y-2">
-                            <!-- Controllo layer -->
-                            <div class="relative">
-                                <button id="layerToggle" class="w-8 h-8 bg-white hover:bg-gray-50 rounded-lg shadow-lg text-gray-700">
-                                    <i data-lucide="layers" class="h-3 w-3 mx-auto"></i>
-                                </button>
-                                <div id="layerMenu" class="absolute top-0 right-10 bg-white rounded-lg shadow-lg p-2 w-28 hidden">
-                                    <div class="space-y-1">
-                                        <button id="mapStandard" class="w-full text-xs p-1.5 rounded transition-colors bg-blue-600 text-white">
-                                            Standard
-                                        </button>
-                                        <button id="mapSatellite" class="w-full text-xs p-1.5 rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                                            Satellite
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- MAP SECTION -->
+            <section class="map-container" 
+                     role="application" 
+                     aria-label="Mappa interattiva dei patti di collaborazione">
+                     
+                <div id="map" class="map-area">
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <!-- Layer Toggle -->
+                        <div class="relative">
+                            <button id="layerToggle" 
+                                    class="map-control"
+                                    aria-label="Cambia tipo di mappa"
+                                    aria-expanded="false"
+                                    aria-haspopup="true">
+                                <i data-lucide="layers" class="h-5 w-5" aria-hidden="true"></i>
+                            </button>
                             
-                            <!-- Pulsante centra su Palermo -->
-                            <div>
-                                <button id="centerPalermo" class="w-8 h-8 bg-white hover:bg-gray-50 rounded-lg shadow-lg text-gray-700" title="Centra su Palermo">
-                                    <i data-lucide="home" class="h-3 w-3 mx-auto"></i>
+                            <div id="layerMenu" 
+                                 class="layer-menu hidden"
+                                 role="menu"
+                                 aria-label="Opzioni layer mappa">
+                                <button id="mapStandard" 
+                                        class="layer-option active"
+                                        role="menuitem">
+                                    Standard
+                                </button>
+                                <button id="mapSatellite" 
+                                        class="layer-option"
+                                        role="menuitem">
+                                    Satellite
                                 </button>
                             </div>
                         </div>
+                        
+                        <!-- Center Button -->
+                        <button id="centerPalermo" 
+                                class="map-control"
+                                title="Centra la mappa su Palermo"
+                                aria-label="Centra la mappa sul centro di Palermo">
+                            <i data-lucide="home" class="h-5 w-5" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATISTICS AND LEGEND -->
+            <div class="stats-container">
+                <!-- Legend -->
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
+                        Legenda Stati
+                    </h3>
+                    
+                    <div id="legend" class="legend-items" role="list">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
 
-                <!-- Legenda e Statistiche -->
-                <div class="bottom-info">
-                    <!-- Legenda -->
-                    <div class="legend-area">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i data-lucide="info" class="h-3 w-3 text-blue-600"></i>
-                            <h3 class="text-xs font-semibold text-gray-800">Legenda Stati</h3>
+                <!-- Statistics -->
+                <div class="stats-card">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-4" class="h-4 w-4" aria-hidden="true"></i>
+                        Statistiche
+                    </h3>
+                    
+                    <div class="stats-grid" role="list">
+                        <div class="stat-item" role="listitem">
+                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
+                            <div class="stat-label">Richieste Patti</div>
                         </div>
-                        <div id="legend" class="flex flex-wrap gap-2">
-                            <!-- Popolato dinamicamente -->
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiStipulati" class="stat-value" style="color: var(--status-stipulato);">0</div>
+                            <div class="stat-label">Patti Stipulati</div>
                         </div>
-                    </div>
-
-                    <!-- Statistiche -->
-                    <div class="stats-area">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div id="totalPatti" class="stat-value text-blue-600">0</div>
-                                <div class="stat-label">Richieste Patti</div>
-                            </div>
-                            <div class="stat-card">
-                                <div id="pattiStipulati" class="stat-value text-green-600">0</div>
-                                <div class="stat-label">Patti Stipulati</div>
-                            </div>
-                            <div class="stat-card">
-                                <div id="pattiIstruttoria" class="stat-value text-yellow-600">0</div>
-                                <div class="stat-label">In Istruttoria</div>
-                            </div>
-                            <div class="stat-card">
-                                <div id="pattiAttesaIntegrazione" class="stat-value text-orange-600">0</div>
-                                <div class="stat-label">Attesa Integrazione</div>
-                            </div>
-                            <div class="stat-card">
-                                <div id="pattiMonitoraggio" class="stat-value text-purple-600">0</div>
-                                <div class="stat-label">Proroga/Monitoraggio</div>
-                            </div>
-                            <div class="stat-card">
-                                <div id="pattiRespinti" class="stat-value text-red-600">0</div>
-                                <div class="stat-label">Patti Respinti</div>
-                            </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--status-istruttoria);">0</div>
+                            <div class="stat-label">In Istruttoria</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: var(--status-integrazione);">0</div>
+                            <div class="stat-label">Attesa Integrazione</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiMonitoraggio" class="stat-value" style="color: var(--status-monitoraggio);">0</div>
+                            <div class="stat-label">Proroga/Monitoraggio</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiRespinti" class="stat-value" style="color: var(--status-respinto);">0</div>
+                            <div class="stat-label">Patti Respinti</div>
                         </div>
                     </div>
                 </div>
@@ -474,122 +259,136 @@
         </div>
     </main>
 
-    <!-- SEZIONE 3: FOOTER -->
-    <footer class="footer-section text-white">
-        <div class="h-full px-4 flex items-center justify-between">
-            <div class="text-xs leading-tight">
-                <div class="font-medium">Comune di Palermo - Area Urbanistica e della rigenerazione urbana</div>
-				<div class="font-medium">Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</div>
-               <div class="text-gray-300">U.O. Interventi di Rigenerazione Urbana in partenariato pubblico-privato</div>
+    <!-- FOOTER -->
+    <footer class="dashboard-footer" role="contentinfo">
+        <div class="footer-content">
+            <div>
+                <div>Comune di Palermo - Area Urbanistica e della rigenerazione urbana</div>
+                <div>Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</div>
+                <div>U.O. Interventi di Rigenerazione Urbana in partenariato pubblico-privato</div>
             </div>
-            <div class="text-xs text-gray-300">
-              <span class="text-blue-400 font-medium"><a href="https://creativecommons.org/licenses/by/4.0/deed.it" title="Attribuzione 4.0 Internazionale" target="_blank">CC BY 4.0</a></span> -   Rielaborazione dataset by <span class="text-blue-400 font-medium"><a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano</a></span>
+            <div class="footer-links">
+                <a href="https://creativecommons.org/licenses/by/4.0/deed.it" 
+                   title="Attribuzione 4.0 Internazionale" 
+                   target="_blank"
+                   rel="noopener">CC BY 4.0</a> - 
+                Rielaborazione dataset by 
+                <a href="https://www.linkedin.com/in/gbvitrano/" 
+                   title="@gbvitrano" 
+                   target="_blank"
+                   rel="noopener">@gbvitrano</a>
             </div>
         </div>
     </footer>
 
-    <!-- Popup Info -->
-    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center p-4" style="z-index: 10000;">
-        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto fade-in">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center space-x-2">
-                        <i data-lucide="info" class="h-6 w-6 text-blue-600"></i>
-                        <h2 class="text-2xl font-bold text-gray-800">Informazioni sulla Dashboard</h2>
-                    </div>
-                    <button id="closeInfoModal" class="text-gray-400 hover:text-gray-600">
-                        <i data-lucide="x" class="h-6 w-6"></i>
-                    </button>
-                </div>
+    <!-- INFO MODAL -->
+    <div id="infoModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="infoModalTitle"
+         aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="infoModalTitle" class="modal-title">
+                    <i data-lucide="info" class="h-6 w-6" aria-hidden="true"></i>
+                    Informazioni sulla Dashboard
+                </h2>
+                <button id="closeInfoModal" 
+                        class="modal-close"
+                        aria-label="Chiudi finestra informazioni">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
+                </button>
+            </div>
 
-                <div class="space-y-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Cosa sono i Patti di Collaborazione?</h3>
-                        <p class="text-gray-600 leading-relaxed">
+            <div class="modal-body">
+                <div style="display: grid; gap: 2rem;">
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Cosa sono i Patti di Collaborazione?</h3>
+                        <p style="color: var(--color-gray-600); line-height: 1.6;">
                             I Patti di Collaborazione sono accordi tra il Comune di Palermo e cittadini, gruppi informali, 
                             associazioni, organizzazioni di volontariato e altri enti del Terzo Settore per la cura 
                             e rigenerazione dei beni comuni urbani. Questi strumenti permettono di realizzare interventi 
                             di miglioramento dell'ambiente urbano attraverso la partecipazione attiva della cittadinanza.
                         </p>
-                    </div>
+                    </section>
 
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Come utilizzare la Dashboard</h3>
-                        <div class="space-y-3 text-gray-600">
-                            <div class="flex items-start space-x-3">
-                                <div class="bg-blue-100 rounded-full p-1 mt-1">
-                                    <i data-lucide="map" class="h-4 w-4 text-blue-600"></i>
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Come utilizzare la Dashboard</h3>
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(59, 130, 246, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="map" style="width: 1rem; height: 1rem; color: var(--color-accent);" aria-hidden="true"></i>
                                 </div>
                                 <div>
-                                    <p><strong>Mappa Interattiva:</strong> Visualizza la posizione geografica di tutti i patti. 
+                                    <p style="color: var(--color-gray-600);"><strong>Mappa Interattiva:</strong> Visualizza la posizione geografica di tutti i patti. 
                                     Clicca sui marker colorati per vedere i dettagli di ogni progetto.</p>
                                 </div>
                             </div>
                             
-                            <div class="flex items-start space-x-3">
-                                <div class="bg-green-100 rounded-full p-1 mt-1">
-                                    <i data-lucide="filter" class="h-4 w-4 text-green-600"></i>
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="filter" style="width: 1rem; height: 1rem; color: var(--color-success);" aria-hidden="true"></i>
                                 </div>
                                 <div>
-                                    <p><strong>Filtri:</strong> Utilizza il pannello laterale per filtrare i patti per stato, 
+                                    <p style="color: var(--color-gray-600);"><strong>Filtri:</strong> Utilizza il pannello laterale per filtrare i patti per stato, 
                                     UPL, quartiere, circoscrizione o cercare per titolo.</p>
                                 </div>
                             </div>
                             
-                            <div class="flex items-start space-x-3">
-                                <div class="bg-yellow-100 rounded-full p-1 mt-1">
-                                    <i data-lucide="bar-chart-3" class="h-4 w-4 text-yellow-600"></i>
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="bar-chart-3" style="width: 1rem; height: 1rem; color: var(--color-warning);" aria-hidden="true"></i>
                                 </div>
                                 <div>
-                                    <p><strong>Grafici e Statistiche:</strong> Visualizza la distribuzione dei patti per stato 
+                                    <p style="color: var(--color-gray-600);"><strong>Grafici e Statistiche:</strong> Visualizza la distribuzione dei patti per stato 
                                     e monitora i progressi attraverso statistiche aggiornate.</p>
                                 </div>
                             </div>
                             
-                            <div class="flex items-start space-x-3">
-                                <div class="bg-purple-100 rounded-full p-1 mt-1">
-                                    <i data-lucide="table" class="h-4 w-4 text-purple-600"></i>
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(139, 92, 246, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="table" style="width: 1rem; height: 1rem; color: var(--status-monitoraggio);" aria-hidden="true"></i>
                                 </div>
                                 <div>
-                                    <p><strong>Vista Tabella:</strong> Accedi a una vista dettagliata in formato tabella 
+                                    <p style="color: var(--color-gray-600);"><strong>Vista Tabella:</strong> Accedi a una vista dettagliata in formato tabella 
                                     con tutti i dati strutturati e ordinabili.</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Legenda Stati</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: #10b981;"></div>
-                                <span class="text-sm">Patto stipulato</span>
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Legenda Stati</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-stipulato);"></div>
+                                <span style="font-size: 0.875rem;">Patto stipulato</span>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: #f59e0b;"></div>
-                                <span class="text-sm">Istruttoria in corso</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-istruttoria);"></div>
+                                <span style="font-size: 0.875rem;">Istruttoria in corso</span>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: #f97316;"></div>
-                                <span class="text-sm">In attesa di integrazione</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-integrazione);"></div>
+                                <span style="font-size: 0.875rem;">In attesa di integrazione</span>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: #8b5cf6;"></div>
-                                <span class="text-sm">Proroga/Monitoraggio</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-monitoraggio);"></div>
+                                <span style="font-size: 0.875rem;">Proroga/Monitoraggio</span>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: #ef4444;"></div>
-                                <span class="text-sm">Patto respinto</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-respinto);"></div>
+                                <span style="font-size: 0.875rem;">Patto respinto</span>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <div class="flex items-start space-x-3">
-                            <i data-lucide="lightbulb" class="h-5 w-5 text-blue-600 mt-1"></i>
+                    <div style="background: rgba(59, 130, 246, 0.05); border-radius: var(--border-radius); padding: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                            <i data-lucide="lightbulb" style="width: 1.25rem; height: 1.25rem; color: var(--color-accent); margin-top: 0.25rem;" aria-hidden="true"></i>
                             <div>
-                                <h4 class="font-semibold text-blue-800 mb-1">Suggerimento</h4>
-                                <p class="text-blue-700 text-sm">
+                                <h4 style="font-weight: 600; color: var(--color-accent); margin-bottom: 0.25rem;">Suggerimento</h4>
+                                <p style="color: var(--color-gray-700); font-size: 0.875rem;">
                                     Su dispositivi desktop, il pannello dei controlli è sempre visibile. 
                                     Su dispositivi mobili, utilizza il pulsante di apertura per accedervi.
                                 </p>
@@ -601,102 +400,117 @@
         </div>
     </div>
 
-    <!-- Popup Tabella Dati -->
-    <div id="tableModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center p-4" style="z-index: 10000;">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-7xl max-h-[90vh] overflow-hidden fade-in">
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="table" class="h-5 w-5 text-blue-600"></i>
-                    <h2 class="text-xl font-bold text-gray-800">Elenco Patti di Collaborazione</h2>
-                    <div class="text-sm text-gray-600 ml-4">
+    <!-- TABLE MODAL -->
+    <div id="tableModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="tableModalTitle"
+         aria-modal="true">
+        <div class="modal-content" style="max-width: 95vw; width: 100%;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="table" class="h-5 w-5" style="color: var(--color-accent);" aria-hidden="true"></i>
+                    <h2 id="tableModalTitle" class="modal-title">Elenco Patti di Collaborazione</h2>
+                    <div style="font-size: 0.875rem; color: var(--color-gray-600); margin-left: 1rem;">
                         <span id="tableCount">0</span> elementi visualizzati
                     </div>
                 </div>
-                <button id="closeTableModal" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="h-6 w-6"></i>
+                <button id="closeTableModal" 
+                        class="modal-close"
+                        aria-label="Chiudi tabella dati">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
                 </button>
             </div>
-            <div class="overflow-auto max-h-[calc(90vh-120px)]">
-                <table class="w-full">
-                    <thead class="bg-gray-50 sticky top-0">
-                        <tr id="tableHeader">
-                            <!-- Popolato dinamicamente -->
+            
+            <div class="table-container">
+                <table class="data-table" role="table">
+                    <thead>
+                        <tr id="tableHeader" role="row">
+                            <!-- Populated dynamically -->
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-gray-200">
-                        <!-- Popolato dinamicamente -->
+                    <tbody id="tableBody">
+                        <!-- Populated dynamically -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Modale scheda dettagli -->
-    <div id="pattoModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center p-4" style="z-index: 10000;">
-        <div class="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto fade-in">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 id="modalTitle" class="text-2xl font-bold text-gray-800"></h2>
-                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <i data-lucide="x" class="h-6 w-6"></i>
-                    </button>
-                </div>
+    <!-- DETAILS MODAL -->
+    <div id="pattoModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="pattoModalTitle"
+         aria-modal="true">
+        <div class="modal-content details-modal">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title">Dettagli Patto</h2>
+                <button id="closeModal" 
+                        class="modal-close"
+                        aria-label="Chiudi dettagli patto">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
+                </button>
+            </div>
 
-                <div class="modal-content">
-                    <!-- Informazioni principali -->
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="font-semibold text-gray-700 mb-3">Dettagli Patto</h3>
-                            <div id="pattoDetails" class="bg-gray-50 rounded-lg p-4 space-y-3">
-                                <!-- Popolato dinamicamente -->
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem; align-items: start;">
+                    <!-- Left Column - Main Details -->
+                    <div style="display: grid; gap: 1.5rem;">
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Dettagli Patto</h3>
+                            <div id="pattoDetails" style="background: var(--color-gray-50); border-radius: var(--border-radius); padding: 1.5rem; display: grid; gap: 1rem; font-size: 0.95rem;">
+                                <!-- Populated dynamically -->
                             </div>
-                        </div>
+                        </section>
 
-                        <div>
-                            <h3 class="font-semibold text-gray-700 mb-3">Stato di Avanzamento</h3>
-                            <div id="pattoStatus" class="inline-block px-4 py-2 rounded-lg text-white font-medium">
-                                <!-- Popolato dinamicamente -->
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Stato di Avanzamento</h3>
+                            <div id="pattoStatus" class="status-badge">
+                                <!-- Populated dynamically -->
                             </div>
-                        </div>
+                        </section>
 
-                        <div id="pattoNotesContainer" class="hidden">
-                            <h3 class="font-semibold text-gray-700 mb-3">Note</h3>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <p id="pattoNotes" class="text-sm"></p>
+                        <section id="pattoNotesContainer" class="hidden">
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Note</h3>
+                            <div style="background: var(--color-gray-50); border-radius: var(--border-radius); padding: 1.5rem;">
+                                <p id="pattoNotes" style="font-size: 0.9rem; line-height: 1.6;"></p>
                             </div>
-                        </div>
+                        </section>
 
-                        <!-- Collegamenti -->
-                        <div>
-                            <h3 class="font-semibold text-gray-700 mb-3">Collegamenti</h3>
-                            <div id="pattoLinks" class="flex flex-wrap gap-2">
-                                <!-- Popolato dinamicamente -->
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Collegamenti</h3>
+                            <div id="pattoLinks" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                                <!-- Populated dynamically -->
                             </div>
-                        </div>
+                        </section>
 
-                        <!-- Foto -->
-                        <div id="photoContainer" class="hidden">
-                            <h3 class="font-semibold text-gray-700 mb-3">Foto</h3>
-                            <div class="rounded-lg overflow-hidden border">
-                                <img id="pattoPhoto" class="w-full h-48 object-cover" alt="">
+                        <section id="photoContainer" class="hidden">
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Foto</h3>
+                            <div style="border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color);">
+                                <img id="pattoPhoto" style="width: 100%; height: 240px; object-fit: cover;" alt="">
                             </div>
-                        </div>
+                        </section>
                     </div>
 
-                    <!-- Mappa dettagli -->
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="font-semibold text-gray-700 mb-3">Posizione</h3>
-                            <div id="miniMap" class="modal-mini-map rounded-lg overflow-hidden border"></div>
-                        </div>
+                    <!-- Right Column - Map -->
+                    <div style="position: sticky; top: 0;">
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Posizione</h3>
+                            <div id="miniMap" 
+                                 style="height: 400px; border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color); background: var(--color-gray-100);"
+                                 role="application"
+                                 aria-label="Mappa posizione patto"></div>
+                        </section>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript per monitoraggio Patti -->
-    <script src="js/monitoraggio.js"></script>
+    <!-- JavaScript -->
+    <script src="js/monitoraggio_p1.js"></script>
+	<script src="js/monitoraggio_p2.js"></script>
 
 </body>
 </html>
