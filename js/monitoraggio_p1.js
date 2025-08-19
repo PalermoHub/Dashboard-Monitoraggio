@@ -12,8 +12,8 @@ let currentSuggestionIndex = -1;
 // Coordinate precise di Palermo
 const PALERMO_CENTER = [38.1157, 13.3615]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
- //   [38.0900, 13.3200], // Sud-Ovest (più ampio)
- //   [38.2500, 13.4000]  // Nord-Est (più ampio)
+    [38.0500, 13.2500], // Sud-Ovest (include area metropolitana)
+    [38.3000, 13.4200]  // Nord-Est (include Sferracavallo e Bagheria)
 ];
 
 // Colori per stato di avanzamento
@@ -63,7 +63,7 @@ function initializeMap() {
     }).setView(PALERMO_CENTER, 12);
     
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data © <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+        attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
     }).addTo(map);
     
     markersLayer = L.layerGroup().addTo(map);
@@ -99,7 +99,7 @@ function updateTable() {
         return;
     }
 
-    // Campi da escludere - lista più specifica e completa
+    // Campi da escludere - lista piÃ¹ specifica e completa
     const excludedFields = [
         'foto', 'googlemaps', 'geouri', 'upl',
         'lat.', 'long.', 'lat', 'lng', 'coordinate',
@@ -114,13 +114,13 @@ function updateTable() {
         'rappresentante',
         'indirizzo',
         'stato di avanzamento',
-        'nota per attività conclusive'
+        'nota per attivitÃ  conclusive'
     ];
     
     // Ottieni tutte le chiavi disponibili
     const allKeys = Object.keys(filteredData[0]);
     
-    // Filtra le chiavi escludendo quelle non desiderate con controlli più rigidi
+    // Filtra le chiavi escludendo quelle non desiderate con controlli piÃ¹ rigidi
     const filteredKeys = allKeys.filter(key => {
         const keyLower = key.toLowerCase().trim();
         return !excludedFields.some(excluded => {
@@ -246,7 +246,7 @@ async function loadData() {
         
     } catch (error) {
         console.error('Errore nel caricamento dei dati:', error);
-        showError('Errore nel caricamento dei dati. Riprova più tardi.');
+        showError('Errore nel caricamento dei dati. Riprova piÃ¹ tardi.');
     }
 }
 
@@ -344,7 +344,7 @@ function updateFilters() {
         const select = document.getElementById(id);
         const currentValue = select.value;
         
-        // Evidenzia visivamente se il filtro è attivo
+        // Evidenzia visivamente se il filtro Ã¨ attivo
         updateFilterAppearance(select, currentValue);
         
         // Pulisci opzioni esistenti (tranne la prima)
@@ -367,7 +367,7 @@ function updateFilters() {
         
         if (['filterUpl', 'filterQuartiere', 'filterCircoscrizione'].includes(id)) {
             
-            // Applica filtro circoscrizione se selezionato e non è il filtro corrente
+            // Applica filtro circoscrizione se selezionato e non Ã¨ il filtro corrente
             if (currentFilters.circoscrizione && id !== 'filterCircoscrizione') {
                 const circKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim().includes('circoscrizione')
@@ -380,7 +380,7 @@ function updateFilters() {
                 }
             }
             
-            // Applica filtro quartiere se selezionato e non è il filtro corrente
+            // Applica filtro quartiere se selezionato e non Ã¨ il filtro corrente
             if (currentFilters.quartiere && id !== 'filterQuartiere') {
                 const quartKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim().includes('quartiere')
@@ -393,7 +393,7 @@ function updateFilters() {
                 }
             }
             
-            // Applica filtro UPL se selezionato e non è il filtro corrente
+            // Applica filtro UPL se selezionato e non Ã¨ il filtro corrente
             if (currentFilters.upl && id !== 'filterUpl') {
                 const uplKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim() === 'upl'
@@ -425,12 +425,12 @@ function updateFilters() {
             select.appendChild(option);
         });
         
-        // Mantieni la selezione se il valore è ancora valido
+        // Mantieni la selezione se il valore Ã¨ ancora valido
         if (uniqueValues.includes(currentValue)) {
             select.value = currentValue;
         } else {
             select.value = '';
-            console.log(`Valore ${currentValue} non più valido per ${key}, resettato`);
+            console.log(`Valore ${currentValue} non piÃ¹ valido per ${key}, resettato`);
         }
         
         // Aggiorna l'aspetto dopo aver impostato il valore
@@ -568,12 +568,12 @@ function centerMapOnFilteredData() {
     }
 
     if (filteredData.length === 1) {
-        // Se c'è un solo punto, centralo
+        // Se c'Ã¨ un solo punto, centralo
         map.setView([filteredData[0].lat, filteredData[0].lng], 16);
         return;
     }
 
-    // Se ci sono più punti, calcola i bounds
+    // Se ci sono piÃ¹ punti, calcola i bounds
     const coordinates = filteredData.map(item => [item.lat, item.lng]);
     const bounds = L.latLngBounds(coordinates);
     
@@ -628,7 +628,7 @@ function updateCounterWithAnimation(elementId, newValue) {
     }, 20);
 }
 
-// Aggiornamento grafico con interattività e etichette migliorato - OTTIMIZZATO
+// Aggiornamento grafico con interattivitÃ  e etichette migliorato - OTTIMIZZATO
 function updateChart() {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
@@ -1027,8 +1027,60 @@ function setupAutocompleteEventListeners() {
     });
 }
 
-// Setup event listeners - OTTIMIZZATO
+// Setup event listeners - OTTIMIZZATO CON MOBILE TOGGLE
 function setupEventListeners() {
+    // === MOBILE TOGGLE - GESTIONE FILTRI MOBILE ===
+    const mobileToggle = document.getElementById('mobileFiltersToggle');
+    const filtersContent = document.getElementById('filtersContent');
+    
+    console.log('Setup mobile toggle:', { mobileToggle, filtersContent });
+    
+    if (mobileToggle && filtersContent) {
+        mobileToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isOpen = filtersContent.classList.contains('open');
+            console.log('Mobile toggle clicked, currently open:', isOpen);
+            
+            if (isOpen) {
+                filtersContent.classList.remove('open');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+                console.log('Closing mobile filters');
+            } else {
+                filtersContent.classList.add('open');
+                mobileToggle.setAttribute('aria-expanded', 'true');
+                console.log('Opening mobile filters');
+            }
+            
+            console.log('Filter content classes after toggle:', filtersContent.className);
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!mobileToggle.contains(e.target) && !filtersContent.contains(e.target)) {
+                if (filtersContent.classList.contains('open')) {
+                    console.log('Closing filters due to outside click');
+                    filtersContent.classList.remove('open');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+        
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && filtersContent.classList.contains('open')) {
+                console.log('Closing filters due to escape key');
+                filtersContent.classList.remove('open');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    } else {
+        console.error('Mobile toggle elements not found:', { mobileToggle, filtersContent });
+    }
+    
+    // === ALTRI EVENT LISTENERS ===
+    
     // Filtri - eventi separati per gestire la cascata
     ['filterStato'].forEach(id => {
         document.getElementById(id).addEventListener('change', applyFilters);
@@ -1194,7 +1246,7 @@ function switchMapLayer(layer) {
             attribution: '&copy; Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
         })
         : L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-            attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data © <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+            attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
         });
     
     tileLayer.addTo(map);

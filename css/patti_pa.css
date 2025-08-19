@@ -2,7 +2,10 @@
 /* MODERN DASHBOARD CSS */
 /* ==================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@font-face {
+    font-family: 'Titillium Web';
+    src: url(https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap);
+}
 
 /* ==================== */
 /* CSS VARIABLES        */
@@ -53,7 +56,7 @@
     --space-16: 4rem;
     
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family:  "Titillium Web", sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
@@ -279,10 +282,6 @@ body {
 
 .mobile-toggle:active {
     transform: translateY(0);
-}
-
-.mobile-toggle:hover {
-    background: var(--color-accent-light);
 }
 
 .sidebar-content {
@@ -888,6 +887,10 @@ body {
     }
 }
 
+/* ==================== */
+/* MOBILE RESPONSIVE    */
+/* ==================== */
+
 /* Mobile */
 @media (max-width: 768px) {
     :root {
@@ -916,12 +919,54 @@ body {
         gap: var(--space-3);
     }
     
+    /* MOBILE TOGGLE - CRITICAL STYLES */
     .mobile-toggle {
-        display: flex;
+        display: flex !important;
+        position: relative;
+        z-index: 1100;
+        background: var(--color-accent);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        padding: var(--space-3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 48px;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .mobile-toggle:hover {
+        background: var(--color-accent-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .mobile-toggle:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .mobile-toggle[aria-expanded="true"] {
+        background: var(--color-primary);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    /* SIDEBAR CONTENT - MOBILE BEHAVIOR */
+    .sidebar {
+        position: relative;
+        padding-bottom: var(--space-2);
+        height: auto;
+        overflow: visible;
     }
     
     .sidebar-content {
+        /* Hidden by default on mobile */
         display: none !important;
+        
+        /* Position and styling when shown */
         position: absolute;
         top: 100%;
         left: 0;
@@ -929,44 +974,54 @@ body {
         background: var(--color-white);
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--border-radius);
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--shadow-xl);
         padding: var(--space-4);
         z-index: var(--z-modal);
         max-height: 70vh;
         overflow-y: auto;
         flex-direction: column;
+        gap: var(--space-4);
+        margin-top: var(--space-2);
     }
     
+    /* CRITICAL: When open class is added */
     .sidebar-content.open {
         display: flex !important;
-        animation: slideDown 0.2s ease-out;
+        animation: slideDownMobile 0.3s ease-out forwards;
     }
     
-    @keyframes slideDown {
+    /* Mobile slide animation */
+    @keyframes slideDownMobile {
         from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-20px);
+            max-height: 0;
         }
         to {
             opacity: 1;
             transform: translateY(0);
+            max-height: 70vh;
         }
     }
     
-    .sidebar {
-        position: relative;
-        padding-bottom: var(--space-2);
-        height: auto;
+    /* Ensure filter groups stack properly on mobile */
+    .filter-group {
+        width: 100%;
+        margin-bottom: var(--space-4);
     }
     
-    .sidebar-content {
-        flex-direction: column;
+    .action-buttons {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
     }
     
     .chart-section {
         margin-top: var(--space-4);
+        padding-top: var(--space-4);
+        border-top: var(--border-width) solid var(--border-color);
     }
     
+    /* Map adjustments */
     .map-area {
         min-height: 400px;
     }
@@ -975,6 +1030,7 @@ body {
         height: auto;
     }
     
+    /* Stats adjustments */
     .stats-container {
         align-self: auto;
     }
@@ -992,6 +1048,7 @@ body {
         font-size: var(--font-size-xl);
     }
     
+    /* Footer adjustments */
     .dashboard-footer {
         padding: var(--space-3);
         flex-direction: column;
@@ -1007,11 +1064,19 @@ body {
 
 /* Small mobile */
 @media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
+    .mobile-toggle {
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--space-2);
     }
     
-    .action-buttons {
+    .sidebar-content {
+        left: -var(--space-2);
+        right: -var(--space-2);
+        max-height: 60vh;
+    }
+    
+    .stats-grid {
         grid-template-columns: 1fr;
     }
     
