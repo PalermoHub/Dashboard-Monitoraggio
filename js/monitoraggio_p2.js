@@ -3,26 +3,50 @@
             const mobileToggle = document.getElementById('mobileFiltersToggle');
             const filtersContent = document.getElementById('filtersContent');
             
+            console.log('Mobile toggle setup:', { mobileToggle, filtersContent });
+            
             if (mobileToggle && filtersContent) {
-                mobileToggle.addEventListener('click', function() {
+                mobileToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const isOpen = filtersContent.classList.contains('open');
+                    console.log('Mobile toggle clicked, currently open:', isOpen);
                     
                     if (isOpen) {
                         filtersContent.classList.remove('open');
                         mobileToggle.setAttribute('aria-expanded', 'false');
+                        console.log('Closing mobile filters');
                     } else {
                         filtersContent.classList.add('open');
                         mobileToggle.setAttribute('aria-expanded', 'true');
+                        console.log('Opening mobile filters');
                     }
+                    
+                    console.log('Filter content classes after toggle:', filtersContent.className);
                 });
                 
                 // Close on outside click
                 document.addEventListener('click', function(e) {
                     if (!mobileToggle.contains(e.target) && !filtersContent.contains(e.target)) {
+                        if (filtersContent.classList.contains('open')) {
+                            console.log('Closing filters due to outside click');
+                            filtersContent.classList.remove('open');
+                            mobileToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && filtersContent.classList.contains('open')) {
+                        console.log('Closing filters due to escape key');
                         filtersContent.classList.remove('open');
                         mobileToggle.setAttribute('aria-expanded', 'false');
                     }
                 });
+            } else {
+                console.error('Mobile toggle elements not found:', { mobileToggle, filtersContent });
             }
 
             // Enhanced modal handling
