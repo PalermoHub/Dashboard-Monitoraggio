@@ -1,0 +1,593 @@
+/* ==================== */
+/* TIPOGRAFIA           */
+/* ==================== */
+
+@font-face {
+    font-family: 'Titillium Web';
+    src: url(https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap);
+}
+
+/* Classi per pesi font Titillium Web */
+.titillium-web-extralight {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.titillium-web-light {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.titillium-web-regular {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.titillium-web-semibold {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.titillium-web-bold {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.titillium-web-black {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+/* Varianti italiche */
+.titillium-web-extralight-italic {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+}
+
+.titillium-web-light-italic {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.titillium-web-regular-italic {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.titillium-web-semibold-italic {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.titillium-web-bold-italic {
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.api {
+    display: block;
+    position: relative;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 10px;
+    user-select: none;
+    color: #495057;
+}
+
+/* Reset e layout a tutto schermo - OTTIMIZZATO */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: "Titillium Web", sans-serif;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: none !important;
+    padding: 0 0.5rem;
+}
+
+.custom-marker {
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+
+.modal {
+    backdrop-filter: blur(4px);
+    z-index: 10000 !important;
+}
+
+/* Altezza grafico ridotta */
+.chart-container {
+    position: relative;
+    height: 180px !important;
+    width: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.stat-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+    max-height: 150px; /* Ridotto */
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-suggestion {
+    padding: 0.375rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.75rem;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.highlighted {
+    background-color: #f3f4f6;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+/* Mini mappa nella modale - altezza ridotta */
+.modal-mini-map {
+    height: 350px !important;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Layout modale ottimizzato */
+.modal-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .modal-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Footer AGID compliant - compatto */
+.footer-agid {
+    background-color: #0066cc;
+    border-top: 2px solid #004080;
+}
+
+.footer-agid .footer-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 0;
+}
+
+.footer-agid .footer-section:last-child {
+    border-bottom: none;
+}
+
+.footer-agid .footer-links a {
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.footer-agid .footer-links a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.footer-agid .footer-bottom {
+    background-color: #004080;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.75rem;
+}
+
+/* Tooltip personalizzato - compatto */
+.custom-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    color: white !important;
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.custom-tooltip:before {
+    border-top-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Pannello laterale ottimizzato per viewport */
+.sidebar-panel {
+    height: calc(100vh - 140px) !important; /* Altezza dinamica basata sul viewport */
+    overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-panel {
+        height: auto !important;
+    }
+}
+
+/* Tabella dati compatta */
+.text-sm {
+    font-size: 0.7rem!important;
+    line-height: 0.875rem!important;
+}
+
+.px-6 {
+    padding-left: 0.375rem!important;
+    padding-right: 0.375rem!important;
+}
+
+.py-6 {
+    padding-top: 0.375rem!important;
+    padding-bottom: 0.375rem!important;
+}
+
+/* Badge beta ottimizzato */
+.beta-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 3px rgba(255, 107, 107, 0.3);
+    animation: pulse 2s infinite;
+    transform: rotate(deg);
+}
+
+/* Stili per evidenziare i filtri attivi */
+.filter-active {
+    border-color: #3b82f6 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
+    font-weight: 600 !important;
+}
+
+.filter-active:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Evidenziazione per select attivi */
+select.filter-active {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+}
+
+/* Transizioni per i filtri */
+select, input[type="text"] {
+    transition: all 0.15s ease-in-out;
+}
+
+/* Animazione pulse ottimizzata */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Indicatore visivo per conteggi delle statistiche */
+.stat-counter {
+    transition: all 0.2s ease-in-out;
+    transform: scale(1);
+}
+
+.stat-counter.updating {
+    transform: scale(1.05);
+    color: #3b82f6;
+}
+
+/* Hover effect ottimizzato per le card statistiche */
+.stat-card:hover .stat-counter {
+    transform: scale(1.02);
+}
+
+/* Stili per feedback visivo dei filtri cascata */
+.filter-cascading {
+    position: relative;
+}
+
+.filter-cascading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 40%, rgba(59, 130, 246, 0.1) 50%, transparent 60%);
+    animation: cascade-shimmer 0.8s ease-in-out;
+    pointer-events: none;
+    border-radius: 0.5rem;
+}
+
+@keyframes cascade-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Miglioramento per la tabella - righe filtrate */
+.table-filtered-highlight {
+    background-color: #f0f9ff !important;
+    border-left: 3px solid #3b82f6;
+}
+
+/* Indicatore per il numero di elementi filtrati */
+.filter-count-badge {
+    display: inline-block;
+    background: #10b981;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 1px 4px;
+    border-radius: 8px;
+    margin-left: 6px;
+    animation: bounce-in 0.2s ease-out;
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Stili responsive ottimizzati */
+@media (max-width: 768px) {
+    .sidebar-panel {
+        padding: 0.75rem;
+    }
+    
+    .filter-active {
+        border-width: 1.5px !important;
+    }
+    
+    .chart-container {
+        height: 150px !important;
+    }
+}
+
+/* Stile per evidenziare quale filtro geografico è attualmente selezionato */
+.filter-group {
+    position: relative;
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.filter-group.has-active-filter {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Indicatore per ordine di applicazione dei filtri */
+.filter-order-indicator {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #3b82f6;
+    color: white;
+    font-size: 0.5rem;
+    font-weight: bold;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* OTTIMIZZAZIONI VIEWPORT SPECIFICHE */
+
+/* Container principale a viewport completo */
+.viewport-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header compatto */
+.compact-header {
+    flex-shrink: 0;
+    min-height: auto;
+}
+
+/* Contenuto principale che occupa lo spazio rimanente */
+.main-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Footer compatto */
+.compact-footer {
+    flex-shrink: 0;
+    min-height: auto;
+}
+
+/* Main compatto */
+.compact-main {
+    height: 100%;
+    padding: 0.75rem !important;
+    overflow: hidden;
+}
+
+/* Sidebar ottimizzata */
+.optimized-sidebar {
+    height: 100% !important;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.optimized-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.optimized-sidebar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.optimized-sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+/* Mappa ottimizzata per viewport - RIDOTTA per le statistiche */
+.optimized-map {
+    height: 100% !important;
+    min-height: 250px;
+    max-height: calc(100vh - 100px);
+}
+
+/* Statistiche compatte */
+.compact-stats {
+    margin-top: 0.5rem !important;
+}
+
+.compact-stats .stat-card {
+    padding: 0.5rem !important;
+}
+
+.compact-stat-value {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+    font-weight: 700;
+}
+
+.compact-stat-label {
+    font-size: 0.65rem !important;
+    line-height: 0.875rem !important;
+    margin-top: 0.125rem;
+}
+
+/* Layout grid ottimizzato */
+@media (min-width: 1024px) {
+    .main-content .grid {
+        height: 100%;
+    }
+    
+    .main-content .lg\\:col-span-3 {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+}
+
+/* Responsive ottimizzato per schermi piccoli */
+@media (max-width: 1023px) {
+    .optimized-sidebar {
+        height: auto !important;
+        max-height: 40vh;
+    }
+    
+    .optimized-map {
+        height: 35vh !important;
+        min-height: 200px;
+        max-height: none;
+    }
+    
+    .compact-stats .grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .compact-stat-value {
+        font-size: 1rem !important;
+    }
+    
+    .compact-stat-label {
+        font-size: 0.6rem !important;
+    }
+}
+
+/* Ulteriori ottimizzazioni per schermi molto piccoli */
+@media (max-width: 640px) {
+    .compact-main {
+        padding: 0.5rem !important;
+    }
+    
+    .compact-stats .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.25rem;
+    }
+    
+    .compact-header .text-xl {
+        font-size: 1rem !important;
+    }
+    
+    .compact-header .text-sm {
+        font-size: 0.75rem !important;
+    }
+}
+/*
+.rounded-xl {
+  border-radius: 0.75rem;
+   min-height: 250px;
+    max-height: calc(100vh - 100px);
+}*/
