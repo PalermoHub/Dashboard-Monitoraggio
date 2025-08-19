@@ -979,7 +979,7 @@ body {
         z-index: var(--z-modal);
         max-height: 70vh;
         overflow-y: auto;
-        flex-direction: row;
+        flex-direction: column;
         gap: var(--space-4);
         margin-top: var(--space-2);
     }
@@ -1181,47 +1181,5 @@ body {
     .filter-input,
     .filter-select {
         border-width: 2px;
-    }
-}
-
-@media (max-width: 480px) {
-   /* Statistiche in 3 colonne più strette */
-    .stats-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 2px !important; /* Gap minimale */
-    }
-    
-    .stat-item {
-        padding: var(--space-1) !important; /* Padding minimale */
-    }
-    
-    .stat-value {
-        font-size: var(--font-size-base) !important; /* Ancora più piccolo */
-    }
-    
-    .stat-label {
-        font-size: 0.55rem !important; /* Molto piccolo */
-    }
-    
-    /* Legenda ancora più compatta */
-    .legend-items {
-        gap: 1px !important;
-    }
-    
-    .legend-item {
-        font-size: 0.6rem !important;
-        gap: var(--space-1) !important;
-    }
-    
-    .legend-color {
-        width: 8px !important;
-        height: 8px !important;
-    }
-    
-    /* Cards più compatte */
-    .legend-card,
-    .stats-card {
-        padding: var(--space-2) !important;
-        margin-bottom: var(--space-2) !important;
     }
 }
