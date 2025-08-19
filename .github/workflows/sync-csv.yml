@@ -3,8 +3,7 @@ name: Sync CSV from Google Sheet
 on:
   schedule:
     # Esegui alle 14:30 e 22:30 UTC (16:30 e 00:30 ora italiana in inverno)
-    - cron: '30 14 * * *'  # 14:30 UTC 
-    - cron: '30 22 * * *'  # 22:30 UTC
+    - cron: '35 * * * *'  # Ogni ora al minuto 32
   workflow_dispatch: # Permette esecuzione manuale
 
 jobs:
