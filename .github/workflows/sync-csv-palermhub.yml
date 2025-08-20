@@ -31,9 +31,9 @@ jobs:
             -H "User-Agent: Mozilla/5.0 (compatible; GitHub-Actions)" \
             -H "Accept: text/csv,application/csv,*/*" \
             -H "Cache-Control: no-cache" \
-            "$SHEET_URL" -o new_palermo-hub_*
+            "$SHEET_URL" -o new_palermo-hub.csv
             
-          if [ $? -eq 0 ] && [ -s new_palermo-hub_* ]; then
+          if [ $? -eq 0 ] && [ -s new_palermo-hub.csv ]; then
             break
           else
             echo "⚠️ Tentativo $i fallito, riprovo..."
@@ -42,21 +42,21 @@ jobs:
         done
         
         # Verifica finale
-        if [ ! -s new_palermo-hub_* ]; then
+        if [ ! -s new_palermo-hub.csv ]; then
           echo "❌ Errore: File CSV vuoto dopo tutti i tentativi"
           exit 1
         fi
         
         # Controlla che non sia HTML
-        if grep -q -i "<html>\|<head>\|<body>" new_palermo-hub_*; then
+        if grep -q -i "<html>\|<head>\|<body>" new_palermo-hub.csv; then
           echo "❌ Errore: Ricevuto HTML invece di CSV"
           echo "🔍 Contenuto ricevuto:"
-          head -10 new_palermo-hub_*
+          head -10 new_palermo-hub.csv
           exit 1
         fi
         
         # Validazione CSV base
-        LINES=$(wc -l < new_palermo-hub_*)
+        LINES=$(wc -l < new_palermo-hub.csv)
         if [ "$LINES" -lt 1 ]; then
           echo "❌ CSV vuoto o invalido"
           exit 1
@@ -65,7 +65,7 @@ jobs:
         echo "✅ CSV scaricato con successo"
         echo "📊 Righe totali: $LINES"
         echo "🔍 Prima riga:"
-        head -1 new_palermo-hub_*
+        head -1 new_palermo-hub.csv
         
     - name: Check for changes
       id: changes
@@ -73,8 +73,8 @@ jobs:
         # Crea cartella dati-palermo-hub se non esiste
         mkdir -p dati-palermo-hub
         
-        if [ -f "dati-palermo-hub/palermo-hub_*" ]; then
-          if cmp -s "dati-palermo-hub/palermo-hub_*" "new_palermo-hub_*"; then
+        if [ -f "dati-palermo-hub/palermo-hub.csv" ]; then
+          if cmp -s "dati-palermo-hub/palermo-hub.csv" "new_palermo-hub.csv"; then
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "📊 Nessuna modifica rilevata"
           else
@@ -98,17 +98,17 @@ jobs:
         mkdir -p "backups/$DATE"
         
         # Se esiste il file principale, fai backup
-        if [ -f "dati-palermo-hub/palermo-hub_*" ]; then
+        if [ -f "dati-palermo-hub/palermo-hub.csv" ]; then
           BACKUP_FILE="backups/$DATE/monit_palermo-hub_pa_$TIME.csv"
           if [ ! -f "$BACKUP_FILE" ]; then
-            cp "dati-palermo-hub/palermo-hub_*" "$BACKUP_FILE"
+            cp "dati-palermo-hub/palermo-hub.csv" "$BACKUP_FILE"
             echo "💾 Backup creato: $BACKUP_FILE"
           fi
         fi
         
         # Aggiorna il file principale nella cartella dati-palermo-hub
-        mv "new_palermo-hub_*" "dati-palermo-hub/palermo-hub_*"
-        echo "🔄 File principale aggiornato: dati-palermo-hub/palermo-hub_*"
+        mv "new_palermo-hub.csv" "dati-palermo-hub/palermo-hub.csv"
+        echo "🔄 File principale aggiornato: dati-palermo-hub/palermo-hub.csv"
         
         # Determina se è l'esecuzione serale (22:30 UTC = ultima della giornata)
         if [ "$HOUR" = "22" ]; then
@@ -134,7 +134,7 @@ jobs:
         git config --local user.name "GitHub Action"
         
         git add .
-        git commit -m "🔄 Aggiornamento palermo-hub_* $(date -u '+%Y-%m-%d %H:%M UTC')"
+        git commit -m "🔄 Aggiornamento palermo-hub.csv $(date -u '+%Y-%m-%d %H:%M UTC')"
         git push
         
         echo "✅ Modifiche salvate su GitHub"
@@ -143,4 +143,4 @@ jobs:
       if: steps.changes.outputs.changes == 'false'
       run: |
         echo "ℹ️ Nessuna modifica da salvare"
-        rm -f new_palermo-hub_*
+        rm -f new_palermo-hub.csv
