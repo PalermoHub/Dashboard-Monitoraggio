@@ -114,12 +114,12 @@ jobs:
         if [ "$HOUR" = "22" ]; then
           echo "🧹 Esecuzione serale - pulizia giornaliera..."
           # Mantieni solo l'ultimo file della giornata
-          LATEST_FILE=$(ls -t "backups/$DATE"/monit_palermo-hub_*.csv 2>/dev/null | head -1)
+          LATEST_FILE=$(ls -t "backups/$DATE"/palermo-hub_*.csv 2>/dev/null | head -1)
           if [ -n "$LATEST_FILE" ]; then
             # Conta quanti file ci sono prima della pulizia
             FILES_BEFORE=$(ls "backups/$DATE"/monit_palermo-hub_*.csv 2>/dev/null | wc -l)
             # Elimina tutti tranne l'ultimo
-            find "backups/$DATE" -name "monit_palermo-hub_*.csv" -not -path "$LATEST_FILE" -delete
+            find "backups/$DATE" -name "palermo-hub_*.csv" -not -path "$LATEST_FILE" -delete
             echo "✅ Pulizia completata. Mantenuto solo: $(basename "$LATEST_FILE")"
             echo "🗑️ Rimossi $(($FILES_BEFORE - 1)) file precedenti"
           fi
