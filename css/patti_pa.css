@@ -59,7 +59,7 @@
     --font-family:  "Titillium Web", sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
+    --font-size-base: .9rem;
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.25rem;
     --font-size-2xl: 1.5rem;
@@ -292,7 +292,7 @@ body {
 
 /* Filter Groups */
 .filter-group {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-2);
 }
 
 .filter-label {
@@ -1223,5 +1223,104 @@ body {
     .stats-card {
         padding: var(--space-2) !important;
         margin-bottom: var(--space-2) !important;
+    }
+}
+
+/* ==================== */
+/* NO SCROLL LAYOUT 1180px+ */
+/* ==================== */
+
+@media (min-width: 1180px) and (max-width: 1920px) {
+    .dashboard-layout {
+        height: 100vh; /* Forza altezza esatta del viewport */
+        overflow: hidden; /* Previene overflow del layout principale */
+    }
+    
+    .dashboard-main {
+        padding: var(--space-4); /* Riduce padding da space-6 a space-4 */
+        gap: var(--space-4); /* Riduce gap da space-6 a space-4 */
+        height: calc(100vh - var(--header-height) - var(--footer-height)); /* Calcola altezza esatta disponibile */
+        max-height: calc(100vh - var(--header-height) - var(--footer-height));
+        overflow: hidden;
+    }
+    
+    .sidebar {
+        height: 100%; /* Utilizza tutta l'altezza disponibile */
+        max-height: calc(100vh - var(--header-height) - var(--footer-height) - calc(var(--space-4) * 2)); /* Sottrae padding top/bottom */
+        overflow-y: auto; /* Scroll interno se necessario solo per la sidebar */
+    }
+    
+    .content-area {
+        height: calc(100vh - var(--header-height) - var(--footer-height) - calc(var(--space-4) * 2)); /* Altezza esatta */
+        max-height: calc(100vh - var(--header-height) - var(--footer-height) - calc(var(--space-4) * 2));
+        gap: var(--space-4); /* Riduce gap per ottimizzare spazio */
+        grid-template-rows: 1fr auto; /* Mantiene proporzioni */
+        overflow: hidden;
+    }
+    
+    .map-container {
+        height: 100%; /* Utilizza tutto lo spazio assegnato */
+        min-height: 400px; /* Altezza minima ragionevole */
+        max-height: calc(100vh - var(--header-height) - var(--footer-height) - 200px); /* Lascia spazio per statistiche */
+        overflow: hidden;
+    }
+    
+    .map-area {
+        height: 100%;
+        min-height: 400px;
+    }
+    
+    .stats-container {
+        flex-shrink: 0; /* Previene il restringimento */
+        max-height: 200px; /* Riduce ulteriormente l'altezza massima */
+        gap: var(--space-3); /* Riduce il gap tra legenda e statistiche */
+    }
+    
+    .legend-card,
+    .stats-card {
+        padding: var(--space-2); /* Riduce significativamente il padding interno */
+        max-height: 200px; /* Riduce l'altezza massima delle card */
+        overflow-y: auto; /* Scroll interno se necessario */
+    }
+    
+    /* Ottimizzazioni specifiche per legenda */
+    .legend-items {
+        gap: var(--space-1); /* Riduce spacing tra elementi legenda */
+    }
+    
+    .legend-item {
+        font-size: var(--font-size-xs); /* Font più piccolo per legenda */
+        gap: var(--space-2); /* Riduce gap interno */
+    }
+    
+    .legend-color {
+        width: 12px; /* Riduce dimensione indicatori colore */
+        height: 12px;
+    }
+    
+    /* Ottimizzazioni specifiche per statistiche */
+    .stats-grid {
+        gap: var(--space-2); /* Riduce gap nella griglia statistiche */
+        grid-template-columns: repeat(3, 1fr); /* Forza 3 colonne per maggiore compattezza */
+    }
+    
+    .stat-item {
+        padding: var(--space-2); /* Riduce padding degli elementi statistiche */
+    }
+    
+    .stat-value {
+        font-size: var(--font-size-lg); /* Riduce dimensione font valori */
+        margin-bottom: 2px; /* Riduce margine inferiore */
+    }
+    
+    .stat-label {
+        font-size: 0.65rem; /* Font ancora più piccolo per etichette */
+        line-height: 1.2; /* Riduce interlinea */
+    }
+    
+    /* Ottimizzazione titoli sezioni */
+    .section-title {
+        font-size: var(--font-size-xs); /* Font più piccolo per titoli */
+        margin-bottom: var(--space-2); /* Riduce margine inferiore */
     }
 }
