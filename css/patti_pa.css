@@ -1382,3 +1382,285 @@ body {
     border-color: var(--color-gray-400);
 }
 
+/* ==================== */
+/* FILTERS POPUP        */
+/* ==================== */
+
+.filters-popup {
+    position: fixed;
+    top: calc(var(--header-height) + var(--space-4));
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+    color: var(--color-white);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-xl);
+    z-index: calc(var(--z-modal) + 10);
+    display: none;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 400px;
+    max-width: 90vw;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition-slow);
+    transform-origin: center top;
+}
+
+.filters-popup.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+    animation: slideInTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+.filters-popup-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    flex-shrink: 0;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.filters-popup-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0; /* Prevent overflow */
+}
+
+.filters-popup-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.filters-popup-filters {
+    font-size: var(--font-size-xs);
+    opacity: 0.9;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    line-height: 1.4;
+}
+
+.filter-tag {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 2px var(--space-2);
+    border-radius: var(--border-radius-sm);
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    transition: var(--transition);
+}
+
+.filter-tag:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+.filters-popup-reset {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--color-white);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    font-family: inherit;
+    backdrop-filter: blur(4px);
+    min-height: 32px;
+}
+
+.filters-popup-reset:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.filters-popup-reset:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== */
+/* RESPONSIVE FILTERS POPUP */
+/* ==================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .filters-popup {
+        min-width: 350px;
+        padding: var(--space-3) var(--space-4);
+        gap: var(--space-3);
+    }
+    
+    .filters-popup-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .filters-popup-title {
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .filters-popup {
+        top: calc(var(--header-height) + var(--space-2));
+        left: var(--space-3);
+        right: var(--space-3);
+        transform: none;
+        min-width: auto;
+        max-width: none;
+        padding: var(--space-2) var(--space-4);
+        gap: var(--space-3);
+    }
+
+    @keyframes slideInTop {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .filters-popup-content {
+        gap: 2px;
+    }
+
+    .filters-popup-title {
+        font-size: var(--font-size-xs);
+    }
+
+    .filters-popup-filters {
+        font-size: 11px;
+        gap: var(--space-1);
+    }
+
+    .filter-tag {
+        font-size: 10px;
+        padding: 1px var(--space-1);
+    }
+
+    .filters-popup-reset {
+        font-size: 11px;
+        padding: var(--space-1) var(--space-2);
+        min-height: 28px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .filters-popup {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+        padding: var(--space-3);
+    }
+
+    .filters-popup-icon {
+        order: 0;
+        align-self: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .filters-popup-content {
+        order: 1;
+        text-align: center;
+    }
+
+    .filters-popup-filters {
+        justify-content: center;
+    }
+
+    .filters-popup-reset {
+        order: 2;
+        align-self: center;
+        min-width: 80px;
+    }
+}
+
+/* ==================== */
+/* ENHANCED ACCESSIBILITY */
+/* ==================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .filters-popup {
+        border: 2px solid var(--color-white);
+        background: var(--color-primary);
+    }
+    
+    .filter-tag {
+        border: 1px solid var(--color-white);
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .filters-popup-reset {
+        border: 2px solid var(--color-white);
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .filters-popup {
+        transition: opacity 0.1s ease;
+    }
+    
+    @keyframes slideInTop {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .filter-tag:hover,
+    .filters-popup-reset:hover {
+        transform: none;
+    }
+}
+
+/* Focus indicators for accessibility */
+.filters-popup-reset:focus {
+    outline: 2px solid var(--color-white);
+    outline-offset: 2px;
+}

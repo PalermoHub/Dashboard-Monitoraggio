@@ -47,6 +47,26 @@
 </head>
 
 <body class="dashboard-layout">
+
+<!-- FILTERS POPUP -->
+<div id="filtersPopup" class="filters-popup">
+    <div class="filters-popup-icon">
+        <i data-lucide="filter" class="h-4 w-4" aria-hidden="true"></i>
+    </div>
+    <div class="filters-popup-content">
+        <p class="filters-popup-title" id="filtersPopupTitle">Sono state selezionate 0 richieste</p>
+        <div class="filters-popup-filters" id="filtersPopupFilters">
+            Stai usando i filtri: <span id="activeFiltersText">Nessun filtro attivo</span>
+        </div>
+    </div>
+    <button class="filters-popup-reset" 
+            id="filtersPopupReset"
+            title="Reset tutti i filtri"
+            aria-label="Reset tutti i filtri">
+        <i data-lucide="refresh-cw" class="h-3 w-3" aria-hidden="true"></i>
+        Reset
+    </button>
+</div>
     <!-- HEADER -->
     <header class="dashboard-header" role="banner">
         <div class="header-brand">
