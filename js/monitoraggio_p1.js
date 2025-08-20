@@ -645,16 +645,16 @@ function updateChartInterface() {
     
     if (currentChartType === 'stato') {
         titleElement.textContent = 'Richieste per stato di avanzamento';
-        helpElement.textContent = 'Clicca sulle barre per filtrare per stato';
+        helpElement.textContent = '';
     } else {
         titleElement.textContent = 'Richieste per proponente';
-        helpElement.textContent = 'Clicca sulle barre per filtrare per proponente';
+        helpElement.textContent = '';
     }
     
     // Aggiorna statistiche
     const totalVisible = filteredData.length;
     const totalOverall = allData.length;
-    statsElement.textContent = `Visualizzando ${totalVisible} di ${totalOverall} elementi`;
+    statsElement.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
 }
 
 // Funzione principale per aggiornamento grafico - SOSTITUISCE LA VECCHIA updateChart
