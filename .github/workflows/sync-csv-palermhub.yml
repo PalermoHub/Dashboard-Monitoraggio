@@ -99,7 +99,7 @@ jobs:
         
         # Se esiste il file principale, fai backup
         if [ -f "dati-palermo-hub/palermo-hub.csv" ]; then
-          BACKUP_FILE="backups/$DATE/monit_palermo-hub_pa_$TIME.csv"
+          BACKUP_FILE="backups/$DATE/palermo-hub_pa_$TIME.csv"
           if [ ! -f "$BACKUP_FILE" ]; then
             cp "dati-palermo-hub/palermo-hub.csv" "$BACKUP_FILE"
             echo "💾 Backup creato: $BACKUP_FILE"
@@ -117,7 +117,7 @@ jobs:
           LATEST_FILE=$(ls -t "backups/$DATE"/palermo-hub_*.csv 2>/dev/null | head -1)
           if [ -n "$LATEST_FILE" ]; then
             # Conta quanti file ci sono prima della pulizia
-            FILES_BEFORE=$(ls "backups/$DATE"/monit_palermo-hub_*.csv 2>/dev/null | wc -l)
+            FILES_BEFORE=$(ls "backups/$DATE"/palermo-hub_*.csv 2>/dev/null | wc -l)
             # Elimina tutti tranne l'ultimo
             find "backups/$DATE" -name "palermo-hub_*.csv" -not -path "$LATEST_FILE" -delete
             echo "✅ Pulizia completata. Mantenuto solo: $(basename "$LATEST_FILE")"
