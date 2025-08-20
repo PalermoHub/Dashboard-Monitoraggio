@@ -3,8 +3,8 @@ name: Sync CSV from Google Sheet PalermoHub
 on:
   schedule:
     # Esegui alle 12:00 e 16:00 UTC (14:00 e 18:00 ora italiana in inverno)
-    - cron: '35 * * * *'  # Ogni ora al minuto 32
-  #   - cron: '00 12 * * *'  # 12:00 UTC 
+  #  - cron: '35 * * * *'  # Ogni ora al minuto 32
+     - cron: '00 12 * * *'  # 12:00 UTC 
    #  - cron: '00 16 * * *'  # 16:00 UTC
   workflow_dispatch: # Permette esecuzione manuale
 
