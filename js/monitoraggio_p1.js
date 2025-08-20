@@ -9,6 +9,10 @@ let currentMapLayer = 'standard';
 let autocompleteData = [];
 let currentSuggestionIndex = -1;
 
+// NUOVE VARIABILI PER GRAFICI MULTIPLI
+let currentChartType = 'stato'; // 'stato' o 'proponente'
+let proponenteFilter = ''; // Filtro nascosto per proponente
+
 // Coordinate precise di Palermo
 const PALERMO_CENTER = [38.1157, 13.3615]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
@@ -63,7 +67,7 @@ function initializeMap() {
     }).setView(PALERMO_CENTER, 12);
     
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+        attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Ã‚Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
     }).addTo(map);
     
     markersLayer = L.layerGroup().addTo(map);
@@ -99,7 +103,7 @@ function updateTable() {
         return;
     }
 
-    // Campi da escludere - lista piÃ¹ specifica e completa
+    // Campi da escludere - lista piÃƒÂ¹ specifica e completa
     const excludedFields = [
         'foto', 'googlemaps', 'geouri', 'upl',
         'lat.', 'long.', 'lat', 'lng', 'coordinate',
@@ -114,13 +118,13 @@ function updateTable() {
         'rappresentante',
         'indirizzo',
         'stato di avanzamento',
-        'nota per attivitÃ  conclusive'
+        'nota per attivitÃƒ  conclusive'
     ];
     
     // Ottieni tutte le chiavi disponibili
     const allKeys = Object.keys(filteredData[0]);
     
-    // Filtra le chiavi escludendo quelle non desiderate con controlli piÃ¹ rigidi
+    // Filtra le chiavi escludendo quelle non desiderate con controlli piÃƒÂ¹ rigidi
     const filteredKeys = allKeys.filter(key => {
         const keyLower = key.toLowerCase().trim();
         return !excludedFields.some(excluded => {
@@ -246,7 +250,7 @@ async function loadData() {
         
     } catch (error) {
         console.error('Errore nel caricamento dei dati:', error);
-        showError('Errore nel caricamento dei dati. Riprova piÃ¹ tardi.');
+        showError('Errore nel caricamento dei dati. Riprova piÃƒÂ¹ tardi.');
     }
 }
 
@@ -344,7 +348,7 @@ function updateFilters() {
         const select = document.getElementById(id);
         const currentValue = select.value;
         
-        // Evidenzia visivamente se il filtro Ã¨ attivo
+        // Evidenzia visivamente se il filtro ÃƒÂ¨ attivo
         updateFilterAppearance(select, currentValue);
         
         // Pulisci opzioni esistenti (tranne la prima)
@@ -367,7 +371,7 @@ function updateFilters() {
         
         if (['filterUpl', 'filterQuartiere', 'filterCircoscrizione'].includes(id)) {
             
-            // Applica filtro circoscrizione se selezionato e non Ã¨ il filtro corrente
+            // Applica filtro circoscrizione se selezionato e non ÃƒÂ¨ il filtro corrente
             if (currentFilters.circoscrizione && id !== 'filterCircoscrizione') {
                 const circKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim().includes('circoscrizione')
@@ -380,7 +384,7 @@ function updateFilters() {
                 }
             }
             
-            // Applica filtro quartiere se selezionato e non Ã¨ il filtro corrente
+            // Applica filtro quartiere se selezionato e non ÃƒÂ¨ il filtro corrente
             if (currentFilters.quartiere && id !== 'filterQuartiere') {
                 const quartKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim().includes('quartiere')
@@ -393,7 +397,7 @@ function updateFilters() {
                 }
             }
             
-            // Applica filtro UPL se selezionato e non Ã¨ il filtro corrente
+            // Applica filtro UPL se selezionato e non ÃƒÂ¨ il filtro corrente
             if (currentFilters.upl && id !== 'filterUpl') {
                 const uplKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().trim() === 'upl'
@@ -425,12 +429,12 @@ function updateFilters() {
             select.appendChild(option);
         });
         
-        // Mantieni la selezione se il valore Ã¨ ancora valido
+        // Mantieni la selezione se il valore ÃƒÂ¨ ancora valido
         if (uniqueValues.includes(currentValue)) {
             select.value = currentValue;
         } else {
             select.value = '';
-            console.log(`Valore ${currentValue} non piÃ¹ valido per ${key}, resettato`);
+            console.log(`Valore ${currentValue} non piÃƒÂ¹ valido per ${key}, resettato`);
         }
         
         // Aggiorna l'aspetto dopo aver impostato il valore
@@ -453,17 +457,18 @@ function updateFilterAppearance(selectElement, value) {
     }
 }
 
-// Applicazione filtri con confronto esatto - OTTIMIZZATO
+// Applicazione filtri con confronto esatto - OTTIMIZZATO CON FILTRO PROPONENTE
 function applyFilters() {
     const filters = {
         stato: document.getElementById('filterStato').value.trim(),
         upl: document.getElementById('filterUpl').value.trim(),
         quartiere: document.getElementById('filterQuartiere').value.trim(),
         circoscrizione: document.getElementById('filterCircoscrizione').value.trim(),
-        titolo: document.getElementById('filterTitolo').value.toLowerCase().trim()
+        titolo: document.getElementById('filterTitolo').value.toLowerCase().trim(),
+        proponente: proponenteFilter.trim() // Filtro nascosto
     };
     
-    console.log('Applicando filtri:', filters);
+    console.log('Applicando filtri (incluso proponente):', filters);
     
     filteredData = allData.filter(item => {
         const statoKey = Object.keys(item).find(k => k.toLowerCase().includes('stato'));
@@ -471,6 +476,7 @@ function applyFilters() {
         const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
+        const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
         // Confronto esatto invece di includes per evitare falsi positivi
         const statoMatch = !filters.stato || (item[statoKey] && item[statoKey].trim() === filters.stato);
@@ -478,8 +484,9 @@ function applyFilters() {
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
         const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
+        const proponenteMatch = !filters.proponente || (item[proponenteKey] && item[proponenteKey].trim() === filters.proponente);
         
-        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && titoloMatch;
+        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && titoloMatch && proponenteMatch;
     });
     
     console.log(`Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
@@ -568,12 +575,12 @@ function centerMapOnFilteredData() {
     }
 
     if (filteredData.length === 1) {
-        // Se c'Ã¨ un solo punto, centralo
+        // Se c'ÃƒÂ¨ un solo punto, centralo
         map.setView([filteredData[0].lat, filteredData[0].lng], 16);
         return;
     }
 
-    // Se ci sono piÃ¹ punti, calcola i bounds
+    // Se ci sono piÃƒÂ¹ punti, calcola i bounds
     const coordinates = filteredData.map(item => [item.lat, item.lng]);
     const bounds = L.latLngBounds(coordinates);
     
@@ -628,14 +635,45 @@ function updateCounterWithAnimation(elementId, newValue) {
     }, 20);
 }
 
-// Aggiornamento grafico con interattivitÃ  e etichette migliorato - OTTIMIZZATO
+// === NUOVE FUNZIONI PER GESTIONE GRAFICI MULTIPLI ===
+
+// Funzione per aggiornare l'interfaccia del grafico
+function updateChartInterface() {
+    const titleElement = document.getElementById('chartTitle');
+    const helpElement = document.getElementById('chartHelp');
+    const statsElement = document.getElementById('chartStats');
+    
+    if (currentChartType === 'stato') {
+        titleElement.textContent = 'Richieste per stato di avanzamento';
+        helpElement.textContent = 'Clicca sulle barre per filtrare per stato';
+    } else {
+        titleElement.textContent = 'Richieste per proponente';
+        helpElement.textContent = 'Clicca sulle barre per filtrare per proponente';
+    }
+    
+    // Aggiorna statistiche
+    const totalVisible = filteredData.length;
+    const totalOverall = allData.length;
+    statsElement.textContent = `Visualizzando ${totalVisible} di ${totalOverall} elementi`;
+}
+
+// Funzione principale per aggiornamento grafico - SOSTITUISCE LA VECCHIA updateChart
 function updateChart() {
+    if (currentChartType === 'stato') {
+        updateStatusChart();
+    } else {
+        updateProponenteChart();
+    }
+    updateChartInterface();
+}
+
+// Funzione per il grafico degli stati (versione originale ottimizzata)
+function updateStatusChart() {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
     
     filteredData.forEach(item => {
         const status = item[statoKey] || 'Non specificato';
-        // Filtra stati vuoti, undefined o non validi
         if (status && 
             status.toString().trim() !== '' && 
             status.toString().trim().toLowerCase() !== 'undefined' &&
@@ -645,7 +683,6 @@ function updateChart() {
         }
     });
     
-    // Filtra ulteriormente per assicurarsi che non ci siano etichette undefined
     const validStatusCounts = {};
     Object.entries(statusCounts).forEach(([key, value]) => {
         if (key && key.trim() && key.trim().toLowerCase() !== 'undefined') {
@@ -657,6 +694,66 @@ function updateChart() {
     const data = Object.values(validStatusCounts);
     const colors = labels.map(label => statusColors[label] || '#6b7280');
     
+    createChart(labels, data, colors, 'stato');
+}
+
+// Nuova funzione per il grafico dei proponenti
+function updateProponenteChart() {
+    const proponenteKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('proponente'));
+    const proponenteCounts = {};
+    
+    filteredData.forEach(item => {
+        const proponente = item[proponenteKey] || 'Non specificato';
+        if (proponente && 
+            proponente.toString().trim() !== '' && 
+            proponente.toString().trim().toLowerCase() !== 'undefined' &&
+            proponente.toString().trim().toLowerCase() !== 'null' &&
+            proponente.toString().trim() !== 'N/A') {
+            const normalizedProponente = proponente.toString().trim();
+            proponenteCounts[normalizedProponente] = (proponenteCounts[normalizedProponente] || 0) + 1;
+        }
+    });
+    
+    // Ordina per numero di occorrenze (decrescente) e prendi i primi 15
+    const sortedProponenti = Object.entries(proponenteCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 15);
+    
+    const labels = sortedProponenti.map(([label]) => {
+        // Accorcia i nomi troppo lunghi per la visualizzazione
+        return label.length > 25 ? label.substring(0, 22) + '...' : label;
+    });
+    const data = sortedProponenti.map(([,count]) => count);
+    
+    // Genera colori dinamici per i proponenti
+    const colors = generateProponenteColors(data.length);
+    
+    createChart(labels, data, colors, 'proponente', sortedProponenti.map(([fullLabel]) => fullLabel));
+}
+
+// Funzione per generare colori per i proponenti
+function generateProponenteColors(count) {
+    const baseColors = [
+        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+        '#14B8A6', '#F43F5E', '#8E9AAF', '#22C55E', '#A855F7'
+    ];
+    
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        if (i < baseColors.length) {
+            colors.push(baseColors[i]);
+        } else {
+            // Genera colori aggiuntivi con una formula
+            const hue = (i * 137.508) % 360; // Golden angle
+            colors.push(`hsl(${hue}, 65%, 50%)`);
+        }
+    }
+    return colors;
+}
+
+// Funzione unificata per creare i grafici
+function createChart(labels, data, colors, type, fullLabels = null) {
     if (chart) {
         chart.destroy();
     }
@@ -678,7 +775,7 @@ function updateChart() {
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    top: 20 // Padding ridotto per altezza compatta
+                    top: 20
                 }
             },
             plugins: {
@@ -696,10 +793,15 @@ function updateChart() {
                     displayColors: false,
                     callbacks: {
                         title: function(context) {
+                            // Mostra il nome completo nel tooltip se disponibile
+                            if (type === 'proponente' && fullLabels) {
+                                return fullLabels[context[0].dataIndex];
+                            }
                             return context[0].label;
                         },
                         label: function(context) {
-                            return `Numero di patti: ${context.parsed.y}`;
+                            const label = type === 'stato' ? 'Numero di patti' : 'Numero di richieste';
+                            return `${label}: ${context.parsed.y}`;
                         }
                     }
                 }
@@ -707,9 +809,9 @@ function updateChart() {
             scales: {
                 x: {
                     ticks: {
-                        maxRotation: 45,
+                        maxRotation: type === 'proponente' ? 45 : 45,
                         font: {
-                            size: 9 // Font ridotto
+                            size: type === 'proponente' ? 8 : 9
                         }
                     }
                 },
@@ -717,7 +819,7 @@ function updateChart() {
                     beginAtZero: true,
                     ticks: {
                         font: {
-                            size: 9 // Font ridotto
+                            size: 9
                         },
                         stepSize: 1
                     }
@@ -726,14 +828,18 @@ function updateChart() {
             onClick: (event, elements) => {
                 if (elements.length > 0) {
                     const index = elements[0].index;
-                    const selectedStatus = labels[index];
                     
-                    // Applica filtro per stato selezionato
-                    document.getElementById('filterStato').value = selectedStatus;
-                    applyFilters();
-                    
-                    // Feedback visivo
-                    showNotification(`Filtro applicato: ${selectedStatus}`);
+                    if (type === 'stato') {
+                        const selectedStatus = labels[index];
+                        document.getElementById('filterStato').value = selectedStatus;
+                        applyFilters();
+                        showNotification(`Filtro applicato: ${selectedStatus}`);
+                    } else {
+                        // Gestione click per proponente
+                        const selectedProponente = fullLabels ? fullLabels[index] : labels[index];
+                        applyProponenteFilter(selectedProponente);
+                        showNotification(`Filtro proponente: ${selectedProponente.length > 30 ? selectedProponente.substring(0, 27) + '...' : selectedProponente}`);
+                    }
                 }
             },
             onHover: (event, elements) => {
@@ -755,12 +861,12 @@ function updateChart() {
                         
                         if (data > 0) {
                             ctx.fillStyle = '#374151';
-                            ctx.font = 'bold 10px Arial'; // Font ridotto
+                            ctx.font = 'bold 10px Arial';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'bottom';
                             
                             const x = bar.x;
-                            const y = bar.y - 6; // Spazio ridotto
+                            const y = bar.y - 6;
                             
                             ctx.fillText(data, x, y);
                         }
@@ -772,6 +878,14 @@ function updateChart() {
         }]
     });
 }
+
+// Funzione per applicare il filtro proponente (nascosto)
+function applyProponenteFilter(selectedProponente) {
+    proponenteFilter = selectedProponente;
+    applyFilters();
+}
+
+// === FINE NUOVE FUNZIONI GRAFICI ===
 
 // Aggiornamento legenda - OTTIMIZZATO
 function updateLegend() {
@@ -1027,7 +1141,7 @@ function setupAutocompleteEventListeners() {
     });
 }
 
-// Setup event listeners - OTTIMIZZATO CON MOBILE TOGGLE
+// Setup event listeners - OTTIMIZZATO CON MOBILE TOGGLE E CHART SELECTOR
 function setupEventListeners() {
     // === MOBILE TOGGLE - GESTIONE FILTRI MOBILE ===
     const mobileToggle = document.getElementById('mobileFiltersToggle');
@@ -1079,6 +1193,13 @@ function setupEventListeners() {
         console.error('Mobile toggle elements not found:', { mobileToggle, filtersContent });
     }
     
+    // === CHART TYPE SELECTOR - NUOVO ===
+    document.getElementById('chartTypeSelector').addEventListener('change', function() {
+        currentChartType = this.value;
+        updateChart();
+        updateChartInterface();
+    });
+    
     // === ALTRI EVENT LISTENERS ===
     
     // Filtri - eventi separati per gestire la cascata
@@ -1117,7 +1238,7 @@ function setupEventListeners() {
     // Setup autocompletamento
     setupAutocompleteEventListeners();
     
-    // Pulisci filtri con reset completo
+    // Pulisci filtri con reset completo - MODIFICATO PER INCLUDERE FILTRO PROPONENTE
     document.getElementById('clearFilters').addEventListener('click', () => {
         ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'].forEach(id => {
             const element = document.getElementById(id);
@@ -1125,6 +1246,9 @@ function setupEventListeners() {
             updateFilterAppearance(element, '');
         });
         document.getElementById('autocompleteSuggestions').classList.add('hidden');
+        
+        // Reset filtro proponente nascosto
+        proponenteFilter = '';
         
         // Reset dei dati filtrati a tutti i dati
         filteredData = [...allData];
@@ -1246,7 +1370,7 @@ function switchMapLayer(layer) {
             attribution: '&copy; Google - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
         })
         : L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-            attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
+            attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. map data Ã‚Â© <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> under ODbL - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano </a> - 2025'
         });
     
     tileLayer.addTo(map);

@@ -165,21 +165,32 @@
                 </div>
 
                 <!-- Chart Section -->
-                <div class="chart-section">
-                    <h3 class="section-title">
-                        <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
-                        Richieste per stato di avanzamento 
-                    </h3>
-                    
-                    <div class="chart-container" role="img" aria-label="Grafico distribuzione patti per stato">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                    
-                    <div class="chart-info">
-                        <p>Clicca sulle barre per filtrare</p>
-                      <!--   <span class="beta-badge">Beta Version</span> -->
-                    </div>
-                </div>
+<div class="chart-section">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="section-title">
+            <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
+            <span id="chartTitle">Richieste per stato di avanzamento</span>
+        </h3>
+    </div>
+            <!-- Menu di selezione tipo grafico -->
+        <div class="relative">
+            <select id="chartTypeSelector" 
+                    class="text-xs bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    aria-label="Seleziona tipo di grafico">
+                <option value="stato">Per stato di avanzamento</option>
+                <option value="proponente">Per proponente</option>
+            </select>
+        </div>
+	
+    <div class="chart-container" role="img" aria-label="Grafico distribuzione patti">
+        <canvas id="statusChart"></canvas>
+    </div>
+    
+    <div class="chart-info">
+        <p id="chartHelp">Clicca sulle barre per filtrare</p>
+        <div id="chartStats" class="text-xs text-gray-500 mt-1"></div>
+    </div>
+</div>
             </div>
         </aside>
 
