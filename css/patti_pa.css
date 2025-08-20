@@ -306,10 +306,10 @@ body {
 .filter-input,
 .filter-select {
     width: 100%;
-    padding: var(--space-3);
+    padding: var(--space-2);
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius-sm);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     background: var(--color-white);
     transition: var(--transition);
     font-family: inherit;
@@ -420,16 +420,22 @@ body {
 }
 
 .beta-badge {
-    display: inline-block;
+   display: inline-block;
     background: linear-gradient(135deg, #f59e0b, #f97316);
     color: var(--color-white);
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: var(--space-2);
+    /* margin-top: var(--space-2); */
+    text-align: center;
+    width: 40%;
+    margin-left: 55%;
+    margin-right: auto;
+    /* margin-bottom: 5px; */
+    transform: rotate(-15deg);
 }
 
 /* ==================== */
@@ -1247,7 +1253,7 @@ body {
     .sidebar {
         height: 100%; /* Utilizza tutta l'altezza disponibile */
         max-height: calc(100vh - var(--header-height) - var(--footer-height) - calc(var(--space-4) * 2)); /* Sottrae padding top/bottom */
-        overflow-y: auto; /* Scroll interno se necessario solo per la sidebar */
+        overflow-y: Hidden; /* Scroll interno se necessario solo per la sidebar */
     }
     
     .content-area {
