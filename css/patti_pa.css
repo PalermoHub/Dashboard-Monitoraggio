@@ -1265,7 +1265,7 @@ body {
     .sidebar {
         height: 100%; /* Utilizza tutta l'altezza disponibile */
         max-height: calc(100vh - var(--header-height) - var(--footer-height) - calc(var(--space-4) * 2)); /* Sottrae padding top/bottom */
-        overflow-y: Hidden; /* Scroll interno se necessario solo per la sidebar */
+        overflow-y: auto; /* Scroll interno se necessario solo per la sidebar */
     }
     
     .content-area {
