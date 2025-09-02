@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard di monitoraggio dei Patti di Collaborazione del Comune di Palermo">
+    <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* CSS VARIABLES */
+        :root {
+            --color-primary: #1e293b;
+            --color-primary-light: #334155;
+            --color-accent: #3b82f6;
+            --color-white: #ffffff;
+            --color-gray-50: #f8fafc;
+            --color-gray-100: #f1f5f9;
+            --color-gray-200: #e2e8f0;
+            --color-gray-300: #cbd5e1;
+            --color-gray-500: #64748b;
+            --color-gray-600: #475569;
+            --color-gray-700: #334155;
+            --color-gray-800: #1e293b;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s ease-in-out;
+            
+            --header-height: 70px;
+            --footer-height: 60px;
+            --sidebar-width-desktop: 320px;
+        }
+
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+            line-height: 1.6;
+        }
+
+        /* LAYOUT */
+        .dashboard-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: var(--header-height) 1fr var(--footer-height);
+        }
+
+        /* HEADER */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-6);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .header-info {
+            text-align: right;
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* FOOTER */
+        .dashboard-footer {
+            background-color: var(--color-gray-800);
+            color: var(--color-gray-300);
+            padding: var(--space-3) var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: var(--space-4);
+        }
+
+        .footer-links a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--color-white);
+        }
+
+        /* MAIN LAYOUT */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: var(--sidebar-width-desktop) 1fr;
+            height: calc(100vh - var(--header-height) - var(--footer-height));
+            overflow: hidden;
+            padding: var(--space-4);
+            gap: var(--space-4);
+        }
+
+        /* SIDEBAR - DESKTOP FIRST */
+        .sidebar {
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-gray-200);
+            background: var(--color-gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        /* MOBILE TOGGLE - HIDDEN ON DESKTOP */
+        .mobile-toggle {
+            display: none;
+        }
+
+        /* FILTER CARDS - COLLAPSIBLE SYSTEM FIXED */
+        .filter-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .filter-card-header {
+            background: var(--color-gray-50);
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .filter-card-header:hover {
+            background: var(--color-gray-100);
+        }
+
+        .filter-card-header.active {
+            background: var(--color-accent);
+            color: var(--color-white);
+            border-color: var(--color-accent);
+        }
+
+        .filter-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .filter-card-header.active .filter-card-title {
+            color: var(--color-white);
+        }
+
+        .collapse-icon {
+            transition: transform var(--transition);
+            width: 16px;
+            height: 16px;
+        }
+
+        .collapse-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .filter-card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--color-white);
+        }
+
+        .filter-card-content.expanded {
+            max-height: 400px;
+        }
+
+        .filter-card-body {
+            padding: var(--space-3);
+        }
+
+        /* PRIMARY FILTER (STATUS) */
+        .filter-card.primary-filter {
+            border: 2px solid var(--color-accent);
+        }
+
+        .filter-card.primary-filter .filter-card-header {
+            background: var(--color-accent);
+            color: var(--color-white);
+        }
+
+        .filter-card.primary-filter .filter-card-header:hover {
+            background: #2563eb;
+        }
+
+        /* FILTER GROUPS */
+        .filter-group {
+            margin-bottom: var(--space-3);
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            margin-bottom: var(--space-2);
+        }
+
+        .filter-select,
+        .filter-input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            background: var(--color-white);
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-select.active,
+        .filter-input.active {
+            border-color: var(--color-accent);
+            background: rgba(59, 130, 246, 0.05);
+            font-weight: 500;
+        }
+
+        /* SEARCH AUTOCOMPLETE - FIXED Z-INDEX */
+        .search-container {
+            position: relative;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-white);
+            border: 1px solid var(--color-accent);
+            border-top: none;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 9999; /* Very high z-index */
+        }
+
+        .autocomplete-suggestion {
+            padding: var(--space-2) var(--space-3);
+            cursor: pointer;
+            border-bottom: 1px solid var(--color-gray-100);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .autocomplete-suggestion:hover,
+        .autocomplete-suggestion.highlighted {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        /* Ensure search card has higher stacking context when active */
+        .filter-card.search-active {
+            position: relative;
+            z-index: 1000;
+        }
+
+        /* GEO FILTERS GRID */
+        .geo-filters-grid {
+            display: grid;
+            gap: var(--space-3);
+        }
+
+        /* ACTION BUTTONS */
+        .action-section {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-3);
+        }
+
+        .action-buttons-header {
+            margin-bottom: var(--space-2);
+        }
+
+        .action-buttons-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-1);
+        }
+
+        .results-info {
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2);
+        }
+
+        .btn {
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .btn-secondary {
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-50);
+            border-color: var(--color-gray-400);
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        /* CHART SECTION */
+        .chart-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--color-gray-200);
+            background: var(--color-gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-2);
+        }
+
+        .chart-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .chart-selector select {
+            padding: var(--space-1) var(--space-2);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            height: 200px;
+            padding: var(--space-3);
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-md);
+        }
+
+        .map-section {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .stats-section {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: var(--space-4);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: var(--space-4);
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .legend-card, .stats-card {
+            background: var(--color-white);
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.75rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: var(--space-2);
+            border-radius: var(--border-radius);
+            background: var(--color-gray-50);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: var(--color-gray-100);
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            color: var(--color-gray-600);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* MODALS */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--color-gray-50);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            color: var(--color-gray-500);
+        }
+
+        .modal-close:hover {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+
+        .modal-body {
+            padding: var(--space-4);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* HIDDEN UTILITY */
+        .hidden {
+            display: none !important;
+        }
+
+        /* MOBILE STYLES */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                grid-template-rows: var(--header-height) 1fr var(--footer-height);
+            }
+
+            .dashboard-main {
+                grid-template-columns: 1fr;
+                position: relative;
+                height: calc(100vh - var(--header-height) - var(--footer-height));
+                padding: var(--space-2);
+            }
+
+            /* MOBILE SIDEBAR */
+            .sidebar {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                bottom: var(--footer-height);
+                background: white;
+                z-index: 9999;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid var(--color-gray-200);
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex !important;
+                position: fixed;
+                bottom: calc(var(--footer-height) + var(--space-4));
+                right: var(--space-4);
+                background: var(--color-accent);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: var(--shadow-lg);
+                z-index: 1100;
+                transition: var(--transition);
+            }
+
+            .mobile-toggle:hover {
+                background: #2563eb;
+                transform: scale(1.05);
+            }
+
+            .mobile-close {
+                position: absolute;
+                top: var(--space-3);
+                right: var(--space-3);
+                background: var(--color-error);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 1101;
+            }
+
+            /* MOBILE CONTENT ADJUSTMENTS */
+            .content-area {
+                height: calc(100vh - var(--header-height) - var(--footer-height) - var(--space-4));
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+                height: auto;
+                padding: var(--space-3);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-2);
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            /* MOBILE FILTERS */
+            .filter-select,
+            .filter-input {
+                padding: var(--space-3);
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+                gap: var(--space-2);
+            }
+
+            .chart-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-2);
+            }
+
+            .chart-selector select {
+                width: 100%;
+                padding: var(--space-2);
+            }
+
+            .filter-card-content.expanded {
+                max-height: 300px;
+            }
+
+            /* HIDE DESKTOP ELEMENTS ON MOBILE */
+            .header-subtitle {
+                display: none;
+            }
+
+            .header-info {
+                display: none;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: var(--space-2);
+                text-align: center;
+            }
+        }
+
+        /* SMALL MOBILE */
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 1rem;
+            }
+
+            .mobile-toggle {
+                width: 50px;
+                height: 50px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--space-1);
+            }
+
+            .stat-item {
+                padding: var(--space-1);
+            }
+
+            .stat-value {
+                font-size: 0.875rem;
+            }
+
+            .stat-label {
+                font-size: 0.5rem;
+            }
+
+            .dashboard-footer {
+                padding: var(--space-2);
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-layout">
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="header-brand">
+            <i data-lucide="map-pin" class="w-6 h-6"></i>
+            <div>
+                <h1 class="header-title">Dashboard di Monitoraggio Cittadino</h1>
+                <p class="header-subtitle">Patti di Collaborazione - Città di Palermo</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button id="infoBtn" class="btn-icon" title="Informazioni">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </button>
+            <div class="header-info">
+                <p>Ultimo aggiornamento</p>
+                <time id="lastUpdate">Caricamento...</time>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-main">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <button class="mobile-close hidden" id="mobileClose">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    Filtri & Analisi
+                </h2>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- STATUS FILTER - COLLAPSIBLE -->
+                <div class="filter-card primary-filter">
+                    <div class="filter-card-header active" onclick="toggleFilterCard('status-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                            <span>Stato di Avanzamento</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon rotated"></i>
+                    </div>
+                    <div class="filter-card-content expanded" id="status-content">
+                        <div class="filter-card-body">
+                            <div class="filter-group">
+                                <label for="filterStato" class="filter-label">Seleziona lo stato</label>
+                                <select id="filterStato" class="filter-select">
+                                    <option value="">Tutti gli stati</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GEO FILTERS - COLLAPSIBLE -->
+                <div class="filter-card">
+                    <div class="filter-card-header" onclick="toggleFilterCard('geo-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span>Localizzazione</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon"></i>
+                    </div>
+                    <div class="filter-card-content" id="geo-content">
+                        <div class="filter-card-body">
+                            <div class="geo-filters-grid">
+                                <div class="filter-group">
+                                    <label for="filterCircoscrizione" class="filter-label">Circoscrizione</label>
+                                    <select id="filterCircoscrizione" class="filter-select">
+                                        <option value="">Tutte le circoscrizioni</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filterQuartiere" class="filter-label">Quartiere</label>
+                                    <select id="filterQuartiere" class="filter-select">
+                                        <option value="">Tutti i quartieri</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filterUpl" class="filter-label">UPL</label>
+                                    <select id="filterUpl" class="filter-select">
+                                        <option value="">Tutte le UPL</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEARCH SECTION - COLLAPSIBLE -->
+                <div class="filter-card" id="searchFilterCard">
+                    <div class="filter-card-header" onclick="toggleFilterCard('search-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Ricerca Intelligente</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon"></i>
+                    </div>
+                    <div class="filter-card-content" id="search-content">
+                        <div class="filter-card-body">
+                            <div class="filter-group">
+                                <label for="filterTitolo" class="filter-label">Cerca nel titolo</label>
+                                <div class="search-container">
+                                    <input id="filterTitolo" type="text" class="filter-input" 
+                                           placeholder="Digita per cercare...">
+                                    <div id="autocompleteSuggestions" class="autocomplete-suggestions hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="action-section">
+                    <div class="action-buttons-header">
+                        <div class="action-buttons-title">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                            Azioni Rapide
+                        </div>
+                        <div class="results-info" id="resultsCount">Caricamento...</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="clearFilters" class="btn btn-secondary">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            Reset
+                        </button>
+                        <button id="showTableBtn" class="btn btn-primary">
+                            <i data-lucide="table" class="w-4 h-4"></i>
+                            Tabella
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHART SECTION -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                            Distribuzione Dati
+                        </h3>
+                        <div class="chart-selector">
+                            <select id="chartTypeSelector">
+                                <option value="stato">Per stato</option>
+                                <option value="proponente">Per proponente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- MAP -->
+            <section class="map-section">
+                <div id="map"></div>
+            </section>
+
+            <!-- STATS -->
+            <section class="stats-section">
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                        Legenda Stati
+                    </h3>
+                    <div id="legend" class="legend-items"></div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-4" class="w-4 h-4"></i>
+                        Statistiche
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
+                            <div class="stat-label">Richieste Patti</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiStipulati" class="stat-value" style="color: var(--color-success);">0</div>
+                            <div class="stat-label">Patti Stipulati</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--color-warning);">0</div>
+                            <div class="stat-label">In Istruttoria</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: #f97316;">0</div>
+                            <div class="stat-label">Attesa Integrazione</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiMonitoraggio" class="stat-value" style="color: #8b5cf6;">0</div>
+                            <div class="stat-label">Monitoraggio</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiRespinti" class="stat-value" style="color: var(--color-error);">0</div>
+                            <div class="stat-label">Patti Respinti</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div>
+                <div>Comune di Palermo - Area Urbanistica e della rigenerazione urbana</div>
+                <div>Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico</div>
+            </div>
+            <div class="footer-links">
+                <a href="https://creativecommons.org/licenses/by/4.0/deed.it" 
+                   title="Attribuzione 4.0 Internazionale" 
+                   target="_blank">CC BY 4.0</a> - 
+                Sviluppo by 
+                <a href="https://www.linkedin.com/in/gbvitrano/" 
+                   title="@gbvitrano" 
+                   target="_blank">@gbvitrano</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MOBILE TOGGLE -->
+    <button class="mobile-toggle" id="mobileToggle">
+        <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+    </button>
+
+    <!-- MODALS (INFO & TABLE) -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                    Informazioni Dashboard
+                </h2>
+                <button id="closeInfoModal" class="modal-close">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; gap: 1.5rem;">
+                    <section>
+                        <h3 style="font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Cosa sono i Patti di Collaborazione?</h3>
+                        <p style="color: var(--color-gray-600); line-height: 1.6;">
+                            I Patti di Collaborazione sono accordi tra il Comune di Palermo e cittadini, gruppi informali, 
+                            associazioni per la cura e rigenerazione dei beni comuni urbani.
+                        </p>
+                    </section>
+                    <section>
+                        <h3 style="font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Come utilizzare la Dashboard</h3>
+                        <ul style="color: var(--color-gray-600); line-height: 1.6; padding-left: 1.5rem;">
+                            <li><strong>Mappa:</strong> Visualizza la posizione di tutti i patti</li>
+                            <li><strong>Filtri:</strong> Utilizza le card collassabili per filtrare per stato, territorio o cercare per titolo</li>
+                            <li><strong>Grafici:</strong> Analizza la distribuzione dei dati per stato o proponente</li>
+                            <li><strong>Tabella:</strong> Vista dettagliata di tutti i patti filtrati</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tableModal" class="modal">
+        <div class="modal-content" style="max-width: 95vw; width: 100%;">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i data-lucide="table" class="w-5 h-5"></i>
+                    Elenco Patti di Collaborazione
+                </h2>
+                <button id="closeTableModal" class="modal-close">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="overflow: auto;">
+                    <table id="dataTable" style="width: 100%; border-collapse: collapse; background: white;">
+                        <thead id="tableHeader"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GLOBAL VARIABLES
+        let map;
+        let markersLayer;
+        let allData = [];
+        let filteredData = [];
+        let chart;
+        let autocompleteData = [];
+        let currentSuggestionIndex = -1;
+        let currentChartType = 'stato';
+        
+        const PALERMO_CENTER = [38.1157, 13.3615];
+        
+        const statusColors = {
+            'Istruttoria in corso': '#f59e0b',
+            'Respinta': '#ef4444',
+            'Patto stipulato': '#10b981',
+            'Proroga e/o Monitoraggio e valutazione dei risultati': '#8b5cf6',
+            'In attesa di integrazione': '#f97316'
+        };
+
+        // FILTER CARD TOGGLE FUNCTION
+        function toggleFilterCard(targetId) {
+            const content = document.getElementById(targetId);
+            const header = document.querySelector(`[onclick="toggleFilterCard('${targetId}')"]`);
+            
+            if (!content || !header) return;
+            
+            const icon = header.querySelector('.collapse-icon');
+            const isExpanded = content.classList.contains('expanded');
+            
+            if (isExpanded) {
+                content.classList.remove('expanded');
+                header.classList.remove('active');
+                if (icon) icon.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                header.classList.add('active');
+                if (icon) icon.classList.add('rotated');
+                
+                // Special handling for search card
+                if (targetId === 'search-content') {
+                    document.getElementById('searchFilterCard').classList.add('search-active');
+                }
+            }
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard inizializzata');
+            lucide.createIcons();
+            initializeMap();
+            loadData();
+            setupEventListeners();
+        });
+
+        // MAP INITIALIZATION
+        function initializeMap() {
+            map = L.map('map').setView(PALERMO_CENTER, 12);
+            
+            L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+                attribution: '© CartoDB © OpenStreetMap contributors'
+            }).addTo(map);
+            
+            markersLayer = L.layerGroup().addTo(map);
+        }
+
+        // DATA LOADING
+        async function loadData() {
+            try {
+                console.log('Caricamento dati...');
+                const response = await fetch('https://raw.githubusercontent.com/PalermoHub/Dashboard-Monitoraggio/refs/heads/main/dati/monit_patti_pa.csv');
+                const csvText = await response.text();
+                
+                allData = parseCSV(csvText);
+                filteredData = [...allData];
+                
+                console.log('Dati caricati:', allData.length, 'elementi');
+                
+                setupAutocomplete();
+                updateFilters();
+                updateMap();
+                updateStatistics();
+                updateChart();
+                updateLegend();
+                updateResultsCount();
+                updateLastUpdate();
+                
+            } catch (error) {
+                console.error('Errore caricamento dati:', error);
+                showNotification('Errore nel caricamento dei dati', 'error');
+            }
+        }
+
+        // CSV PARSER
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length === 0) return [];
+            
+            const headers = parseCSVLine(lines[0]);
+            const records = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = parseCSVLine(lines[i]);
+                    const record = {};
+                    
+                    headers.forEach((header, index) => {
+                        record[header.trim()] = values[index] ? values[index].trim() : '';
+                    });
+                    
+                    const latKey = headers.find(h => h.toLowerCase().includes('lat'));
+                    const lngKey = headers.find(h => h.toLowerCase().includes('long'));
+                    
+                    if (latKey && lngKey) {
+                        record.lat = parseFloat(record[latKey]);
+                        record.lng = parseFloat(record[lngKey]);
+                        
+                        if (!isNaN(record.lat) && !isNaN(record.lng)) {
+                            records.push(record);
+                        }
+                    }
+                }
+            }
+            
+            return records;
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        // AUTOCOMPLETE SETUP
+        function setupAutocomplete() {
+            const titoloKey = Object.keys(allData[0] || {}).find(key => 
+                key.toLowerCase().includes('titolo')
+            );
+            
+            if (titoloKey) {
+                autocompleteData = [...new Set(allData.map(item => item[titoloKey]).filter(Boolean))].sort();
+                console.log('Autocomplete setup con', autocompleteData.length, 'elementi');
+            }
+        }
+
+        // UPDATE LAST UPDATE TIME
+        function updateLastUpdate() {
+            const now = new Date();
+            const formatted = now.toLocaleString('it-IT');
+            const updateElement = document.getElementById('lastUpdate');
+            if (updateElement) {
+                updateElement.textContent = formatted;
+            }
+        }
+
+        // FILTERS UPDATE
+        function updateFilters() {
+            console.log('Aggiornamento filtri...');
+            
+            const filterMappings = [
+                { id: 'filterStato', key: 'Stato di avanzamento' },
+                { id: 'filterUpl', key: 'UPL' },
+                { id: 'filterQuartiere', key: 'Quartiere' },
+                { id: 'filterCircoscrizione', key: 'Circoscrizione' }
+            ];
+
+            filterMappings.forEach(({ id, key }) => {
+                const select = document.getElementById(id);
+                const currentValue = select.value;
+                
+                // Clear options except first
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                const actualKey = Object.keys(allData[0] || {}).find(k => 
+                    k.toLowerCase().trim() === key.toLowerCase().trim()
+                );
+
+                if (!actualKey) return;
+
+                const uniqueValues = [...new Set(
+                    allData
+                        .map(item => item[actualKey])
+                        .filter(value => value && value.toString().trim() !== '')
+                        .map(value => value.toString().trim())
+                )].sort();
+                
+                uniqueValues.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
+                
+                if (uniqueValues.includes(currentValue)) {
+                    select.value = currentValue;
+                }
+                
+                updateFilterAppearance(select);
+            });
+        }
+
+        function updateFilterAppearance(element) {
+            if (element.value && element.value.trim() !== '') {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+        }
+
+        // FILTERS APPLICATION
+        function applyFilters() {
+            const filters = {
+                stato: document.getElementById('filterStato').value.trim(),
+                upl: document.getElementById('filterUpl').value.trim(),
+                quartiere: document.getElementById('filterQuartiere').value.trim(),
+                circoscrizione: document.getElementById('filterCircoscrizione').value.trim(),
+                titolo: document.getElementById('filterTitolo').value.toLowerCase().trim()
+            };
+            
+            console.log('Applicazione filtri:', filters);
+            
+            filteredData = allData.filter(item => {
+                const statoKey = Object.keys(item).find(k => k.toLowerCase().includes('stato'));
+                const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
+                const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
+                const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
+                const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
+                
+                const statoMatch = !filters.stato || (item[statoKey] && item[statoKey].trim() === filters.stato);
+                const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
+                const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
+                const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
+                const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
+                
+                return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && titoloMatch;
+            });
+            
+            console.log(`Filtrati ${filteredData.length} da ${allData.length} elementi`);
+            
+            // Update filter appearances
+            ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'].forEach(id => {
+                updateFilterAppearance(document.getElementById(id));
+            });
+            
+            updateMap();
+            updateStatistics();
+            updateChart();
+            updateResultsCount();
+        }
+
+        // RESULTS COUNT UPDATE
+        function updateResultsCount() {
+            const resultsCount = document.getElementById('resultsCount');
+            if (resultsCount) {
+                const total = filteredData.length;
+                const totalAll = allData.length;
+                
+                let text;
+                if (total === 0) {
+                    text = 'Nessun risultato trovato';
+                } else if (total === totalAll) {
+                    text = `Tutti i ${total} patti`;
+                } else {
+                    text = `${total} di ${totalAll} patti`;
+                }
+                
+                resultsCount.textContent = text;
+            }
+        }
+
+        // MAP UPDATE
+        function updateMap() {
+            markersLayer.clearLayers();
+            
+            filteredData.forEach(patto => {
+                const statoKey = Object.keys(patto).find(k => k.toLowerCase().includes('stato'));
+                const stato = patto[statoKey] || '';
+                const color = statusColors[stato] || '#6b7280';
+                
+                const marker = L.circleMarker([patto.lat, patto.lng], {
+                    radius: 6,
+                    fillColor: color,
+                    color: 'white',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(markersLayer);
+                
+                const titoloKey = Object.keys(patto).find(k => k.toLowerCase().includes('titolo'));
+                const titolo = patto[titoloKey] || 'Patto senza titolo';
+                
+                marker.bindTooltip(titolo, {
+                    permanent: false,
+                    direction: 'top'
+                });
+                
+                const uplKey = Object.keys(patto).find(k => k.toLowerCase() === 'upl');
+                const quartiereKey = Object.keys(patto).find(k => k.toLowerCase().includes('quartiere'));
+                
+                const popupContent = `
+                    <div style="max-width: 200px;">
+                        <h3 style="font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 600;">${titolo}</h3>
+                        <div style="font-size: 0.75rem; color: #666;">
+                            <p><strong>UPL:</strong> ${patto[uplKey] || 'N/A'}</p>
+                            <p><strong>Quartiere:</strong> ${patto[quartiereKey] || 'N/A'}</p>
+                            <p style="margin-top: 0.5rem;">
+                                <span style="background: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">
+                                    ${stato}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+            });
+            
+            if (filteredData.length > 0) {
+                const coordinates = filteredData.map(item => [item.lat, item.lng]);
+                const bounds = L.latLngBounds(coordinates);
+                map.fitBounds(bounds, { padding: [20, 20] });
+            }
+        }
+
+        // STATISTICS UPDATE
+        function updateStatistics() {
+            const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+            
+            const total = filteredData.length;
+            const stipulati = filteredData.filter(p => p[statoKey] === 'Patto stipulato').length;
+            const istruttoria = filteredData.filter(p => p[statoKey] === 'Istruttoria in corso').length;
+            const attesaIntegrazione = filteredData.filter(p => p[statoKey] === 'In attesa di integrazione').length;
+            const monitoraggio = filteredData.filter(p => p[statoKey] === 'Proroga e/o Monitoraggio e valutazione dei risultati').length;
+            const respinti = filteredData.filter(p => p[statoKey] === 'Respinta').length;
+            
+            document.getElementById('totalPatti').textContent = total;
+            document.getElementById('pattiStipulati').textContent = stipulati;
+            document.getElementById('pattiIstruttoria').textContent = istruttoria;
+            document.getElementById('pattiAttesaIntegrazione').textContent = attesaIntegrazione;
+            document.getElementById('pattiMonitoraggio').textContent = monitoraggio;
+            document.getElementById('pattiRespinti').textContent = respinti;
+        }
+
+        // CHART UPDATE
+        function updateChart() {
+            if (currentChartType === 'stato') {
+                updateStatusChart();
+            } else {
+                updateProponenteChart();
+            }
+        }
+
+        function updateStatusChart() {
+            const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+            const statusCounts = {};
+            
+            filteredData.forEach(item => {
+                const status = item[statoKey] || 'Non specificato';
+                if (status.trim()) {
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                }
+            });
+            
+            const labels = Object.keys(statusCounts);
+            const data = Object.values(statusCounts);
+            const colors = labels.map(label => statusColors[label] || '#6b7280');
+            
+            createChart(labels, data, colors);
+        }
+
+        function updateProponenteChart() {
+            const proponenteKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('proponente'));
+            const proponenteCounts = {};
+            
+            filteredData.forEach(item => {
+                const proponente = item[proponenteKey] || 'Non specificato';
+                if (proponente.trim()) {
+                    proponenteCounts[proponente] = (proponenteCounts[proponente] || 0) + 1;
+                }
+            });
+            
+            const sortedProponenti = Object.entries(proponenteCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+            
+            const labels = sortedProponenti.map(([label]) => 
+                label.length > 20 ? label.substring(0, 17) + '...' : label
+            );
+            const data = sortedProponenti.map(([,count]) => count);
+            const colors = generateColors(data.length);
+            
+            createChart(labels, data, colors);
+        }
+
+        function generateColors(count) {
+            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(colors[i % colors.length]);
+            }
+            return result;
+        }
+
+        function createChart(labels, data, colors) {
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // LEGEND UPDATE
+        function updateLegend() {
+            const legend = document.getElementById('legend');
+            legend.innerHTML = '';
+            
+            Object.entries(statusColors).forEach(([status, color]) => {
+                const div = document.createElement('div');
+                div.className = 'legend-item';
+                div.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <span>${status}</span>
+                `;
+                legend.appendChild(div);
+            });
+        }
+
+        // EVENT LISTENERS
+        function setupEventListeners() {
+            // Mobile toggle
+            const mobileToggle = document.getElementById('mobileToggle');
+            const mobileClose = document.getElementById('mobileClose');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileToggle.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                mobileClose.classList.remove('hidden');
+            });
+            
+            mobileClose.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                mobileClose.classList.add('hidden');
+            });
+            
+            // Filter events
+            ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione'].forEach(id => {
+                const element = document.getElementById(id);
+                element.addEventListener('change', () => {
+                    applyFilters();
+                    setTimeout(updateFilters, 50);
+                });
+            });
+            
+            // Search with autocomplete
+            const searchInput = document.getElementById('filterTitolo');
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            const searchCard = document.getElementById('searchFilterCard');
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                updateFilterAppearance(this);
+                
+                // Apply filters with debounce
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(applyFilters, 300);
+                
+                // Show autocomplete
+                if (query.length >= 2) {
+                    const filtered = autocompleteData.filter(item => 
+                        item.toLowerCase().includes(query)
+                    ).slice(0, 8);
+                    
+                    if (filtered.length > 0) {
+                        suggestions.innerHTML = filtered.map(item => 
+                            `<div class="autocomplete-suggestion">${item}</div>`
+                        ).join('');
+                        
+                        suggestions.classList.remove('hidden');
+                        searchCard.classList.add('search-active');
+                        
+                        // Add click events to suggestions
+                        suggestions.querySelectorAll('.autocomplete-suggestion').forEach(el => {
+                            el.addEventListener('click', () => {
+                                searchInput.value = el.textContent;
+                                suggestions.classList.add('hidden');
+                                searchCard.classList.remove('search-active');
+                                applyFilters();
+                            });
+                        });
+                    } else {
+                        suggestions.classList.add('hidden');
+                        searchCard.classList.remove('search-active');
+                    }
+                } else {
+                    suggestions.classList.add('hidden');
+                    searchCard.classList.remove('search-active');
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+                    suggestions.classList.add('hidden');
+                    searchCard.classList.remove('search-active');
+                }
+            });
+            
+            // Chart type selector
+            document.getElementById('chartTypeSelector').addEventListener('change', function() {
+                currentChartType = this.value;
+                updateChart();
+            });
+            
+            // Clear filters
+            document.getElementById('clearFilters').addEventListener('click', () => {
+                document.getElementById('filterStato').value = '';
+                document.getElementById('filterUpl').value = '';
+                document.getElementById('filterQuartiere').value = '';
+                document.getElementById('filterCircoscrizione').value = '';
+                document.getElementById('filterTitolo').value = '';
+                
+                ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'].forEach(id => {
+                    updateFilterAppearance(document.getElementById(id));
+                });
+                
+                suggestions.classList.add('hidden');
+                searchCard.classList.remove('search-active');
+                
+                filteredData = [...allData];
+                updateFilters();
+                updateMap();
+                updateStatistics();
+                updateChart();
+                updateResultsCount();
+                
+                showNotification('Filtri rimossi', 'success');
+            });
+            
+            // Table button
+            document.getElementById('showTableBtn').addEventListener('click', () => {
+                showTable();
+            });
+            
+            // Info modal
+            document.getElementById('infoBtn').addEventListener('click', () => {
+                document.getElementById('infoModal').classList.add('show');
+            });
+            
+            document.getElementById('closeInfoModal').addEventListener('click', () => {
+                document.getElementById('infoModal').classList.remove('show');
+            });
+            
+            // Table modal
+            document.getElementById('closeTableModal').addEventListener('click', () => {
+                document.getElementById('tableModal').classList.remove('show');
+            });
+            
+            // Close modals on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                    }
+                });
+            });
+        }
+
+        // TABLE DISPLAY
+        function showTable() {
+            const table = document.getElementById('dataTable');
+            const header = document.getElementById('tableHeader');
+            const body = document.getElementById('tableBody');
+            
+            // Clear table
+            header.innerHTML = '';
+            body.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                body.innerHTML = '<tr><td colspan="100%" style="text-align: center; padding: 2rem;">Nessun dato da visualizzare</td></tr>';
+                document.getElementById('tableModal').classList.add('show');
+                return;
+            }
+            
+            // Get column headers (exclude lat/lng and other technical fields)
+            const excludedFields = ['lat.', 'long.', 'lat', 'lng', 'foto', 'googlemaps', 'geouri'];
+            const headers = Object.keys(filteredData[0]).filter(key => 
+                !excludedFields.some(excluded => key.toLowerCase().includes(excluded.toLowerCase()))
+            );
+            
+            // Create header
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                th.style.cssText = 'padding: 0.75rem; background: #f8fafc; font-weight: 600; text-align: left; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10;';
+                headerRow.appendChild(th);
+            });
+            header.appendChild(headerRow);
+            
+            // Create rows
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                row.style.cssText = 'border-bottom: 1px solid #f1f5f9;';
+                
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    let value = item[header] || 'N/A';
+                    
+                    if (header.toLowerCase().includes('stato')) {
+                        const color = statusColors[value] || '#6b7280';
+                        td.innerHTML = `<span style="background: ${color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">${value}</span>`;
+                    } else {
+                        if (value.length > 50) {
+                            td.innerHTML = `<span title="${value}">${value.substring(0, 47)}...</span>`;
+                        } else {
+                            td.textContent = value;
+                        }
+                    }
+                    
+                    td.style.cssText = 'padding: 0.75rem; font-size: 0.875rem; vertical-align: top;';
+                    row.appendChild(td);
+                });
+                
+                body.appendChild(row);
+            });
+            
+            document.getElementById('tableModal').classList.add('show');
+        }
+
+        // NOTIFICATION
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                padding: 0.75rem 1rem;
+                border-radius: 0.5rem;
+                color: white;
+                font-size: 0.875rem;
+                z-index: 3000;
+                animation: slideInRight 0.3s ease;
+                ${type === 'success' ? 'background: #10b981;' : type === 'error' ? 'background: #ef4444;' : 'background: #3b82f6;'}
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Make toggle function global for onclick handlers
+        window.toggleFilterCard = toggleFilterCard;
+    </script>
+</body>
+</html>

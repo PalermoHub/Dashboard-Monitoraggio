@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard di monitoraggio dei Patti di Collaborazione del Comune di Palermo">
+    <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* CSS VARIABLES */
+        :root {
+            --color-primary: #1e293b;
+            --color-primary-light: #334155;
+            --color-accent: #3b82f6;
+            --color-white: #ffffff;
+            --color-gray-50: #f8fafc;
+            --color-gray-100: #f1f5f9;
+            --color-gray-200: #e2e8f0;
+            --color-gray-300: #cbd5e1;
+            --color-gray-500: #64748b;
+            --color-gray-600: #475569;
+            --color-gray-700: #334155;
+            --color-gray-800: #1e293b;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s ease-in-out;
+            
+            --header-height: 70px;
+            --footer-height: 60px;
+            --sidebar-width-desktop: 320px;
+        }
+
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-gray-50);
+            color: var(--color-gray-700);
+            line-height: 1.6;
+        }
+
+        /* LAYOUT */
+        .dashboard-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: var(--header-height) 1fr var(--footer-height);
+        }
+
+        /* HEADER */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-6);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .header-info {
+            text-align: right;
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* FOOTER */
+        .dashboard-footer {
+            background-color: var(--color-gray-800);
+            color: var(--color-gray-300);
+            padding: var(--space-3) var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: var(--space-4);
+        }
+
+        .footer-links a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--color-white);
+        }
+
+        /* MAIN LAYOUT */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: var(--sidebar-width-desktop) 1fr;
+            height: calc(100vh - var(--header-height) - var(--footer-height));
+            overflow: hidden;
+            padding: var(--space-4);
+            gap: var(--space-4);
+        }
+
+        /* SIDEBAR - DESKTOP FIRST */
+        .sidebar {
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-gray-200);
+            background: var(--color-gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        /* MOBILE TOGGLE - HIDDEN ON DESKTOP */
+        .mobile-toggle {
+            display: none;
+        }
+
+        /* FILTER CARDS - COLLAPSIBLE SYSTEM FIXED */
+        .filter-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            margin-bottom: var(--space-2);
+        }
+
+        .filter-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-card-header {
+            background: var(--color-gray-50);
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .filter-card-header:hover {
+            background: var(--color-gray-100);
+        }
+
+        .filter-card-header.active {
+            background: var(--color-accent);
+            color: var(--color-white);
+            border-color: var(--color-accent);
+        }
+
+        .filter-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .filter-card-header.active .filter-card-title {
+            color: var(--color-white);
+        }
+
+        .collapse-icon {
+            transition: transform var(--transition);
+            width: 16px;
+            height: 16px;
+        }
+
+        .collapse-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .filter-card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--color-white);
+        }
+
+        .filter-card-content.expanded {
+            max-height: 400px;
+        }
+
+        .filter-card-body {
+            padding: var(--space-3);
+        }
+
+        /* PRIMARY FILTER (STATUS) */
+        .filter-card.primary-filter {
+            border: 2px solid var(--color-accent);
+        }
+
+        .filter-card.primary-filter .filter-card-header {
+            background: var(--color-accent);
+            color: var(--color-white);
+        }
+
+        .filter-card.primary-filter .filter-card-header:hover {
+            background: #2563eb;
+        }
+
+        /* FILTER GROUPS */
+        .filter-group {
+            margin-bottom: var(--space-3);
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            margin-bottom: var(--space-2);
+        }
+
+        .filter-select,
+        .filter-input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            background: var(--color-white);
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-select.active,
+        .filter-input.active {
+            border-color: var(--color-accent);
+            background: rgba(59, 130, 246, 0.05);
+            font-weight: 500;
+        }
+
+        /* SEARCH AUTOCOMPLETE - FIXED Z-INDEX */
+        .search-container {
+            position: relative;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-white);
+            border: 1px solid var(--color-accent);
+            border-top: none;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10000; /* Very high z-index */
+        }
+
+        .autocomplete-suggestion {
+            padding: var(--space-2) var(--space-3);
+            cursor: pointer;
+            border-bottom: 1px solid var(--color-gray-100);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .autocomplete-suggestion:hover,
+        .autocomplete-suggestion.highlighted {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        /* Ensure search card has higher stacking context when active */
+        .filter-card.search-active {
+            z-index: 1001;
+        }
+
+        /* GEO FILTERS GRID */
+        .geo-filters-grid {
+            display: grid;
+            gap: var(--space-3);
+        }
+
+        /* ACTION BUTTONS */
+        .action-section {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-3);
+        }
+
+        .action-buttons-header {
+            margin-bottom: var(--space-2);
+        }
+
+        .action-buttons-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-1);
+        }
+
+        .results-info {
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2);
+        }
+
+        .btn {
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .btn-secondary {
+            background: var(--color-white);
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-50);
+            border-color: var(--color-gray-400);
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        /* CHART SECTION */
+        .chart-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--color-gray-200);
+            background: var(--color-gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-2);
+        }
+
+        .chart-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .chart-selector select {
+            padding: var(--space-1) var(--space-2);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            height: 200px;
+            padding: var(--space-3);
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-md);
+        }
+
+        .map-section {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .stats-section {
+            background: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            padding: var(--space-4);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: var(--space-4);
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .legend-card, .stats-card {
+            background: var(--color-white);
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.75rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: var(--space-2);
+            border-radius: var(--border-radius);
+            background: var(--color-gray-50);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: var(--color-gray-100);
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            color: var(--color-gray-600);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* MODALS */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--color-gray-50);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            color: var(--color-gray-500);
+        }
+
+        .modal-close:hover {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+
+        .modal-body {
+            padding: var(--space-4);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* HIDDEN UTILITY */
+        .hidden {
+            display: none !important;
+        }
+
+        /* MOBILE STYLES */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                grid-template-rows: var(--header-height) 1fr var(--footer-height);
+            }
+
+            .dashboard-main {
+                grid-template-columns: 1fr;
+                position: relative;
+                height: calc(100vh - var(--header-height) - var(--footer-height));
+                padding: var(--space-2);
+            }
+
+            /* MOBILE SIDEBAR */
+            .sidebar {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                bottom: var(--footer-height);
+                background: white;
+                z-index: 9999;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid var(--color-gray-200);
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex !important;
+                position: fixed;
+                bottom: calc(var(--footer-height) + var(--space-4));
+                right: var(--space-4);
+                background: var(--color-accent);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: var(--shadow-lg);
+                z-index: 1100;
+                transition: var(--transition);
+            }
+
+            .mobile-toggle:hover {
+                background: #2563eb;
+                transform: scale(1.05);
+            }
+
+            .mobile-close {
+                position: absolute;
+                top: var(--space-3);
+                right: var(--space-3);
+                background: var(--color-error);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 1101;
+            }
+
+            /* MOBILE CONTENT ADJUSTMENTS */
+            .content-area {
+                height: calc(100vh - var(--header-height) - var(--footer-height) - var(--space-4));
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+                height: auto;
+                padding: var(--space-3);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-2);
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            /* MOBILE FILTERS */
+            .filter-select,
+            .filter-input {
+                padding: var(--space-3);
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+                gap: var(--space-2);
+            }
+
+            .chart-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-2);
+            }
+
+            .chart-selector select {
+                width: 100%;
+                padding: var(--space-2);
+            }
+
+            .filter-card-content.expanded {
+                max-height: 300px;
+            }
+
+            /* HIDE DESKTOP ELEMENTS ON MOBILE */
+            .header-subtitle {
+                display: none;
+            }
+
+            .header-info {
+                display: none;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: var(--space-2);
+                text-align: center;
+            }
+        }
+
+        /* SMALL MOBILE */
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 1rem;
+            }
+
+            .mobile-toggle {
+                width: 50px;
+                height: 50px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--space-1);
+            }
+
+            .stat-item {
+                padding: var(--space-1);
+            }
+
+            .stat-value {
+                font-size: 0.875rem;
+            }
+
+            .stat-label {
+                font-size: 0.5rem;
+            }
+
+            .dashboard-footer {
+                padding: var(--space-2);
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-layout">
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="header-brand">
+            <i data-lucide="map-pin" class="w-6 h-6"></i>
+            <div>
+                <h1 class="header-title">Dashboard di Monitoraggio Cittadino</h1>
+                <p class="header-subtitle">Patti di Collaborazione - Città di Palermo</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button id="infoBtn" class="btn-icon" title="Informazioni">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </button>
+            <div class="header-info">
+                <p>Ultimo aggiornamento</p>
+                <time id="lastUpdate">Caricamento...</time>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-main">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <button class="mobile-close hidden" id="mobileClose">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    Filtri & Analisi
+                </h2>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- STATUS FILTER - COLLAPSIBLE -->
+                <div class="filter-card primary-filter">
+                    <div class="filter-card-header active" onclick="toggleFilterCard('status-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                            <span>Stato di Avanzamento</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon rotated"></i>
+                    </div>
+                    <div class="filter-card-content expanded" id="status-content">
+                        <div class="filter-card-body">
+                            <div class="filter-group">
+                                <label for="filterStato" class="filter-label">Seleziona lo stato</label>
+                                <select id="filterStato" class="filter-select">
+                                    <option value="">Tutti gli stati</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GEO FILTERS - COLLAPSIBLE -->
+                <div class="filter-card">
+                    <div class="filter-card-header" onclick="toggleFilterCard('geo-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span>Localizzazione</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon"></i>
+                    </div>
+                    <div class="filter-card-content" id="geo-content">
+                        <div class="filter-card-body">
+                            <div class="geo-filters-grid">
+                                <div class="filter-group">
+                                    <label for="filterCircoscrizione" class="filter-label">Circoscrizione</label>
+                                    <select id="filterCircoscrizione" class="filter-select">
+                                        <option value="">Tutte le circoscrizioni</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filterQuartiere" class="filter-label">Quartiere</label>
+                                    <select id="filterQuartiere" class="filter-select">
+                                        <option value="">Tutti i quartieri</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filterUpl" class="filter-label">UPL</label>
+                                    <select id="filterUpl" class="filter-select">
+                                        <option value="">Tutte le UPL</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEARCH SECTION - COLLAPSIBLE -->
+                <div class="filter-card" id="searchFilterCard">
+                    <div class="filter-card-header" onclick="toggleFilterCard('search-content')">
+                        <div class="filter-card-title">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Ricerca Intelligente</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="collapse-icon"></i>
+                    </div>
+                    <div class="filter-card-content" id="search-content">
+                        <div class="filter-card-body">
+                            <div class="filter-group">
+                                <label for="filterTitolo" class="filter-label">Cerca nel titolo</label>
+                                <div class="search-container">
+                                    <input id="filterTitolo" type="text" class="filter-input" 
+                                           placeholder="Digita per cercare...">
+                                    <div id="autocompleteSuggestions" class="autocomplete-suggestions hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="action-section">
+                    <div class="action-buttons-header">
+                        <div class="action-buttons-title">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                            Azioni Rapide
+                        </div>
+                        <div class="results-info" id="resultsCount">Caricamento...</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="clearFilters" class="btn btn-secondary">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            Reset
+                        </button>
+                        <button id="showTableBtn" class="btn btn-primary">
+                            <i data-lucide="table" class="w-4 h-4"></i>
+                            Tabella
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHART SECTION -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                            Distribuzione Dati
+                        </h3>
+                        <div class="chart-selector">
+                            <select id="chartTypeSelector">
+                                <option value="stato">Per stato</option>
+                                <option value="proponente">Per proponente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- MAP -->
+            <section class="map-section">
+                <div id="map"></div>
+            </section>
+
+            <!-- STATS -->
+            <section class="stats-section">
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                        Legenda Stati
+                    </h3>
+                    <div id="legend" class="legend-items"></div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-4" class="w-4 h-4"></i>
+                        Statistiche
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
+                            <div class="stat-label">Richieste Patti</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiStipulati" class="stat-value" style="color: var(--color-success);">0</div>
+                            <div class="stat-label">Patti Stipulati</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--color-warning);">0</div>
+                            <div class="stat-label">In Istruttoria</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: #f97316;">0</div>
+                            <div class="stat-label">Attesa Integrazione</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiMonitoraggio" class="stat-value" style="color: #8b5cf6;">0</div>
+                            <div class="stat-label">Monitoraggio</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="pattiRespinti" class="stat-value" style="color: var(--color-error);">0</div>
+                            <div class="stat-label">Patti Respinti</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div>
+                <div>Comune di Palermo - Area Urbanistica e della rigenerazione urbana</div>
+                <div>Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico</div>
+            </div>
+            <div class="footer-links">
+                <a href="https://creativecommons.org/licenses/by/4.0/deed.it" 
+                   title="Attribuzione 4.0 Internazionale" 
+                   target="_blank">CC BY 4.0</a> - 
+                Sviluppo by 
+                <a href="https://www.linkedin.com/in/gbvitrano/" 
+                   title="@gbvitrano" 
+                   target="_blank">@gbvitrano</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MOBILE TOGGLE -->
+    <button class="mobile-toggle" id="mobileToggle">
+        <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+    </button>
+
+    <!-- MODALS (INFO & TABLE) -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                    Informazioni Dashboard
+                </h2>
+                <button id="closeInfoModal" class="modal-close">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Questa dashboard consente di monitorare i Patti di Collaborazione del Comune di Palermo.</p>
+                <p>I dati sono aggiornati regolarmente e provengono dal sistema informativo del Comune.</p>
+                <p>Utilizza i filtri per analizzare i dati secondo diverse prospettive e visualizzare le informazioni sulla mappa.</p>
+                <p>Per segnalare problemi o suggerire miglioramenti, contattare l'ufficio competente.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="tableModal" class="modal">
+        <div class="modal-content" style="max-width: 90vw; width: 1200px;">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i data-lucide="table" class="w-6 h-6"></i>
+                    Tabella Dati Patti
+                </h2>
+                <button id="closeTableModal" class="modal-close">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="overflow-x: auto;">
+                    <table id="dataTable" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f3f4f6;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">ID</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Titolo</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Stato</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Proponente</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Circoscrizione</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Quartiere</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">UPL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Sample data for demonstration
+        const sampleData = [
+            { id: 1, titolo: "Riqualificazione Piazza Verdi", stato: "Stipulato", proponente: "Associazione Quartiere Verdi", circoscrizione: "Centro Storico", quartiere: "Kalsa", upl: "UPL 1", lat: 38.1156, lng: 13.3615 },
+            { id: 2, titolo: "Orto Condiviso Ballarò", stato: "In Istruttoria", proponente: "Comitato Ballarò Attivo", circoscrizione: "Centro Storico", quartiere: "Albergheria", upl: "UPL 1", lat: 38.1132, lng: 13.3598 },
+            { id: 3, titolo: "Manutenzione Verde Pubblico", stato: "Attesa Integrazione", proponente: "Coop. Sociale Verde Pulito", circoscrizione: "Arenella", quartiere: "Vergine Maria", upl: "UPL 3", lat: 38.1432, lng: 13.3498 },
+            { id: 4, titolo: "Laboratorio Artistico Stradale", stato: "Monitoraggio", proponente: "Ass. Culturale Artisti di Strada", circoscrizione: "Montepellegrino", quartiere: "Acquasanta", upl: "UPL 2", lat: 38.1632, lng: 13.3298 },
+            { id: 5, titolo: "Pulizia Spiaggia Romagnolo", stato: "Respinto", proponente: "Comitato Spiagge Pulite", circoscrizione: "Settecannoli", quartiere: "Romagnolo", upl: "UPL 4", lat: 38.1332, lng: 13.3798 },
+            { id: 6, titolo: "Biblioteca di Quartiere", stato: "Stipulato", proponente: "Ass. Lettori Volontari", circoscrizione: "Malaspina", quartiere: "Cruillas", upl: "UPL 5", lat: 38.1232, lng: 13.3198 },
+            { id: 7, titolo: "Ciclovia Zisa", stato: "In Istruttoria", proponente: "FIAB Palermo", circoscrizione: "Zisa", quartiere: "Zisa", upl: "UPL 6", lat: 38.1232, lng: 13.3398 },
+            { id: 8, titolo: "Rigenerazione Campo Sportivo", stato: "Stipulato", proponente: "ASD Sport per Tutti", circoscrizione: "Borgo Nuovo", quartiere: "Borgo Nuovo", upl: "UPL 7", lat: 38.1432, lng: 13.3098 },
+            { id: 9, titolo: "Festival Multiculturale", stato: "Attesa Integrazione", proponente: "Ass. Intercultura", circoscrizione: "Montegrappa", quartiere: "San Lorenzo", upl: "UPL 8", lat: 38.1532, lng: 13.3598 },
+            { id: 10, titolo: "Pulizia Parco Uditore", stato: "Monitoraggio", proponente: "Comitato Parco Uditore", circoscrizione: "Uditore", quartiere: "Uditore", upl: "UPL 9", lat: 38.1332, lng: 13.3198 }
+        ];
+
+        // State management
+        let currentFilters = {
+            stato: '',
+            circoscrizione: '',
+            quartiere: '',
+            upl: '',
+            titolo: ''
+        };
+
+        let filteredData = [...sampleData];
+        let map, markers = [];
+        let statusChart;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+
+        function initApp() {
+            // Set last update date
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Initialize map
+            initMap();
+
+            // Initialize filters
+            initFilters();
+
+            // Initialize chart
+            initChart();
+
+            // Update UI with initial data
+            updateUI();
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        function initMap() {
+            // Initialize map centered on Palermo
+            map = L.map('map').setView([38.1156, 13.3615], 12);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add markers for each data point
+            updateMapMarkers();
+        }
+
+        function initFilters() {
+            // Populate filter dropdowns with unique values from sample data
+            populateFilterOptions('filterStato', 'stato');
+            populateFilterOptions('filterCircoscrizione', 'circoscrizione');
+            populateFilterOptions('filterQuartiere', 'quartiere');
+            populateFilterOptions('filterUpl', 'upl');
+            
+            // Set up filter change events
+            document.getElementById('filterStato').addEventListener('change', function() {
+                currentFilters.stato = this.value;
+                applyFilters();
+            });
+            
+            document.getElementById('filterCircoscrizione').addEventListener('change', function() {
+                currentFilters.circoscrizione = this.value;
+                applyFilters();
+            });
+            
+            document.getElementById('filterQuartiere').addEventListener('change', function() {
+                currentFilters.quartiere = this.value;
+                applyFilters();
+            });
+            
+            document.getElementById('filterUpl').addEventListener('change', function() {
+                currentFilters.upl = this.value;
+                applyFilters();
+            });
+            
+            // Set up search input with debounce
+            const searchInput = document.getElementById('filterTitolo');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.titolo = this.value;
+                    applyFilters();
+                    showAutocompleteSuggestions(this.value);
+                }, 300);
+            });
+            
+            searchInput.addEventListener('focus', function() {
+                document.getElementById('searchFilterCard').classList.add('search-active');
+                showAutocompleteSuggestions(this.value);
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                setTimeout(() => {
+                    document.getElementById('searchFilterCard').classList.remove('search-active');
+                    hideAutocompleteSuggestions();
+                }, 200);
+            });
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            // Get status counts for initial chart
+            const statusCounts = countByStatus(filteredData);
+            
+            statusChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        label: 'Numero di Patti',
+                        data: Object.values(statusCounts),
+                        backgroundColor: [
+                            '#10b981', // Stipulato - green
+                            '#f59e0b', // In Istruttoria - yellow
+                            '#f97316', // Attesa Integrazione - orange
+                            '#8b5cf6', // Monitoraggio - purple
+                            '#ef4444'  // Respinto - red
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#f8fafc',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 6,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.5)'
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add chart type selector event
+            document.getElementById('chartTypeSelector').addEventListener('change', function() {
+                updateChart(this.value);
+            });
+        }
+
+        function setupEventListeners() {
+            // Modal controls
+            document.getElementById('infoBtn').addEventListener('click', function() {
+                document.getElementById('infoModal').classList.add('show');
+            });
+            
+            document.getElementById('closeInfoModal').addEventListener('click', function() {
+                document.getElementById('infoModal').classList.remove('show');
+            });
+            
+            document.getElementById('showTableBtn').addEventListener('click', function() {
+                populateTable();
+                document.getElementById('tableModal').classList.add('show');
+            });
+            
+            document.getElementById('closeTableModal').addEventListener('click', function() {
+                document.getElementById('tableModal').classList.remove('show');
+            });
+            
+            // Clear filters button
+            document.getElementById('clearFilters').addEventListener('click', function() {
+                clearFilters();
+            });
+            
+            // Mobile sidebar toggle
+            document.getElementById('mobileToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.add('open');
+                document.getElementById('mobileClose').classList.remove('hidden');
+            });
+            
+            document.getElementById('mobileClose').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('open');
+                this.classList.add('hidden');
+            });
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                    }
+                });
+            });
+        }
+
+        function populateFilterOptions(selectId, property) {
+            const select = document.getElementById(selectId);
+            const uniqueValues = [...new Set(sampleData.map(item => item[property]))].sort();
+            
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add unique values as options
+            uniqueValues.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            // Apply all filters to the sample data
+            filteredData = sampleData.filter(item => {
+                return (
+                    (currentFilters.stato === '' || item.stato === currentFilters.stato) &&
+                    (currentFilters.circoscrizione === '' || item.circoscrizione === currentFilters.circoscrizione) &&
+                    (currentFilters.quartiere === '' || item.quartiere === currentFilters.quartiere) &&
+                    (currentFilters.upl === '' || item.upl === currentFilters.upl) &&
+                    (currentFilters.titolo === '' || item.titolo.toLowerCase().includes(currentFilters.titolo.toLowerCase()))
+                );
+            });
+            
+            // Update UI with filtered data
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update map markers
+            updateMapMarkers();
+            
+            // Update chart
+            updateChart(document.getElementById('chartTypeSelector').value);
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Update results count
+            document.getElementById('resultsCount').textContent = `${filteredData.length} risultati su ${sampleData.length}`;
+        }
+
+        function updateMapMarkers() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Add new markers for filtered data
+            filteredData.forEach(item => {
+                const marker = L.marker([item.lat, item.lng]).addTo(map);
+                marker.bindPopup(`
+                    <div style="min-width: 200px;">
+                        <h3 style="margin: 0 0 8px; color: #1e293b;">${item.titolo}</h3>
+                        <p style="margin: 4px 0; font-size: 14px;">
+                            <strong>Stato:</strong> ${item.stato}<br>
+                            <strong>Proponente:</strong> ${item.proponente}<br>
+                            <strong>Quartiere:</strong> ${item.quartiere}
+                        </p>
+                    </div>
+                `);
+                markers.push(marker);
+            });
+            
+            // Adjust map view to show all markers if there are any
+            if (filteredData.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function updateChart(chartType) {
+            let labels, data, backgroundColor;
+            
+            if (chartType === 'proponente') {
+                // Count by proponente
+                const counts = {};
+                filteredData.forEach(item => {
+                    counts[item.proponente] = (counts[item.proponente] || 0) + 1;
+                });
+                
+                labels = Object.keys(counts);
+                data = Object.values(counts);
+                backgroundColor = Array.from({length: labels.length}, (_, i) => 
+                    `hsl(${(i * 137.5) % 360}, 70%, 65%)`
+                );
+            } else {
+                // Default: count by status
+                const statusCounts = countByStatus(filteredData);
+                
+                labels = Object.keys(statusCounts);
+                data = Object.values(statusCounts);
+                backgroundColor = [
+                    '#10b981', // Stipulato - green
+                    '#f59e0b', // In Istruttoria - yellow
+                    '#f97316', // Attesa Integrazione - orange
+                    '#8b5cf6', // Monitoraggio - purple
+                    '#ef4444'  // Respinto - red
+                ];
+            }
+            
+            // Update chart data
+            statusChart.data.labels = labels;
+            statusChart.data.datasets[0].data = data;
+            statusChart.data.datasets[0].backgroundColor = backgroundColor;
+            statusChart.update();
+        }
+
+        function countByStatus(data) {
+            const statusOrder = {
+                'Stipulato': 1,
+                'In Istruttoria': 2,
+                'Attesa Integrazione': 3,
+                'Monitoraggio': 4,
+                'Respinto': 5
+            };
+            
+            const counts = {
+                'Stipulato': 0,
+                'In Istruttoria': 0,
+                'Attesa Integrazione': 0,
+                'Monitoraggio': 0,
+                'Respinto': 0
+            };
+            
+            data.forEach(item => {
+                if (counts.hasOwnProperty(item.stato)) {
+                    counts[item.stato]++;
+                }
+            });
+            
+            // Remove statuses with zero count
+            Object.keys(counts).forEach(status => {
+                if (counts[status] === 0) {
+                    delete counts[status];
+                }
+            });
+            
+            // Sort by predefined order
+            return Object.fromEntries(
+                Object.entries(counts).sort((a, b) => statusOrder[a[0]] - statusOrder[b[0]])
+            );
+        }
+
+        function updateStatistics() {
+            const statusCounts = countByStatus(filteredData);
+            
+            // Update statistic values
+            document.getElementById('totalPatti').textContent = filteredData.length;
+            document.getElementById('pattiStipulati').textContent = statusCounts['Stipulato'] || 0;
+            document.getElementById('pattiIstruttoria').textContent = statusCounts['In Istruttoria'] || 0;
+            document.getElementById('pattiAttesaIntegrazione').textContent = statusCounts['Attesa Integrazione'] || 0;
+            document.getElementById('pattiMonitoraggio').textContent = statusCounts['Monitoraggio'] || 0;
+            document.getElementById('pattiRespinti').textContent = statusCounts['Respinto'] || 0;
+            
+            // Update legend
+            updateLegend(statusCounts);
+        }
+
+        function updateLegend(statusCounts) {
+            const legendEl = document.getElementById('legend');
+            legendEl.innerHTML = '';
+            
+            const statusColors = {
+                'Stipulato': '#10b981',
+                'In Istruttoria': '#f59e0b',
+                'Attesa Integrazione': '#f97316',
+                'Monitoraggio': '#8b5cf6',
+                'Respinto': '#ef4444'
+            };
+            
+            Object.entries(statusCounts).forEach(([status, count]) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'legend-item';
+                
+                itemEl.innerHTML = `
+                    <span class="legend-color" style="background-color: ${statusColors[status]};"></span>
+                    <span>${status} (${count})</span>
+                `;
+                
+                legendEl.appendChild(itemEl);
+            });
+        }
+
+        function populateTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #e5e7eb';
+                
+                row.innerHTML = `
+                    <td style="padding: 8px;">${item.id}</td>
+                    <td style="padding: 8px;">${item.titolo}</td>
+                    <td style="padding: 8px;">${item.stato}</td>
+                    <td style="padding: 8px;">${item.proponente}</td>
+                    <td style="padding: 8px;">${item.circoscrizione}</td>
+                    <td style="padding: 8px;">${item.quartiere}</td>
+                    <td style="padding: 8px;">${item.upl}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function clearFilters() {
+            // Reset all filter inputs
+            document.getElementById('filterStato').value = '';
+            document.getElementById('filterCircoscrizione').value = '';
+            document.getElementById('filterQuartiere').value = '';
+            document.getElementById('filterUpl').value = '';
+            document.getElementById('filterTitolo').value = '';
+            
+            // Reset current filters
+            currentFilters = {
+                stato: '',
+                circoscrizione: '',
+                quartiere: '',
+                upl: '',
+                titolo: ''
+            };
+            
+            // Reset data and UI
+            filteredData = [...sampleData];
+            updateUI();
+            
+            // Hide autocomplete suggestions
+            hideAutocompleteSuggestions();
+        }
+
+        function showAutocompleteSuggestions(query) {
+            const suggestionsEl = document.getElementById('autocompleteSuggestions');
+            
+            if (!query || query.length < 2) {
+                suggestionsEl.classList.add('hidden');
+                return;
+            }
+            
+            // Filter titles that match the query
+            const matches = [...new Set(sampleData
+                .map(item => item.titolo)
+                .filter(title => title.toLowerCase().includes(query.toLowerCase())))
+            ].slice(0, 5);
+            
+            if (matches.length === 0) {
+                suggestionsEl.classList.add('hidden');
+                return;
+            }
+            
+            // Create suggestion items
+            suggestionsEl.innerHTML = '';
+            matches.forEach(match => {
+                const suggestionEl = document.createElement('div');
+                suggestionEl.className = 'autocomplete-suggestion';
+                suggestionEl.textContent = match;
+                
+                suggestionEl.addEventListener('mousedown', function() {
+                    document.getElementById('filterTitolo').value = match;
+                    currentFilters.titolo = match;
+                    applyFilters();
+                    suggestionsEl.classList.add('hidden');
+                });
+                
+                suggestionsEl.appendChild(suggestionEl);
+            });
+            
+            suggestionsEl.classList.remove('hidden');
+        }
+
+        function hideAutocompleteSuggestions() {
+            document.getElementById('autocompleteSuggestions').classList.add('hidden');
+        }
+
+        // Toggle filter card expansion
+        function toggleFilterCard(contentId) {
+            const content = document.getElementById(contentId);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.collapse-icon');
+            
+            // Toggle content
+            content.classList.toggle('expanded');
+            
+            // Toggle header active state
+            header.classList.toggle('active');
+            
+            // Rotate icon
+            icon.classList.toggle('rotated');
+            
+            // Update Lucide icons (in case they were not rendered properly)
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard di monitoraggio dei Patti di Collaborazione del Comune di Palermo">
+    <meta name="theme-color" content="#1e293b">
+    
+    <link rel="shortcut icon" href="img/favicon.ico"/> 
+    <link rel="icon" href="img/favicon.png" type="image/png"/> 
+    
+    <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/new-patti_pa.css"> 
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Meta tags per social sharing -->
+    <meta property="og:url" content="https://palermohub.github.io/Dashboard-Monitoraggio/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Palermo 2025 | Patti di Collaborazione | Dashboard di monitoraggio cittadino">
+    <meta property="og:description" content="Palermo Hub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it">
+    <meta property="og:image" content="https://palermohub.github.io/Dashboard-Monitoraggio/img/Social_Card.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="palermohub.opendatasicilia.it">
+    <meta property="twitter:url" content="https://palermohub.github.io/Dashboard-Monitoraggio/">
+    <meta name="twitter:title" content="Palermo 2025 | Patti di Collaborazione | Dashboard di monitoraggio cittadino">
+    <meta name="twitter:description" content="Palermo Hub - Contenitore di mappe su Palermo realizzato da OpenDataSicilia.it">
+    <meta name="twitter:image" content="https://palermohub.github.io/Dashboard-Monitoraggio/img/Social_Card.jpg">
+	
+	 <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KHR1GHDRQS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KHR1GHDRQS');
+</script>	
+	
+</head>
+
+<body class="dashboard-layout">
+
+<!-- FILTERS POPUP -->
+<div id="filtersPopup" class="filters-popup">
+    <div class="filters-popup-icon">
+        <i data-lucide="filter" class="h-4 w-4" aria-hidden="true"></i>
+    </div>
+    <div class="filters-popup-content">
+        <p class="filters-popup-title" id="filtersPopupTitle">Sono state selezionate 0 richieste</p>
+        <div class="filters-popup-filters" id="filtersPopupFilters">
+            Stai usando i filtri: <span id="activeFiltersText">Nessun filtro attivo</span>
+        </div>
+    </div>
+    <button class="filters-popup-reset" 
+            id="filtersPopupReset"
+            title="Reset tutti i filtri"
+            aria-label="Reset tutti i filtri">
+        <i data-lucide="refresh-cw" class="h-3 w-3" aria-hidden="true"></i>
+        Reset
+    </button>
+</div>
+    <!-- HEADER -->
+    <header class="dashboard-header" role="banner">
+        <div class="header-brand">
+            <i data-lucide="map-pin" class="h-6 w-6" aria-hidden="true"></i>
+            <div>
+                <h1 class="header-title">Dashboard di Monitoraggio Cittadino</h1>
+                <p class="header-subtitle">Patti di Collaborazione - Città di Palermo</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button id="infoBtn" 
+                    class="btn-icon" 
+                    title="Informazioni sulla dashboard"
+                    aria-label="Apri informazioni sulla dashboard">
+                <i data-lucide="info" class="h-5 w-5" aria-hidden="true"></i>
+            </button>
+            
+            <div class="header-info" role="status" aria-live="polite">
+                <p>Ultimo aggiornamento</p>
+                <time id="lastUpdate">Caricamento...</time>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-main" role="main">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar" role="complementary" aria-label="Filtri di ricerca"> <span class="beta-badge">Beta Version</span>
+            <div class="sidebar-header">  </label> 
+                <h2 class="sidebar-title">
+                    <i data-lucide="filter" class="h-5 w-5" aria-hidden="true"></i>
+                    Filtri
+                </h2>
+                
+                <button class="mobile-toggle" 
+                        id="mobileFiltersToggle"
+                        aria-label="Mostra/nascondi filtri"
+                        aria-expanded="false">
+                    <i data-lucide="sliders-horizontal" class="h-4 w-4" aria-hidden="true"></i>
+                </button>
+            </div>
+           
+            <div class="sidebar-content" id="filtersContent">
+                <!-- Filter Groups -->
+                <div class="filter-group">
+                    <label for="filterStato" class="filter-label">
+                        Stato di Avanzamento
+                   
+                    <select id="filterStato" 
+                            class="filter-select" 
+                            aria-describedby="stato-help">
+                        <option value="">Tutti gli stati</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterUpl" class="filter-label">UPL</label>
+                    <select id="filterUpl" 
+                            class="filter-select"
+                            aria-describedby="upl-help">
+                        <option value="">Tutte le UPL</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterQuartiere" class="filter-label">Quartiere</label>
+                    <select id="filterQuartiere" 
+                            class="filter-select"
+                            aria-describedby="quartiere-help">
+                        <option value="">Tutti i quartieri</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCircoscrizione" class="filter-label">Circoscrizione</label>
+                    <select id="filterCircoscrizione" 
+                            class="filter-select"
+                            aria-describedby="circoscrizione-help">
+                        <option value="">Tutte le circoscrizioni</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTitolo" class="filter-label">Cerca nel titolo</label>
+                    <div class="autocomplete-container">
+                        <input id="filterTitolo" 
+                               type="text" 
+                               class="filter-input"
+                               placeholder="Inserisci parole chiave..."
+                               aria-describedby="titolo-help"
+                               autocomplete="off">
+                        <div id="autocompleteSuggestions" 
+                             class="autocomplete-suggestions hidden"
+                             role="listbox"
+                             aria-label="Suggerimenti di ricerca"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="clearFilters" 
+                            class="btn btn-secondary" title="Cancella tutti i filtri applicati"
+                            aria-label="Cancella tutti i filtri applicati">
+                        <i data-lucide="refresh-cw" class="h-4 w-4" aria-hidden="true"></i>
+                        <span>Reset</span>
+                    </button>
+                    
+                    <button id="showTableBtn" 
+                            class="btn btn-primary" title="Visualizza i dati in formato tabella"
+                            aria-label="Visualizza i dati in formato tabella">
+                        <i data-lucide="table" class="h-4 w-4" aria-hidden="true"></i>
+                        <span>Elenco</span>
+                    </button>
+                </div>
+
+                <!-- Chart Section -->
+<div class="chart-section">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="section-title">
+            <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
+            <span id="chartTitle">Richieste per stato di avanzamento</span>
+        </h3>
+    </div>
+            <!-- Menu di selezione tipo grafico -->
+        <div class="relative">
+            <select id="chartTypeSelector" 
+                    class="text-xs bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    aria-label="Seleziona tipo di grafico">
+                <option value="stato">Per stato di avanzamento</option>
+                <option value="proponente">Per proponente</option>
+            </select>
+        </div><br>
+		    <div class="chart-info">
+        <p id="chartHelp"></p>
+        <div id="chartStats" class="text-xs text-gray-500 mt-1"></div>
+    </div>
+	
+    <div class="chart-container" role="img" aria-label="Grafico distribuzione patti">
+        <canvas id="statusChart"></canvas>
+    </div>
+    
+
+</div>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- MAP SECTION -->
+            <section class="map-container" 
+                     role="application" 
+                     aria-label="Mappa interattiva dei patti di collaborazione">
+                     
+                <div id="map" class="map-area">
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <!-- Layer Toggle -->
+                        <div class="relative">
+                            <button id="layerToggle" 
+                                    class="map-control"
+                                    aria-label="Cambia tipo di mappa"
+                                    aria-expanded="false"
+                                    aria-haspopup="true">
+                                <i data-lucide="layers" class="h-5 w-5" aria-hidden="true"></i>
+                            </button>
+                            
+                            <div id="layerMenu" 
+                                 class="layer-menu hidden"
+                                 role="menu"
+                                 aria-label="Opzioni layer mappa">
+                                <button id="mapStandard" 
+                                        class="layer-option active"
+                                        role="menuitem">
+                                    Standard
+                                </button>
+                                <button id="mapSatellite" 
+                                        class="layer-option"
+                                        role="menuitem">
+                                    Satellite
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Center Button -->
+                        <button id="centerPalermo" 
+                                class="map-control"
+                                title="Centra la mappa su Palermo"
+                                aria-label="Centra la mappa sul centro di Palermo">
+                            <i data-lucide="home" class="h-5 w-5" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATISTICS AND LEGEND -->
+            <div class="stats-container">
+                <!-- Legend -->
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
+                        Legenda Stati
+                    </h3>
+                    
+                    <div id="legend" class="legend-items" role="list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-card">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-4" class="h-4 w-4" aria-hidden="true"></i>
+                        Statistiche
+                    </h3>
+                    
+                    <div class="stats-grid" role="list">
+                        <div class="stat-item" role="listitem">
+                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
+                            <div class="stat-label">Richieste Patti</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiStipulati" class="stat-value" style="color: var(--status-stipulato);">0</div>
+                            <div class="stat-label">Patti Stipulati</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--status-istruttoria);">0</div>
+                            <div class="stat-label">In Istruttoria</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: var(--status-integrazione);">0</div>
+                            <div class="stat-label">Attesa Integrazione</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiMonitoraggio" class="stat-value" style="color: var(--status-monitoraggio);">0</div>
+                            <div class="stat-label">Proroga/Monitoraggio</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiRespinti" class="stat-value" style="color: var(--status-respinto);">0</div>
+                            <div class="stat-label">Patti Respinti</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="dashboard-footer" role="contentinfo">
+        <div class="footer-content">
+            <div>
+                <div>Comune di Palermo - Area Urbanistica e della rigenerazione urbana</div>
+                <div>Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</div>
+                <div>U.O. Interventi di Rigenerazione Urbana in partenariato pubblico-privato</div>
+            </div>
+            <div class="footer-links">
+                <a href="https://creativecommons.org/licenses/by/4.0/deed.it" 
+                   title="Attribuzione 4.0 Internazionale" 
+                   target="_blank"
+                   rel="noopener">CC BY 4.0</a> - 
+                Sviluppo & Rielaborazione dataset by 
+                <a href="https://www.linkedin.com/in/gbvitrano/" 
+                   title="@gbvitrano" 
+                   target="_blank"
+                   rel="noopener">@gbvitrano</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INFO MODAL -->
+    <div id="infoModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="infoModalTitle"
+         aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="infoModalTitle" class="modal-title">
+                    <i data-lucide="info" class="h-6 w-6" aria-hidden="true"></i>
+                    Informazioni sulla Dashboard
+                </h2>
+                <button id="closeInfoModal" 
+                        class="modal-close"
+                        aria-label="Chiudi finestra informazioni">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div style="display: grid; gap: 2rem;">
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Cosa sono i Patti di Collaborazione?</h3>
+                        <p style="color: var(--color-gray-600); line-height: 1.6;">
+                            I Patti di Collaborazione sono accordi tra il Comune di Palermo e cittadini, gruppi informali, 
+                            associazioni, organizzazioni di volontariato e altri enti del Terzo Settore per la cura 
+                            e rigenerazione dei beni comuni urbani. Questi strumenti permettono di realizzare interventi 
+                            di miglioramento dell'ambiente urbano attraverso la partecipazione attiva della cittadinanza.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Come utilizzare la Dashboard</h3>
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(59, 130, 246, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="map" style="width: 1rem; height: 1rem; color: var(--color-accent);" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <p style="color: var(--color-gray-600);"><strong>Mappa Interattiva:</strong> Visualizza la posizione geografica di tutti i patti. 
+                                    Clicca sui marker colorati per vedere i dettagli di ogni progetto.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="filter" style="width: 1rem; height: 1rem; color: var(--color-success);" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <p style="color: var(--color-gray-600);"><strong>Filtri:</strong> Utilizza il pannello laterale per filtrare i patti per stato, 
+                                    UPL, quartiere, circoscrizione o cercare per titolo.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="bar-chart-3" style="width: 1rem; height: 1rem; color: var(--color-warning);" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <p style="color: var(--color-gray-600);"><strong>Grafici e Statistiche:</strong> Visualizza la distribuzione dei patti per stato 
+                                    e monitora i progressi attraverso statistiche aggiornate.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="background: rgba(139, 92, 246, 0.1); border-radius: 50%; padding: 0.5rem; margin-top: 0.25rem;">
+                                    <i data-lucide="table" style="width: 1rem; height: 1rem; color: var(--status-monitoraggio);" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <p style="color: var(--color-gray-600);"><strong>Vista Tabella:</strong> Accedi a una vista dettagliata in formato tabella 
+                                    con tutti i dati strutturati e ordinabili.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-gray-800);">Legenda Stati</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-stipulato);"></div>
+                                <span style="font-size: 0.875rem;">Patto stipulato</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-istruttoria);"></div>
+                                <span style="font-size: 0.875rem;">Istruttoria in corso</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-integrazione);"></div>
+                                <span style="font-size: 0.875rem;">In attesa di integrazione</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-monitoraggio);"></div>
+                                <span style="font-size: 0.875rem;">Proroga/Monitoraggio</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background: var(--status-respinto);"></div>
+                                <span style="font-size: 0.875rem;">Patto respinto</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div style="background: rgba(59, 130, 246, 0.05); border-radius: var(--border-radius); padding: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                            <i data-lucide="lightbulb" style="width: 1.25rem; height: 1.25rem; color: var(--color-accent); margin-top: 0.25rem;" aria-hidden="true"></i>
+                            <div>
+                                <h4 style="font-weight: 600; color: var(--color-accent); margin-bottom: 0.25rem;">Suggerimento</h4>
+                                <p style="color: var(--color-gray-700); font-size: 0.875rem;">
+                                    Su dispositivi desktop, il pannello dei controlli è sempre visibile. 
+                                    Su dispositivi mobili, utilizza il pulsante di apertura per accedervi.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE MODAL -->
+    <div id="tableModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="tableModalTitle"
+         aria-modal="true">
+        <div class="modal-content" style="max-width: 95vw; width: 100%;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="table" class="h-5 w-5" style="color: var(--color-accent);" aria-hidden="true"></i>
+                    <h2 id="tableModalTitle" class="modal-title">Elenco Patti di Collaborazione</h2>
+                    <div style="font-size: 0.875rem; color: var(--color-gray-600); margin-left: 1rem;">
+                        <span id="tableCount">0</span> elementi visualizzati
+                    </div>
+                </div>
+                <button id="closeTableModal" 
+                        class="modal-close"
+                        aria-label="Chiudi tabella dati">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table" role="table">
+                    <thead>
+                        <tr id="tableHeader" role="row">
+                            <!-- Populated dynamically -->
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAILS MODAL -->
+    <div id="pattoModal" 
+         class="modal"
+         role="dialog" 
+         aria-labelledby="pattoModalTitle"
+         aria-modal="true">
+        <div class="modal-content details-modal">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title">Dettagli Patto</h2>
+                <button id="closeModal" 
+                        class="modal-close"
+                        aria-label="Chiudi dettagli patto">
+                    <i data-lucide="x" class="h-6 w-6" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem; align-items: start;">
+                    <!-- Left Column - Main Details -->
+                    <div style="display: grid; gap: 1.5rem;">
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Dettagli Patto</h3>
+                            <div id="pattoDetails" style="background: var(--color-gray-50); border-radius: var(--border-radius); padding: 1.5rem; display: grid; gap: 1rem; font-size: 0.95rem;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </section>
+
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Stato di Avanzamento</h3>
+                            <div id="pattoStatus" class="status-badge">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </section>
+
+                        <section id="pattoNotesContainer" class="hidden">
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Note</h3>
+                            <div style="background: var(--color-gray-50); border-radius: var(--border-radius); padding: 1.5rem;">
+                                <p id="pattoNotes" style="font-size: 0.9rem; line-height: 1.6;"></p>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Collegamenti</h3>
+                            <div id="pattoLinks" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </section>
+
+                        <section id="photoContainer" class="hidden">
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Foto</h3>
+                            <div style="border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color);">
+                                <img id="pattoPhoto" style="width: 100%; height: 240px; object-fit: cover;" alt="">
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column - Map -->
+                    <div style="position: sticky; top: 0;">
+                        <section>
+                            <h3 style="font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.75rem; font-size: 1.125rem;">Posizione</h3>
+                            <div id="miniMap" 
+                                 style="height: 400px; border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color); background: var(--color-gray-100);"
+                                 role="application"
+                                 aria-label="Mappa posizione patto"></div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/monitoraggio_p1-1.js"></script>
+	 <script src="js/monitoraggio_p2.js"></script>
+
+</body>
+</html>
