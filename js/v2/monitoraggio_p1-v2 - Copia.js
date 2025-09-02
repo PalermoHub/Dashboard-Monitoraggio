@@ -1,5 +1,5 @@
 // ==========================================
-// DASHBOARD MONITORAGGIO PATTI - VERSIONE MIGLIORATA
+// DASHBOARD MONITORAGGIO PATTI - VERSIONE COMPLETA CORRETTA
 // ==========================================
 
 // Variabili globali
@@ -42,10 +42,10 @@ function safeAddEventListener(elementId, eventType, handler, description) {
     
     if (element) {
         element.addEventListener(eventType, handler);
-        console.log(`Event listener configurato: ${description} (${elementId})`);
+        console.log(`✅ Event listener configurato: ${description} (${elementId})`);
         return true;
     } else {
-        console.warn(`Elemento non trovato: ${elementId} - ${description}`);
+        console.warn(`⚠️ Elemento non trovato: ${elementId} - ${description}`);
         return false;
     }
 }
@@ -56,13 +56,13 @@ function safeQuerySelector(selector, description) {
     if (element) {
         return element;
     } else {
-        console.warn(`Elemento non trovato: ${selector} - ${description}`);
+        console.warn(`⚠️ Elemento non trovato: ${selector} - ${description}`);
         return null;
     }
 }
 
 // ==========================================
-// GESTIONE POPUP FILTRI MIGLIORATA
+// GESTIONE POPUP FILTRI
 // ==========================================
 
 function updateFiltersPopup() {
@@ -103,9 +103,9 @@ function updateFiltersPopup() {
     if (filteredCount === 0) {
         titleText = 'Nessuna richiesta trovata';
     } else if (filteredCount === 1) {
-        titleText = '1 richiesta selezionata';
+        titleText = 'È stata selezionata 1 richiesta';
     } else {
-        titleText = `${filteredCount} richieste selezionate`;
+        titleText = `Sono state selezionate ${filteredCount} richieste`;
     }
     
     if (filteredCount > 0 && filteredCount < totalCount) {
@@ -157,13 +157,6 @@ function hideFiltersPopup() {
     }, 300);
 }
 
-// NUOVA FUNZIONE: Chiudi popup senza resettare filtri
-function closeFiltersPopupOnly() {
-    console.log('Chiusura popup filtri senza reset');
-    hideFiltersPopup();
-}
-
-// FUNZIONE SEPARATA: Reset filtri dal popup
 function resetFiltersFromPopup() {
     console.log('Reset filtri dal popup');
     
@@ -193,30 +186,21 @@ function resetFiltersFromPopup() {
     updateTable();
     
     hideFiltersPopup();
-    // Rimuovo la notifica di conferma per ridurre il rumore
+    showNotification('Tutti i filtri sono stati rimossi', 'info');
 }
 
 function setupFiltersPopupEventListeners() {
-    // Pulsante reset (mantiene funzionalità originale)
     const resetButton = document.getElementById('filtersPopupReset');
     if (resetButton) {
         resetButton.addEventListener('click', resetFiltersFromPopup);
         console.log('Event listener popup reset configurato');
     }
     
-    // NUOVO: Pulsante chiudi senza reset
-    const closeButton = document.getElementById('filtersPopupClose');
-    if (closeButton) {
-        closeButton.addEventListener('click', closeFiltersPopupOnly);
-        console.log('Event listener popup close configurato');
-    }
-    
-    // Mantieni gestione ESC ma ora chiude senza resettare
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const popup = document.getElementById('filtersPopup');
             if (popup && popup.classList.contains('show')) {
-                closeFiltersPopupOnly();
+                hideFiltersPopup();
             }
         }
     });
@@ -236,9 +220,6 @@ function initializeFiltersPopup() {
         return;
     }
     
-    // Aggiungi pulsante chiudi se non esiste
-    addCloseButtonToFiltersPopup();
-    
     setupFiltersPopupEventListeners();
     
     if (typeof lucide !== 'undefined' && lucide.createIcons) {
@@ -247,91 +228,11 @@ function initializeFiltersPopup() {
         }, 100);
     }
     
-    console.log('Popup filtri inizializzato');
-}
-
-// NUOVA FUNZIONE: Aggiunge pulsante di chiusura al popup
-function addCloseButtonToFiltersPopup() {
-    const popup = document.getElementById('filtersPopup');
-    if (!popup) return;
-    
-    // Verifica se il pulsante esiste già
-    if (document.getElementById('filtersPopupClose')) return;
-    
-    // Crea il pulsante di chiusura
-    const closeButton = document.createElement('button');
-    closeButton.id = 'filtersPopupClose';
-    closeButton.className = 'filters-popup-close';
-    closeButton.title = 'Chiudi popup filtri';
-    closeButton.setAttribute('aria-label', 'Chiudi popup filtri');
-    closeButton.innerHTML = '<i data-lucide="x" class="h-3 w-3" aria-hidden="true"></i>';
-    
-    // Inserisci il pulsante prima del pulsante reset
-    const resetButton = document.getElementById('filtersPopupReset');
-    if (resetButton) {
-        popup.insertBefore(closeButton, resetButton);
-    } else {
-        popup.appendChild(closeButton);
-    }
-    
-    // Aggiorna gli stili CSS
-    addFiltersPopupStyles();
-}
-
-// NUOVA FUNZIONE: Aggiunge stili per il pulsante di chiusura
-function addFiltersPopupStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .filters-popup-close {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #6b7280;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-        
-        .filters-popup-close:hover {
-            background: #4b5563;
-            transform: translateY(-1px);
-        }
-        
-        .filters-popup {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .filters-popup-reset {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 12px;
-        }
-        
-        .filters-popup-reset:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-        }
-    `;
-    document.head.appendChild(style);
+    console.log('Popup filtri inizializzato con successo');
 }
 
 // ==========================================
-// CONTROLLI MAPPA MIGLIORATI (senza notifiche eccessive)
+// CONTROLLI MAPPA CORRETTI
 // ==========================================
 
 function centerMapOnPalermo() {
@@ -339,6 +240,7 @@ function centerMapOnPalermo() {
     
     if (!map) {
         console.error('Mappa non inizializzata');
+        showNotification('Errore: mappa non disponibile', 'error');
         return;
     }
     
@@ -349,6 +251,8 @@ function centerMapOnPalermo() {
         });
         
         console.log('Mappa centrata su:', PALERMO_CENTER);
+        showNotification('Mappa centrata sul Centro Storico', 'info');
+        
         highlightPalermoCenter();
         
     } catch (error) {
@@ -376,6 +280,7 @@ function switchMapLayer(layerType) {
     
     if (!map) {
         console.error('Mappa non inizializzata per cambio layer');
+        showNotification('Errore: mappa non disponibile', 'error');
         return;
     }
     
@@ -406,7 +311,9 @@ function switchMapLayer(layerType) {
         }
         
         newTileLayer.addTo(map);
-        console.log(`Layer ${layerType} applicato`);
+        
+        console.log(`Layer ${layerType} applicato con successo`);
+        showNotification(`Mappa ${layerType === 'satellite' ? 'satellitare' : 'standard'} attivata`, 'info');
         
     } catch (error) {
         console.error('Errore nel cambio layer:', error);
@@ -440,6 +347,8 @@ function updateLayerButtons(activeLayer) {
         standardBtn.className = inactiveClasses;
         satelliteBtn.className = activeClasses;
     }
+    
+    console.log('UI pulsanti aggiornata');
 }
 
 // ==========================================
@@ -524,7 +433,8 @@ function initializeMap() {
         });
         
         currentMapLayer = 'standard';
-        console.log('Mappa inizializzata');
+        
+        console.log('Mappa inizializzata con successo');
         
     } catch (error) {
         console.error('Errore nell\'inizializzazione mappa:', error);
@@ -631,7 +541,7 @@ function setupAutocomplete() {
 // ==========================================
 
 function updateFilters() {
-    console.log('Aggiornamento filtri con logica cascata...');
+    console.log('Aggiornamento filtri con logica cascata completa...');
     
     const filterMappings = [
         { id: 'filterStato', key: 'Stato di avanzamento', isGeographical: false },
@@ -646,6 +556,8 @@ function updateFilters() {
         quartiere: document.getElementById('filterQuartiere')?.value || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value || ''
     };
+
+    console.log('Filtri correnti:', currentFilters);
 
     filterMappings.forEach(({ id, key, isGeographical }) => {
         const select = document.getElementById(id);
@@ -674,6 +586,7 @@ function updateFilters() {
         let dataToFilter = [...allData];
         
         if (isGeographical) {
+            // Applica filtro stato se selezionato e non è il filtro corrente
             if (currentFilters.stato && id !== 'filterStato') {
                 const statoKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().includes('stato')
@@ -682,6 +595,7 @@ function updateFilters() {
                     dataToFilter = dataToFilter.filter(item => 
                         item[statoKey] && item[statoKey].trim() === currentFilters.stato.trim()
                     );
+                    console.log(`Filtro stato applicato nella cascata: ${dataToFilter.length} elementi rimasti`);
                 }
             }
             
@@ -718,6 +632,7 @@ function updateFilters() {
                 }
             }
         } else {
+            // Per il filtro stato, applica solo i filtri geografici
             if (currentFilters.circoscrizione) {
                 const circKey = Object.keys(allData[0] || {}).find(k => 
                     k.toLowerCase().includes('circoscrizione')
@@ -759,6 +674,8 @@ function updateFilters() {
                 .map(value => value.toString().trim())
         )].sort();
         
+        console.log(`Valori unici per ${key} dopo cascata:`, uniqueValues.length, 'su', dataToFilter.length, 'elementi');
+        
         uniqueValues.forEach(value => {
             const option = document.createElement('option');
             option.value = value;
@@ -771,6 +688,7 @@ function updateFilters() {
         } else if (currentValue) {
             select.value = '';
             console.log(`Valore "${currentValue}" non più valido per ${key}, resettato`);
+            showNotification(`Filtro ${key}: valore non più disponibile`, 'warning');
         }
         
         updateFilterAppearance(select, select.value);
@@ -796,10 +714,10 @@ function applyFilters() {
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value?.trim() || '',
         titolo: document.getElementById('filterTitolo')?.value?.toLowerCase()?.trim() || '',
-        proponente: proponenteFilter.trim()
+        proponente: proponenteFilter.trim() // Filtro nascosto
     };
     
-    console.log('Applicando filtri:', filters);
+    console.log('Applicando filtri (incluso proponente):', filters);
     
     filteredData = allData.filter(item => {
         const statoKey = Object.keys(item).find(k => k.toLowerCase().includes('stato'));
@@ -935,6 +853,8 @@ function updateStatistics() {
     updateCounterWithAnimation('pattiAttesaIntegrazione', attesaIntegrazione);
     updateCounterWithAnimation('pattiMonitoraggio', monitoraggio);
     updateCounterWithAnimation('pattiRespinti', respinti);
+    
+    console.log('Statistiche aggiornate:', { total, stipulati, istruttoria, attesaIntegrazione, monitoraggio, respinti });
 }
 
 function updateCounterWithAnimation(elementId, newValue) {
@@ -1064,7 +984,7 @@ function generateProponenteColors(count) {
         if (i < baseColors.length) {
             colors.push(baseColors[i]);
         } else {
-            const hue = (i * 137.508) % 360;
+            const hue = (i * 137.508) % 360; // Golden angle
             colors.push(`hsl(${hue}, 65%, 50%)`);
         }
     }
@@ -1157,10 +1077,12 @@ function createChart(labels, data, colors, type, fullLabels = null) {
                         if (statusSelect) {
                             statusSelect.value = selectedStatus;
                             applyFilters();
+                            showNotification(`Filtro applicato: ${selectedStatus}`);
                         }
                     } else {
                         const selectedProponente = fullLabels ? fullLabels[index] : labels[index];
                         applyProponenteFilter(selectedProponente);
+                        showNotification(`Filtro proponente: ${selectedProponente.length > 30 ? selectedProponente.substring(0, 27) + '...' : selectedProponente}`);
                     }
                 }
             },
@@ -1433,12 +1355,13 @@ function showPattoDetails(pattoId) {
         const fotoUrl = patto[keys.foto].trim();
         
         photo.onload = function() {
-            console.log('Immagine caricata:', fotoUrl);
+            console.log('Immagine caricata con successo:', fotoUrl);
         };
         
         photo.onerror = function() {
-            console.error('Errore caricamento immagine:', fotoUrl);
+            console.error('Errore nel caricamento dell\'immagine:', fotoUrl);
             photoContainer.classList.add('hidden');
+            showNotification('Impossibile caricare l\'immagine', 'warning');
         };
         
         photo.src = fotoUrl;
@@ -1581,11 +1504,11 @@ function setupAutocompleteEventListeners() {
 }
 
 // ==========================================
-// SETUP EVENT LISTENERS MIGLIORATO (senza notifiche eccessive)
+// SETUP EVENT LISTENERS CON CONTROLLI DI SICUREZZA
 // ==========================================
 
 function setupEventListeners() {
-    console.log('Configurazione event listeners...');
+    console.log('Configurazione event listeners con controlli di sicurezza...');
     
     let successCount = 0;
     let totalAttempts = 0;
@@ -1627,7 +1550,10 @@ function setupEventListeners() {
             }
         });
         
+        console.log('Mobile toggle configurato');
         successCount++;
+    } else {
+        console.warn('Mobile toggle non configurato - elementi mancanti');
     }
     
     // === CHART TYPE SELECTOR ===
@@ -1662,7 +1588,10 @@ function setupEventListeners() {
                 }, 100);
             });
             
+            console.log(`Event listener configurato per filtro: ${id}`);
             successCount++;
+        } else {
+            console.warn(`Filtro non trovato: ${id}`);
         }
     });
     
@@ -1728,6 +1657,7 @@ function setupEventListeners() {
         updateTable();
         hideFiltersPopup();
         
+        showNotification('Filtri resettati', 'info');
     }, 'Reset filtri')) {
         successCount++;
     }
@@ -1843,8 +1773,17 @@ function setupEventListeners() {
     setupFiltersPopupEventListeners();
     setupAutocompleteEventListeners();
     
-    // === REPORT FINALE (senza notifica eccessiva) ===
+    // === REPORT FINALE ===
     console.log(`Event listeners configurati: ${successCount}/${totalAttempts}`);
+    
+    if (successCount === totalAttempts) {
+        console.log('Tutti gli event listeners configurati con successo');
+        showNotification('Interfaccia completamente funzionale', 'success');
+    } else {
+        const missing = totalAttempts - successCount;
+        console.warn(`${missing} elementi non trovati nel DOM`);
+        showNotification(`${missing} controlli non disponibili`, 'warning');
+    }
     
     return {
         success: successCount,
@@ -1990,26 +1929,20 @@ function setupAutoUpdate() {
     }, 60000);
 }
 
-// ==========================================
-// NOTIFICHE RIDOTTE (solo per errori reali)
-// ==========================================
-
 function showNotification(message, type = 'info') {
-    // Mostra solo notifiche di errore e warning importanti
-    if (type !== 'error' && type !== 'warning') {
-        return;
-    }
-    
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-[11000] fade-in text-sm ${
-        type === 'error' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
+        type === 'info' ? 'bg-blue-500 text-white' : 
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'warning' ? 'bg-yellow-500 text-white' : 
+        'bg-red-500 text-white'
     }`;
     notification.textContent = message;
     document.body.appendChild(notification);
     
     setTimeout(() => {
         notification.remove();
-    }, 3000);
+    }, 2500);
 }
 
 function showError(message) {
@@ -2073,4 +2006,4 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(style);
 }
 
-console.log('Dashboard Monitoraggio Patti - Versione Migliorata caricata');
+console.log('Dashboard Monitoraggio Patti - Versione Completa e Corretta caricata');
