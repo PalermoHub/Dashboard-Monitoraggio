@@ -3017,23 +3017,30 @@ display: none !important;
     .filter-card {
         border-radius: 12px;
         margin-bottom: var(--space-3);
+        width: 100%;
+        min-width: 0;
+        flex: 1 1 100%;
     }
     
     .filter-card-header {
         padding: var(--space-3) var(--space-4);
+        width: 100%;
     }
     
     .filter-card-body {
         padding: var(--space-3);
+        width: 100%;
     }
     
     .quick-actions-card {
         padding: var(--space-4);
         margin-top: var(--space-4);
+        width: 100%;
     }
     
     .action-buttons-grid {
         gap: var(--space-2);
+        width: 100%;
     }
     
     .filter-card-title {
@@ -3043,6 +3050,12 @@ display: none !important;
     .filter-card-title i {
         width: 28px;
         height: 28px;
+    }
+    
+    /* Assicura che il contenitore delle card abbia la larghezza corretta */
+    .dashboard-main {
+        grid-template-columns: 1fr;
+        padding: var(--space-3);
     }
 }
 
