@@ -3102,3 +3102,33 @@ display: none !important;
         border: 2px solid white;
     }
 }
+
+/* Assicura che tutte le card abbiano la stessa larghezza in mobile */
+@media (max-width: 853px) {
+    .filter-card {
+        width: 100% !important;
+        min-width: 100% !important;
+        flex: 1 1 100% !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    .filter-card-body {
+        width: 100% !important;
+        padding: var(--space-3);
+    }
+
+    .geo-filters-grid {
+        width: 100% !important;
+    }
+
+    /* Assicura che i contenitori interni abbiano larghezza piena */
+    .filter-group {
+        width: 100% !important;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100% !important;
+    }
+}
