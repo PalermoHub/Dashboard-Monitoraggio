@@ -1,5 +1,5 @@
 // ==========================================
-// DASHBOARD MONITORAGGIO PATTI - VERSIONE COMPLETA CON GRAFICI MODERNI
+// DASHBOARD MONITORAGGIO PATTI - VERSIONE MIGLIORATA
 // ==========================================
 
 // Variabili globali
@@ -13,7 +13,7 @@ let currentMapLayer = 'standard';
 let autocompleteData = [];
 let currentSuggestionIndex = -1;
 
-// VARIABILI PER GRAFICI MULTIPLI
+// NUOVE VARIABILI PER GRAFICI MULTIPLI
 let currentChartType = 'stato'; // 'stato' o 'proponente'
 let proponenteFilter = ''; // Filtro nascosto per proponente
 
@@ -24,178 +24,13 @@ const PALERMO_BOUNDS = [
     [38.3000, 13.4200]  // Nord-Est (include Sferracavallo e Bagheria)
 ];
 
-// Colori per stato di avanzamento (originali)
+// Colori per stato di avanzamento
 const statusColors = {
     'Istruttoria in corso': '#ffdb4d',
     'Respinta': '#ff6b6b',
     'Patto stipulato': '#8fd67d',
     'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
     'In attesa di integrazione': '#b3e6ff'
-};
-
-// ==========================================
-// CONFIGURAZIONE GRAFICI MODERNI
-// ==========================================
-
-// Palette di colori moderna e intelligente per i grafici
-const modernChartColors = {
-    // Colori per stati (mantenendo la mappatura esistente ma con tonalità moderne)
-    status: {
-        'Istruttoria in corso': '#F59E0B',
-        'Respinta': '#EF4444', 
-        'Patto stipulato': '#10B981',
-        'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
-        'In attesa di integrazione': '#06B6D4'
-    },
-    // Palette per proponenti (colori dinamici)
-    proponenti: [
-        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
-        '#14B8A6', '#F43F5E', '#64748B', '#22C55E', '#A855F7'
-    ]
-};
-
-// Funzione per generare colori intelligenti dinamici
-function generateIntelligentColors(count, baseHue = 200) {
-    const colors = [];
-    const saturation = 65;
-    const lightness = 55;
-    
-    for (let i = 0; i < count; i++) {
-        const hue = (baseHue + (i * 137.508)) % 360; // Golden angle per distribuzione ottimale
-        colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
-    }
-    return colors;
-}
-
-// Funzione per ottenere colore hover più brillante
-function getBrighterColor(color) {
-    if (typeof d3 !== 'undefined' && d3.color) {
-        const d3Color = d3.color(color);
-        if (d3Color) {
-            return d3Color.brighter(0.3);
-        }
-    }
-    // Fallback se d3 non è disponibile o per colori Chart.js
-    if (color.startsWith('hsl')) {
-        return color.replace(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/, (match, h, s, l) => {
-            const newL = Math.min(parseInt(l) + 15, 85);
-            return `hsl(${h}, ${s}%, ${newL}%)`;
-        });
-    }
-    // Per colori hex, aggiungi opacità o usa una versione più chiara
-    return color + 'CC';
-}
-
-// Funzione migliorata per formattare valori
-function formatChartValue(value, isPercentage = false) {
-    if (isPercentage) {
-        return `${value.toFixed(1)}%`;
-    }
-    
-    if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(1)}M`;
-    } else if (value >= 1000) {
-        return `${(value / 1000).toFixed(1)}K`;
-    } else {
-        return value.toString();
-    }
-}
-
-// Plugin personalizzato per etichette dati sofisticate
-const smartDataLabelsPlugin = {
-    id: 'smartDataLabels',
-    afterDatasetsDraw: function(chart) {
-        const ctx = chart.ctx;
-        ctx.save();
-        
-        chart.data.datasets.forEach(function(dataset, datasetIndex) {
-            const meta = chart.getDatasetMeta(datasetIndex);
-            
-            meta.data.forEach(function(bar, index) {
-                const data = dataset.data[index];
-                
-                if (data > 0) {
-                    // Calcola posizione intelligente del testo
-                    const barHeight = Math.abs(bar.y - bar.base);
-                    const hasSpaceInside = barHeight > 25; // Spazio minimo per testo interno
-                    
-                    // Stile del testo
-                    ctx.fillStyle = hasSpaceInside ? '#FFFFFF' : '#374151';
-                    ctx.font = 'bold 11px "Inter", -apple-system, BlinkMacSystemFont, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = hasSpaceInside ? 'middle' : 'bottom';
-                    
-                    // Posizione del testo
-                    const x = bar.x;
-                    const y = hasSpaceInside ? 
-                        (bar.y + bar.base) / 2 : // Centro della barra
-                        bar.y - 8; // Sopra la barra
-                    
-                    // Ombra per leggibilità
-                    if (hasSpaceInside) {
-                        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                        ctx.shadowBlur = 2;
-                        ctx.shadowOffsetX = 1;
-                        ctx.shadowOffsetY = 1;
-                    } else {
-                        ctx.shadowColor = 'transparent';
-                        ctx.shadowBlur = 0;
-                    }
-                    
-                    ctx.fillText(formatChartValue(data), x, y);
-                }
-            });
-        });
-        
-        ctx.restore();
-    }
-};
-
-// Configurazione moderna per tooltip
-const modernTooltipConfig = {
-    enabled: true,
-    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-    titleColor: '#F1F5F9',
-    bodyColor: '#E2E8F0',
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-    borderWidth: 1,
-    cornerRadius: 12,
-    displayColors: true,
-    padding: 16,
-    titleFont: {
-        size: 14,
-        weight: '600',
-        family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif'
-    },
-    bodyFont: {
-        size: 13,
-        family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif'
-    },
-    usePointStyle: true,
-    filter: function(tooltipItem) {
-        return tooltipItem.parsed.y > 0; // Mostra solo per valori positivi
-    },
-    callbacks: {
-        title: function(context) {
-            return context[0].label;
-        },
-        label: function(context) {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y;
-            const formattedValue = currentChartType === 'stato' ? 
-                `${value} patt${value === 1 ? 'o' : 'i'}` :
-                `${value} richiest${value === 1 ? 'a' : 'e'}`;
-            return `${label}: ${formattedValue}`;
-        },
-        afterLabel: function(context) {
-            if (filteredData && filteredData.length > 0) {
-                const percentage = ((context.parsed.y / filteredData.length) * 100).toFixed(1);
-                return `Percentuale: ${percentage}%`;
-            }
-            return '';
-        }
-    }
 };
 
 // ==========================================
@@ -322,11 +157,13 @@ function hideFiltersPopup() {
     }, 300);
 }
 
+// NUOVA FUNZIONE: Chiudi popup senza resettare filtri
 function closeFiltersPopupOnly() {
     console.log('Chiusura popup filtri senza reset');
     hideFiltersPopup();
 }
 
+// FUNZIONE SEPARATA: Reset filtri dal popup
 function resetFiltersFromPopup() {
     console.log('Reset filtri dal popup');
     
@@ -356,21 +193,25 @@ function resetFiltersFromPopup() {
     updateTable();
     
     hideFiltersPopup();
+    // Rimuovo la notifica di conferma per ridurre il rumore
 }
 
 function setupFiltersPopupEventListeners() {
+    // Pulsante reset (mantiene funzionalità originale)
     const resetButton = document.getElementById('filtersPopupReset');
     if (resetButton) {
         resetButton.addEventListener('click', resetFiltersFromPopup);
         console.log('Event listener popup reset configurato');
     }
     
+    // NUOVO: Pulsante chiudi senza reset
     const closeButton = document.getElementById('filtersPopupClose');
     if (closeButton) {
         closeButton.addEventListener('click', closeFiltersPopupOnly);
         console.log('Event listener popup close configurato');
     }
     
+    // Mantieni gestione ESC ma ora chiude senza resettare
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const popup = document.getElementById('filtersPopup');
@@ -395,7 +236,9 @@ function initializeFiltersPopup() {
         return;
     }
     
+    // Aggiungi pulsante chiudi se non esiste
     addCloseButtonToFiltersPopup();
+    
     setupFiltersPopupEventListeners();
     
     if (typeof lucide !== 'undefined' && lucide.createIcons) {
@@ -407,12 +250,15 @@ function initializeFiltersPopup() {
     console.log('Popup filtri inizializzato');
 }
 
+// NUOVA FUNZIONE: Aggiunge pulsante di chiusura al popup
 function addCloseButtonToFiltersPopup() {
     const popup = document.getElementById('filtersPopup');
     if (!popup) return;
     
+    // Verifica se il pulsante esiste già
     if (document.getElementById('filtersPopupClose')) return;
     
+    // Crea il pulsante di chiusura
     const closeButton = document.createElement('button');
     closeButton.id = 'filtersPopupClose';
     closeButton.className = 'filters-popup-close';
@@ -420,6 +266,7 @@ function addCloseButtonToFiltersPopup() {
     closeButton.setAttribute('aria-label', 'Chiudi popup filtri');
     closeButton.innerHTML = '<i data-lucide="x" class="h-3 w-3" aria-hidden="true"></i>';
     
+    // Inserisci il pulsante prima del pulsante reset
     const resetButton = document.getElementById('filtersPopupReset');
     if (resetButton) {
         popup.insertBefore(closeButton, resetButton);
@@ -427,9 +274,11 @@ function addCloseButtonToFiltersPopup() {
         popup.appendChild(closeButton);
     }
     
+    // Aggiorna gli stili CSS
     addFiltersPopupStyles();
 }
 
+// NUOVA FUNZIONE: Aggiunge stili per il pulsante di chiusura
 function addFiltersPopupStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -482,7 +331,7 @@ function addFiltersPopupStyles() {
 }
 
 // ==========================================
-// CONTROLLI MAPPA MIGLIORATI
+// CONTROLLI MAPPA MIGLIORATI (senza notifiche eccessive)
 // ==========================================
 
 function centerMapOnPalermo() {
@@ -599,9 +448,6 @@ function updateLayerButtons(activeLayer) {
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM caricato, inizializzazione...');
-    
-    // Aggiungi stili moderni per i grafici
-    addModernChartStyles();
     
     if (typeof lucide !== 'undefined' && lucide.createIcons) {
         lucide.createIcons();
@@ -1070,7 +916,7 @@ function centerMapOnFilteredData() {
 }
 
 // ==========================================
-// STATISTICHE E GRAFICI MODERNI
+// STATISTICHE E GRAFICI
 // ==========================================
 
 function updateStatistics() {
@@ -1143,168 +989,6 @@ function updateChart() {
     updateChartInterface();
 }
 
-// Funzione principale migliorata per creare grafici
-function createModernChart(labels, data, colors, type, fullLabels = null) {
-    if (chart) {
-        chart.destroy();
-    }
-    
-    const ctx = document.getElementById('statusChart');
-    if (!ctx) {
-        console.warn('Canvas statusChart non trovato');
-        return;
-    }
-
-    // Prepara colori intelligenti
-    let chartColors;
-    if (type === 'stato') {
-        chartColors = labels.map(label => {
-            // Cerca corrispondenza nei colori stato
-            const matchingStatus = Object.keys(modernChartColors.status).find(status => {
-                return status.includes(label) || label.includes(status.split(' ')[0]);
-            });
-            return matchingStatus ? modernChartColors.status[matchingStatus] : modernChartColors.status['Istruttoria in corso'];
-        });
-    } else {
-        chartColors = generateIntelligentColors(data.length, 220);
-    }
-
-    // Colori hover più brillanti
-    const hoverColors = chartColors.map(color => getBrighterColor(color));
-
-    chart = new Chart(ctx.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: type === 'stato' ? 'Numero di patti' : 'Numero di richieste',
-                data: data,
-                backgroundColor: chartColors,
-                borderColor: chartColors.map(color => color),
-                borderWidth: 2,
-               borderRadius: {
-				topLeft: 4,      // Curvatura ridotta in alto a sinistra
-				topRight: 4,     // Curvatura ridotta in alto a destra  
-				bottomLeft: 0,  // Bordi curvi in basso a sinistra
-				bottomRight: 0  // Bordi curvi in basso a destra
-			},
-                borderSkipped: false,
-                hoverBackgroundColor: hoverColors,
-                hoverBorderColor: hoverColors,
-                hoverBorderWidth: 3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            layout: {
-                padding: {
-                    top: 20,
-                    bottom: 5,
-                    left: 0,
-                    right: 0
-                }
-            },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: modernTooltipConfig
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                  ticks: {
-    maxRotation: 70,  // FISSO a 90 gradi per entrambi i grafici
-        minRotation: 70,  // AGGIUNGI questa linea per forzare sempre 90 gradi
-    font: {
-       size: 9, 
-        family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
-        weight: '500'
-    },
-                        color: '#64748B',
-                        callback: function(value, index) {
-                            const label = this.getLabelForValue(value);
-                            if (type === 'proponente' && label.length > 20) {
-                                return label.substring(0, 18) + '...';
-                            }
-                            return label;
-                        }
-                    },
-                    border: {
-                        display: false
-                    }
-                },
-y: {
-    display: false,          // Nasconde l'intero asse
-    grid: {
-        display: false,      // Nasconde le linee della griglia
-        drawBorder: false,   // Nasconde il bordo principale
-        drawOnChartArea: false,  // Nasconde le linee nell'area del grafico
-        drawTicks: false     // Nasconde i segni di spunta
-    },
-    ticks: {
-        display: false       // Nasconde le etichette
-    },
-    border: {
-        display: false,      // Nasconde il bordo dell'asse
-        width: 0             // Forza larghezza 0
-    },
-    beginAtZero: true
-}
-            },
-            onClick: (event, elements) => {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    
-                    if (type === 'stato') {
-                        const selectedStatus = fullLabels ? fullLabels[index] : labels[index];
-                        const statusSelect = document.getElementById('filterStato');
-                        if (statusSelect) {
-                            // Trova la corrispondenza esatta
-                            const statusKey = Object.keys(statusColors).find(key => 
-                                key.includes(selectedStatus) || selectedStatus.includes(key)
-                            );
-                            statusSelect.value = statusKey || selectedStatus;
-                            applyFilters();
-                        }
-                    } else {
-                        const selectedProponente = fullLabels ? fullLabels[index] : labels[index];
-                        applyProponenteFilter(selectedProponente);
-                    }
-                }
-            },
-            onHover: (event, elements) => {
-                const canvas = event.native.target;
-                canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
-                
-                // Effetto hover migliorato
-                if (elements.length > 0) {
-                    canvas.style.filter = 'brightness(1.05)';
-                } else {
-                    canvas.style.filter = 'brightness(1)';
-                }
-            }
-        },
-        plugins: [smartDataLabelsPlugin]
-    });
-
-    // Aggiunge animazione di entrata
-    chart.update('active');
-
-    return chart;
-}
-
 function updateStatusChart() {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
@@ -1334,9 +1018,9 @@ function updateStatusChart() {
         return label;
     });
     const data = Object.values(validStatusCounts);
-    const fullLabels = Object.keys(validStatusCounts); // Labels originali per il click
+    const colors = labels.map(label => statusColors[label] || '#6b7280');
     
-    createModernChart(labels, data, null, 'stato', fullLabels);
+    createChart(labels, data, colors, 'stato');
 }
 
 function updateProponenteChart() {
@@ -1363,161 +1047,163 @@ function updateProponenteChart() {
         return label.length > 25 ? label.substring(0, 22) + '...' : label;
     });
     const data = sortedProponenti.map(([,count]) => count);
-    const fullLabels = sortedProponenti.map(([fullLabel]) => fullLabel);
+    const colors = generateProponenteColors(data.length);
     
-    createModernChart(labels, data, null, 'proponente', fullLabels);
+    createChart(labels, data, colors, 'proponente', sortedProponenti.map(([fullLabel]) => fullLabel));
 }
 
-// Sostituisce la funzione createChart esistente
+function generateProponenteColors(count) {
+    const baseColors = [
+        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+        '#14B8A6', '#F43F5E', '#8E9AAF', '#22C55E', '#A855F7'
+    ];
+    
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        if (i < baseColors.length) {
+            colors.push(baseColors[i]);
+        } else {
+            const hue = (i * 137.508) % 360;
+            colors.push(`hsl(${hue}, 65%, 50%)`);
+        }
+    }
+    return colors;
+}
+
 function createChart(labels, data, colors, type, fullLabels = null) {
-    return createModernChart(labels, data, colors, type, fullLabels);
+    if (chart) {
+        chart.destroy();
+    }
+    
+    const ctx = document.getElementById('statusChart');
+    if (!ctx) {
+        console.warn('Canvas statusChart non trovato');
+        return;
+    }
+    
+    chart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 0,
+                hoverBackgroundColor: colors.map(color => color + 'CC')
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 20
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    displayColors: false,
+                    callbacks: {
+                        title: function(context) {
+                            if (type === 'proponente' && fullLabels) {
+                                return fullLabels[context[0].dataIndex];
+                            }
+                            return context[0].label;
+                        },
+                        label: function(context) {
+                            const label = type === 'stato' ? 'Numero di patti' : 'Numero di richieste';
+                            return `${label}: ${context.parsed.y}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: type === 'proponente' ? 45 : 45,
+                        font: {
+                            size: type === 'proponente' ? 8 : 9
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: 9
+                        },
+                        stepSize: 1
+                    }
+                }
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    
+                    if (type === 'stato') {
+                        const selectedStatus = labels[index];
+                        const statusSelect = document.getElementById('filterStato');
+                        if (statusSelect) {
+                            statusSelect.value = selectedStatus;
+                            applyFilters();
+                        }
+                    } else {
+                        const selectedProponente = fullLabels ? fullLabels[index] : labels[index];
+                        applyProponenteFilter(selectedProponente);
+                    }
+                }
+            },
+            onHover: (event, elements) => {
+                const canvas = event.native.target;
+                canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+            }
+        },
+        plugins: [{
+            id: 'dataLabels',
+            afterDatasetsDraw: function(chart) {
+                const ctx = chart.ctx;
+                ctx.save();
+                
+                chart.data.datasets.forEach(function(dataset, datasetIndex) {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    
+                    meta.data.forEach(function(bar, index) {
+                        const data = dataset.data[index];
+                        
+                        if (data > 0) {
+                            ctx.fillStyle = '#374151';
+                            ctx.font = 'bold 10px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            
+                            const x = bar.x;
+                            const y = bar.y - 6;
+                            
+                            ctx.fillText(data, x, y);
+                        }
+                    });
+                });
+                
+                ctx.restore();
+            }
+        }]
+    });
 }
 
 function applyProponenteFilter(selectedProponente) {
     proponenteFilter = selectedProponente;
     applyFilters();
-}
-
-// CSS aggiuntivo per migliorare l'aspetto del grafico
-function addModernChartStyles() {
-    if (document.getElementById('modernChartStyles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'modernChartStyles';
-    style.textContent = `
-.chart-container {
-    /*background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);*/
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    padding: 4px; /* MINIMO per sfruttare tutto lo spazio */
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    height: 300px;
-    width: 100%;
-}
-
-.chart-section {
-    padding-top: var(--space-2);
-    border-top: var(--border-width) solid var(--border-color);
-    margin-top: auto;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 300px); /* NUOVO: usa tutta l'altezza disponibile */
-}
-
-        
-        .chart-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-         /*   background: linear-gradient(90deg, #3B82F6, #10B981, #F59E0B, #EF4444, #8B5CF6);*/
-            border-radius: 16px 16px 0 0;
-        }
-        
-#statusChart {
-    transition: filter 0.3s ease;
-    width: 100% !important;
-    height: 300px !important;
-    max-width: none !important; /* FORZA larghezza massima */
-}
-.stats-container {
-    grid-template-columns: 1fr 2fr;
-    gap: var(--space-3); /* RIDOTTO da space-6 */
-    max-height: 120px; /* LIMITA altezza statistiche */
-}
-
-.legend-card,
-.stats-card {
-    padding: var(--space-3); /* RIDOTTO da space-6 */
-}
-
-.stats-grid {
-    grid-template-columns: repeat(3, 1fr); /* FORZA 3 colonne */
-    gap: var(--space-2);
-}
-.sidebar {
-    padding: var(--space-4); /* RIDOTTO da space-6 */
-}
-
-.sidebar-content {
-    gap: var(--space-2); /* RIDOTTO */
-}
-
-.filter-card {
-    margin-bottom: var(--space-2); /* RIDOTTO da space-4 */
-}
-
-.filter-card-body {
-    padding: var(--space-3); /* RIDOTTO da space-5 */
-}
-.chart-header {
-    margin-bottom: 8px; /* RIDOTTO da 20px */
-    align-items: center;
-    gap: 8px; /* RIDOTTO da 12px */
-}
-        
-        .chart-title-enhanced {
-            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        
-        .chart-selector-enhanced select {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .chart-selector-enhanced select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            outline: none;
-        }
-        
-        .chart-info {
-            margin-top: 16px;
-            padding: 12px;
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-        }
-        
-		
-		
-       @media (max-width: 768px) {
-   .chart-container {
-        padding: 4px;
-        margin: 0 -8px; /* ESTENDE oltre i bordi */
-        width: calc(100% + 16px);
-        border-radius: 8px;
-    }
-	    .chart-section {
-        height: 60vh; /* ALTEZZA FISSA MOBILE */
-    }
-     .dashboard-main {
-        grid-template-columns: 1fr;
-        padding: var(--space-2);
-        gap: var(--space-2);
-    }
-    .chart-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 4px; /* RIDOTTO da 8px */
-    }
-}
-    `;
-    document.head.appendChild(style);
 }
 
 // ==========================================
@@ -1895,7 +1581,7 @@ function setupAutocompleteEventListeners() {
 }
 
 // ==========================================
-// SETUP EVENT LISTENERS MIGLIORATO
+// SETUP EVENT LISTENERS MIGLIORATO (senza notifiche eccessive)
 // ==========================================
 
 function setupEventListeners() {
@@ -2157,7 +1843,7 @@ function setupEventListeners() {
     setupFiltersPopupEventListeners();
     setupAutocompleteEventListeners();
     
-    // === REPORT FINALE ===
+    // === REPORT FINALE (senza notifica eccessiva) ===
     console.log(`Event listeners configurati: ${successCount}/${totalAttempts}`);
     
     return {
@@ -2305,7 +1991,7 @@ function setupAutoUpdate() {
 }
 
 // ==========================================
-// NOTIFICHE RIDOTTE
+// NOTIFICHE RIDOTTE (solo per errori reali)
 // ==========================================
 
 function showNotification(message, type = 'info') {
@@ -2387,4 +2073,4 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(style);
 }
 
-console.log('Dashboard Monitoraggio Patti - Versione Completa con Grafici Moderni caricata');
+console.log('Dashboard Monitoraggio Patti - Versione Migliorata caricata');
