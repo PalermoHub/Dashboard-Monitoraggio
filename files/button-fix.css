@@ -1,0 +1,80 @@
+/* Fix pulsante info - Semplice */
+
+/* Rimuovi stile vecchio */
+.btn-icon {
+    display: none !important;
+}
+
+/* Desktop - pulsante centrato */
+#infoBtn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 100;
+    animation: pulse 6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+}
+
+#infoBtn:hover {
+    transform: translateX(-50%) translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    animation: none;
+}
+
+#infoBtn i {
+    width: 24px;
+    height: 24px;
+}
+
+/* Mobile - pulsante rotondo */
+@media (max-width: 768px) {
+    #infoBtn {
+        width: 50px;
+        height: 50px;
+        padding: 0;
+        border-radius: 50%;
+        left: auto;
+        right: 15px;
+        transform: none;
+    }
+    
+    #infoBtn:hover {
+        transform: translateY(-2px);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+    
+    #infoBtn span {
+        display: none;
+    }
+    
+    #infoBtn i {
+        margin: 0;
+    }
+}
+
+/* Header fix */
+.dashboard-header {
+    position: relative;
+}

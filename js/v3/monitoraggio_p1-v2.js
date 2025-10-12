@@ -207,55 +207,13 @@ function safeAddEventListener(elementId, eventType, handler, description) {
     
     if (element) {
         element.addEventListener(eventType, handler);
-        console.log(`✅ Event listener configurato: ${description} (${elementId})`);
+        console.log(`Event listener configurato: ${description} (${elementId})`);
         return true;
     } else {
-        // ⚠️ CAMBIATO: Usa warn invece di error per non bloccare l'app
-        console.warn(`⚠️ Elemento non trovato (non critico): ${elementId} - ${description}`);
+        console.warn(`Elemento non trovato: ${elementId} - ${description}`);
         return false;
     }
 }
-
-function safeQuerySelector(selector, description) {
-    const element = document.querySelector(selector);
-    
-    if (element) {
-        return element;
-    } else {
-        console.warn(`⚠️ Elemento non trovato (non critico): ${selector} - ${description}`);
-        return null;
-    }
-}
-
-/**
- * Versione robusta che attende che l'elemento sia disponibile
- */
-function safeAddEventListenerWithRetry(elementId, eventType, handler, description, maxRetries = 5) {
-    let retries = 0;
-    
-    function attemptAttach() {
-        const element = document.getElementById(elementId);
-        
-        if (element) {
-            element.addEventListener(eventType, handler);
-            console.log(`✅ Event listener configurato (retry ${retries}): ${description} (${elementId})`);
-            return true;
-        } else {
-            retries++;
-            if (retries < maxRetries) {
-                console.log(`⏳ Retry ${retries}/${maxRetries} per ${elementId}...`);
-                setTimeout(attemptAttach, 200 * retries); // Backoff esponenziale
-            } else {
-                console.warn(`⚠️ Elemento mai trovato dopo ${maxRetries} tentativi: ${elementId} - ${description}`);
-            }
-            return false;
-        }
-    }
-    
-    return attemptAttach();
-}
-
-
 
 function safeQuerySelector(selector, description) {
     const element = document.querySelector(selector);
@@ -1566,43 +1524,24 @@ function addModernChartStyles() {
 // GESTIONE TABELLA
 // ==========================================
 
-
 function updateTable() {
-    console.log('📊 Aggiornamento tabella');
-    
-    // Verifica esistenza elementi DOM
-    const tableCount = document.getElementById('tableCount');
-    const tableHeader = document.getElementById('tableHeader');
-    const tableBody = document.getElementById('tableBody');
-    
-    if (!tableCount || !tableHeader || !tableBody) {
-        console.error('❌ Elementi tabella non trovati nel DOM');
-        console.log('Elementi presenti:', {
-            tableCount: !!tableCount,
-            tableHeader: !!tableHeader,
-            tableBody: !!tableBody
-        });
-        return;
-    }
-    
-    // Verifica dati
     if (!filteredData || filteredData.length === 0) {
-        tableCount.textContent = '0';
-        tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
-        tableBody.innerHTML = '<tr><td colspan="100%" class="px-3 py-4 text-center text-gray-500">Nessun risultato trovato con i filtri applicati</td></tr>';
+        const tableCount = document.getElementById('tableCount');
+        const tableHeader = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('tableBody');
+        
+        if (tableCount) tableCount.textContent = '0';
+        if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
+        if (tableBody) tableBody.innerHTML = '';
         return;
     }
 
-    console.log(`Creazione tabella con ${filteredData.length} elementi`);
-
-    // Campi da escludere dalla tabella
     const excludedFields = [
         'foto', 'googlemaps', 'geouri', 'upl',
         'lat.', 'long.', 'lat', 'lng', 'coordinate',
         'quartiere', 'circoscrizione'
     ];
     
-    // Ordine preferito delle colonne
     const columnOrder = [
         'id',
         'titolo proposta', 
@@ -1615,7 +1554,6 @@ function updateTable() {
     
     const allKeys = Object.keys(filteredData[0]);
     
-    // Filtra le chiavi escludendo i campi non necessari
     const filteredKeys = allKeys.filter(key => {
         const keyLower = key.toLowerCase().trim();
         return !excludedFields.some(excluded => {
@@ -1626,7 +1564,6 @@ function updateTable() {
         });
     });
     
-    // Riordina le colonne secondo l'ordine preferito
     const orderedKeys = [];
     
     columnOrder.forEach(orderKey => {
@@ -1642,86 +1579,81 @@ function updateTable() {
         }
     });
     
-    // Aggiungi le colonne rimanenti
     filteredKeys.forEach(key => {
         if (!orderedKeys.includes(key)) {
             orderedKeys.push(key);
         }
     });
 
-    // Aggiorna contatore
-    tableCount.textContent = filteredData.length;
+    const tableCount = document.getElementById('tableCount');
+    if (tableCount) tableCount.textContent = filteredData.length;
 
-    // Crea header della tabella
-    tableHeader.innerHTML = '';
-    
-    orderedKeys.forEach(key => {
-        const th = document.createElement('th');
-        th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-        th.textContent = key;
-        tableHeader.appendChild(th);
-    });
-
-    // Aggiungi colonna Azioni
-    const actionTh = document.createElement('th');
-    actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-    actionTh.textContent = 'Azioni';
-    tableHeader.appendChild(actionTh);
-
-    // Crea righe della tabella
-    tableBody.innerHTML = '';
-
-    filteredData.forEach(item => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50';
-
+    const tableHeader = document.getElementById('tableHeader');
+    if (tableHeader) {
+        tableHeader.innerHTML = '';
+        
         orderedKeys.forEach(key => {
-            const td = document.createElement('td');
-            td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
-            
-            let value = item[key] || 'N/A';
-            
-            // Gestione speciale per lo stato
-            if (key.toLowerCase().includes('stato')) {
-                const color = statusColors[value] || '#6b7280';
-                td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
-            } else {
-                // Tronca testo troppo lungo
-                if (value.toString().length > 40) {
-                    td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
-                } else {
-                    td.textContent = value;
-                }
-            }
-            
-            row.appendChild(td);
+            const th = document.createElement('th');
+            th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            th.textContent = key;
+            tableHeader.appendChild(th);
         });
 
-        // Aggiungi cella azioni con bottone dettagli
-        const actionTd = document.createElement('td');
-        actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
-        
-        const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
-        actionTd.innerHTML = `
-            <button onclick="showPattoDetails('${item[idKey]}')" 
-                    class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
-                <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
-                Dettagli
-            </button>
-        `;
-        
-        row.appendChild(actionTd);
-        tableBody.appendChild(row);
-    });
-
-    // Ricrea icone Lucide
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        lucide.createIcons();
+        const actionTh = document.createElement('th');
+        actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+        actionTh.textContent = 'Azioni';
+        tableHeader.appendChild(actionTh);
     }
-    
-    console.log('✅ Tabella aggiornata con successo');
-}
 
+    const tableBody = document.getElementById('tableBody');
+    if (tableBody) {
+        tableBody.innerHTML = '';
+
+        filteredData.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            orderedKeys.forEach(key => {
+                const td = document.createElement('td');
+                td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+                
+                let value = item[key] || 'N/A';
+                
+                if (key.toLowerCase().includes('stato')) {
+                    const color = statusColors[value] || '#6b7280';
+                    td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
+                } else {
+                    if (value.toString().length > 40) {
+                        td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
+                    } else {
+                        td.textContent = value;
+                    }
+                }
+                
+                row.appendChild(td);
+            });
+
+            const actionTd = document.createElement('td');
+            actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+            
+            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+            actionTd.innerHTML = `
+                <button onclick="showPattoDetails('${item[idKey]}')" 
+                        class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
+                    <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
+                    Dettagli
+                </button>
+            `;
+            
+            row.appendChild(actionTd);
+            tableBody.appendChild(row);
+        });
+
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    }
+}
 
 // ==========================================
 // DETTAGLI PATTO
@@ -1829,120 +1761,36 @@ function showPattoDetails(pattoId) {
         photoContainer.classList.add('hidden');
     }
     
-// ==========================================
-// MINI MAPPA - DA INSERIRE in showPattoDetails()
-// Sostituisci la sezione "Mini mappa" (circa riga 980-1020)
-// ==========================================
-
-    // Mini mappa - CON GESTIONE ERRORI ROBUSTA
+    // Mini mappa
     setTimeout(() => {
-        const miniMapElement = document.getElementById('miniMap');
-        
-        if (!miniMapElement) {
-            console.error('❌ Elemento miniMap non trovato');
-            return;
-        }
-        
-        // Verifica coordinate valide
-        if (!patto.lat || !patto.lng || isNaN(patto.lat) || isNaN(patto.lng)) {
-            console.warn('⚠️ Coordinate non valide:', patto.lat, patto.lng);
-            miniMapElement.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                     background: #f3f4f6; color: #6b7280; font-size: 0.875rem; border-radius: 0.5rem;">
-                    📍 Coordinate non disponibili
-                </div>
-            `;
-            return;
-        }
-        
-        // Verifica libreria Leaflet
-        if (typeof L === 'undefined') {
-            console.error('❌ Leaflet non disponibile');
-            miniMapElement.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                     background: #f3f4f6; color: #6b7280; font-size: 0.875rem; border-radius: 0.5rem;">
-                    🗺️ Libreria mappa non disponibile
-                </div>
-            `;
-            return;
-        }
-        
-        // Rimuovi mappa esistente
         if (miniMap) {
-            try {
-                miniMap.remove();
-                console.log('🗑️ Mini mappa precedente rimossa');
-            } catch (e) {
-                console.warn('⚠️ Errore rimozione mini mappa:', e);
-            }
-            miniMap = null;
+            miniMap.remove();
         }
         
-        // Prepara container
-        miniMapElement.innerHTML = '';
-        miniMapElement.style.height = '400px';
-        miniMapElement.style.width = '100%';
-        miniMapElement.style.position = 'relative';
-        
-        try {
-            // Crea la mini mappa
-            miniMap = L.map(miniMapElement, {
-                center: [parseFloat(patto.lat), parseFloat(patto.lng)],
-                zoom: 17,
-                zoomControl: true,
-                scrollWheelZoom: true,
-                dragging: true,
-                touchZoom: true
-            });
+        const miniMapContainer = document.getElementById('miniMap');
+        if (miniMapContainer) {
+            miniMap = L.map('miniMap').setView([patto.lat, patto.lng], 16);
             
-            // Aggiungi tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                maxZoom: 19
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(miniMap);
             
-            // Determina colore marker in base allo stato
             const color = statusColors[statoText] || '#6b7280';
-            
-            // Aggiungi marker
-            L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
-                radius: 12,
+            L.circleMarker([patto.lat, patto.lng], {
+                radius: 8,
                 fillColor: color,
                 color: 'white',
-                weight: 3,
+                weight: 2,
                 opacity: 1,
                 fillOpacity: 0.8
             }).addTo(miniMap);
             
-            // Forza refresh della mappa con sequenza di delay
-            const refreshDelays = [100, 300, 500, 800];
-            refreshDelays.forEach(delay => {
-                setTimeout(() => {
-                    if (miniMap) {
-                        try {
-                            miniMap.invalidateSize(true);
-                        } catch (e) {
-                            console.warn('⚠️ Errore refresh mini mappa:', e);
-                        }
-                    }
-                }, delay);
-            });
-            
-            console.log('✅ Mini mappa inizializzata');
-            
-        } catch (error) {
-            console.error('❌ Errore critico mini mappa:', error);
-            miniMapElement.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                     background: #fee2e2; color: #dc2626; font-size: 0.875rem; border-radius: 0.5rem; 
-                     border: 1px solid #fecaca; padding: 1rem;">
-                    ⚠️ Errore caricamento mappa: ${error.message}
-                </div>
-            `;
+            setTimeout(() => {
+                miniMap.invalidateSize();
+            }, 100);
         }
-    }, 300); // Attendi 300ms per assicurarsi che il modal sia visibile
-
- 
+    }, 100);
+    
     const modal = document.getElementById('pattoModal');
     if (modal) {
         modal.classList.remove('hidden');
@@ -2278,42 +2126,46 @@ function setupEventListeners() {
         });
     }
     
-// === MODALE DETTAGLI PATTO ===
+    // === MODALE DETTAGLI PATTO ===
     totalAttempts++;
-    const closeModalBtn = document.getElementById('closeModal');
-    const pattoModal = document.getElementById('pattoModal');
-    
-    if (closeModalBtn && pattoModal) {
-        closeModalBtn.addEventListener('click', function() {
-            pattoModal.classList.add('hidden');
-            pattoModal.classList.remove('flex', 'show');
-            
-            // Pulisci mini mappa
-            if (miniMap) {
-                try {
-                    miniMap.remove();
-                    miniMap = null;
-                } catch (e) {
-                    console.warn('⚠️ Errore rimozione mini mappa:', e);
-                }
-            }
-        });
+    if (safeAddEventListener('closeModal', 'click', function() {
+        const modal = document.getElementById('pattoModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
         
-        // Chiudi cliccando fuori
+        if (miniMap) {
+            miniMap.remove();
+            miniMap = null;
+        }
+    }, 'Chiudi modal dettagli')) {
+        successCount++;
+    }
+    
+    const pattoModal = document.getElementById('pattoModal');
+    if (pattoModal) {
         pattoModal.addEventListener('click', function(e) {
             if (e.target === pattoModal) {
-                closeModalBtn.click();
+                const closeBtn = document.getElementById('closeModal');
+                if (closeBtn) closeBtn.click();
             }
         });
-        
-        successCount++;
-        console.log('✅ Listener modal dettagli patto configurati');
-    } else {
-        console.warn('⚠️ Elementi modal dettagli patto non trovati:', {
-            closeModal: !!closeModalBtn,
-            pattoModal: !!pattoModal
-        });
     }
+    
+    // === SETUP ALTRI COMPONENTI ===
+    setupFiltersPopupEventListeners();
+    setupAutocompleteEventListeners();
+    
+    // === REPORT FINALE ===
+    console.log(`Event listeners configurati: ${successCount}/${totalAttempts}`);
+    
+    return {
+        success: successCount,
+        total: totalAttempts,
+        missing: totalAttempts - successCount
+    };
+}
 
 // ==========================================
 // FUNZIONI COLLASSABILI E UTILITÀ

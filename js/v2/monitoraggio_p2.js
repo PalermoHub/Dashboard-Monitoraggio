@@ -1,416 +1,464 @@
-// Enhanced functionality - Parte 2
-// Questo file contiene funzionalità aggiuntive e la gestione avanzata delle modali
+// ==========================================
+// DASHBOARD MONITORAGGIO PATTI - PARTE 2 (CORRETTA)
+// Funzionalità aggiuntive senza conflitti
+// ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Monitoraggio P2 initialized');
+    console.log('📋 Monitoraggio P2 - Funzionalità aggiuntive inizializzate');
     
-    // Enhanced modal handling
+    // Enhanced modal handling - Gestione migliorata dei modal
+    setupEnhancedModalHandling();
+    
+    // Setup icone Lucide con retry
+    setupLucideIcons();
+    
+    // Setup osservatore per nuovi elementi (per icone dinamiche)
+    setupDynamicIconObserver();
+    
+    console.log('✅ Monitoraggio P2 caricato con successo');
+});
+
+// ==========================================
+// GESTIONE MIGLIORATA DEI MODAL
+// ==========================================
+
+function setupEnhancedModalHandling() {
     const modals = document.querySelectorAll('.modal');
     
     modals.forEach(modal => {
         const closeBtn = modal.querySelector('.modal-close');
         
+        // Gestione chiusura con pulsante
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                modal.classList.remove('show', 'flex');
-                modal.classList.add('hidden');
-                
-                // Clean up mini map if exists
-                if (modal.id === 'pattoModal' && window.miniMap) {
-                    window.miniMap.remove();
-                    window.miniMap = null;
-                }
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeModalEnhanced(modal);
             });
         }
         
-        // Close on backdrop click
-        modal.addEventListener('click', (e) => {
+        // Chiusura cliccando sul backdrop
+        modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                closeBtn?.click();
+                closeModalEnhanced(modal);
             }
         });
         
-        // Close on escape key
-        modal.addEventListener('keydown', (e) => {
+        // Chiusura con tasto ESC
+        document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeBtn?.click();
+                if (modal.classList.contains('show') || modal.classList.contains('flex')) {
+                    closeModalEnhanced(modal);
+                }
             }
         });
     });
-
-    // Create icons - Make sure this runs after everything is loaded
-    setTimeout(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-            console.log('Icons created by P2');
-        }
-    }, 500);
-
-    // Debug function to test modal
-    window.testModal = function() {
-        console.log('Testing modal...');
-        const modal = document.getElementById('pattoModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('show', 'flex');
-            console.log('Modal should be visible');
-        } else {
-            console.error('Modal not found');
-        }
-    };
-
-    // Ensure showPattoDetails is available globally and enhanced
-    setTimeout(() => {
-        if (typeof window.showPattoDetails === 'function') {
-            console.log('showPattoDetails function is available');
-        } else {
-            console.error('showPattoDetails function not available');
-            // Fallback implementation
-            window.showPattoDetails = showPattoDetailsEnhanced;
-        }
-    }, 1000);
-});
-
-// Enhanced showPattoDetails function - SIMPLIFIED AND ROBUST
-function showPattoDetailsEnhanced(pattoId) {
-    console.log('showPattoDetailsEnhanced called with ID:', pattoId);
     
-    // Ensure we have the data
-    if (!window.allData || window.allData.length === 0) {
-        console.error('No data available');
-        // Try to access data from global scope
-        if (typeof allData !== 'undefined' && allData.length > 0) {
-            window.allData = allData;
-        } else {
-            console.error('Cannot find data');
-            return;
-        }
-    }
-
-    const modal = document.getElementById('pattoModal');
-    if (!modal) {
-        console.error('Modal not found');
-        return;
-    }
-    
-    // Find the patto by ID
-    const idKey = Object.keys(window.allData[0] || {}).find(k => k.toLowerCase() === 'id');
-    const patto = window.allData.find(p => p[idKey] == pattoId); // Use == for loose comparison
-    
-    if (!patto) {
-        console.error('Patto not found:', pattoId);
-        console.log('Available IDs:', window.allData.map(p => p[idKey]));
-        return;
-    }
-    
-    console.log('Found patto:', patto);
-    
-    // Get all the keys we need
-    const keys = {
-        titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo')),
-        proponente: Object.keys(patto).find(k => k.toLowerCase().includes('proponente')),
-        rappresentante: Object.keys(patto).find(k => k.toLowerCase().includes('rappresentante')),
-        upl: Object.keys(patto).find(k => k.toLowerCase() === 'upl'),
-        quartiere: Object.keys(patto).find(k => k.toLowerCase().includes('quartiere')),
-        circoscrizione: Object.keys(patto).find(k => k.toLowerCase().includes('circoscrizione')),
-        indirizzo: Object.keys(patto).find(k => k.toLowerCase().includes('indirizzo')),
-        stato: Object.keys(patto).find(k => k.toLowerCase().includes('stato')),
-        note: Object.keys(patto).find(k => k.toLowerCase().includes('nota')),
-        googlemaps: Object.keys(patto).find(k => k.toLowerCase().includes('googlemaps')),
-        geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
-        foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto'))
-    };
-    
-    console.log('Keys found:', keys);
-    
-    // Set modal title
-    const titleElement = document.getElementById('modalTitle');
-    if (titleElement) {
-        titleElement.textContent = patto[keys.titolo] || 'Patto senza titolo';
-    }
-    
-    // Set details
-    const details = document.getElementById('pattoDetails');
-    if (details) {
-        details.innerHTML = `
-            <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
-            <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
-            <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
-            <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
-            <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
-            <p><strong>Indirizzo:</strong> ${patto[keys.indirizzo] || 'N/A'}</p>
-        `;
-    }
-    
-    // Set status
-    const status = document.getElementById('pattoStatus');
-    if (status) {
-        const statoText = patto[keys.stato] || 'Non specificato';
-        status.textContent = statoText;
-        
-        // Status color mapping
-        const statusColors = {
-            'Istruttoria in corso': '#ffdb4d',
-            'Respinta': '#ff6b6b',
-            'Patto stipulato': '#8fd67d',
-            'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
-            'In attesa di integrazione': '#b3e6ff'
-        };
-        
-        const statusColor = statusColors[statoText] || '#6b7280';
-        status.style.backgroundColor = statusColor;
-        status.style.color = 'white';
-        status.style.padding = '4px 12px';
-        status.style.borderRadius = '6px';
-        status.style.fontSize = '0.875rem';
-        status.style.fontWeight = '600';
-        status.style.display = 'inline-block';
-    }
-    
-    // Handle notes
-    const notesContainer = document.getElementById('pattoNotesContainer');
-    const notesElement = document.getElementById('pattoNotes');
-    if (notesContainer && notesElement) {
-        if (keys.note && patto[keys.note] && patto[keys.note].trim()) {
-            notesContainer.classList.remove('hidden');
-            notesElement.textContent = patto[keys.note];
-        } else {
-            notesContainer.classList.add('hidden');
-        }
-    }
-    
-    // Handle links
-    const links = document.getElementById('pattoLinks');
-    if (links) {
-        links.innerHTML = '';
-        
-        if (keys.googlemaps && patto[keys.googlemaps] && patto[keys.googlemaps].trim()) {
-            const link = document.createElement('a');
-            link.href = patto[keys.googlemaps].trim();
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.className = 'btn btn-primary';
-            link.style.textDecoration = 'none';
-            link.innerHTML = `
-                <i data-lucide="map" style="width: 1rem; height: 1rem;"></i>
-                <span>Google Maps</span>
-            `;
-            links.appendChild(link);
-        }
-        
-        if (keys.geouri && patto[keys.geouri] && patto[keys.geouri].trim()) {
-            const link = document.createElement('a');
-            link.href = patto[keys.geouri].trim();
-            link.className = 'btn btn-secondary';
-            link.style.textDecoration = 'none';
-            link.innerHTML = `
-                <i data-lucide="map-pin" style="width: 1rem; height: 1rem;"></i>
-                <span>Geo URI</span>
-            `;
-            links.appendChild(link);
-        }
-    }
-    
-    // Handle photo
-    const photoContainer = document.getElementById('photoContainer');
-    const photoElement = document.getElementById('pattoPhoto');
-    if (photoContainer && photoElement) {
-        if (keys.foto && patto[keys.foto] && patto[keys.foto].trim()) {
-            photoContainer.classList.remove('hidden');
-            photoElement.src = patto[keys.foto].trim();
-            photoElement.alt = patto[keys.titolo] || 'Foto patto';
-            
-            photoElement.onerror = function() {
-                console.error('Error loading image:', patto[keys.foto]);
-                photoContainer.classList.add('hidden');
-            };
-        } else {
-            photoContainer.classList.add('hidden');
-        }
-    }
-    
-    // Show modal - Use both systems for compatibility
-    console.log('Showing modal...');
-    modal.classList.remove('hidden');
-    modal.classList.add('show', 'flex');
-    
-    // Setup mini map AFTER modal is visible
-    setTimeout(() => {
-        initializeMiniMapEnhanced(patto, keys);
-    }, 500);
-    
-    // Center main map on the patto
-    if (window.map && patto.lat && patto.lng) {
-        window.map.setView([patto.lat, patto.lng], 16);
-    }
-    
-    // Create icons for new elements
-    setTimeout(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, 100);
-    
-    console.log('Modal should be visible now');
+    console.log(`✅ Gestione migliorata configurata per ${modals.length} modal`);
 }
 
-// Enhanced function for mini map initialization
-function initializeMiniMapEnhanced(patto, keys) {
-    console.log('=== ENHANCED MINI MAP INITIALIZATION START ===');
+/**
+ * Chiude un modal in modo sicuro
+ */
+function closeModalEnhanced(modal) {
+    if (!modal) return;
     
-    const miniMapElement = document.getElementById('miniMap');
-    if (!miniMapElement) {
-        console.error('Mini map element not found');
-        return;
-    }
+    console.log('🔒 Chiusura modal:', modal.id);
     
-    console.log('Mini map element found:', miniMapElement);
-    console.log('Element dimensions:', miniMapElement.offsetWidth, 'x', miniMapElement.offsetHeight);
-    console.log('Element is visible:', miniMapElement.offsetParent !== null);
+    // Rimuovi classi di visibilità
+    modal.classList.remove('show', 'flex');
+    modal.classList.add('hidden');
     
-    // Clean up existing map
-    if (window.miniMap) {
+    // Pulisci mini mappa se esiste
+    if (modal.id === 'pattoModal' && window.miniMap) {
         try {
-            console.log('Removing existing mini map...');
             window.miniMap.remove();
+            window.miniMap = null;
+            console.log('🗑️ Mini mappa rimossa');
         } catch (e) {
-            console.log('Error removing old map:', e);
+            console.warn('⚠️ Errore rimozione mini mappa:', e);
         }
-        window.miniMap = null;
     }
     
-    // Clear the container completely
-    miniMapElement.innerHTML = '';
-    miniMapElement.style.height = '400px';
-    miniMapElement.style.width = '100%';
-    miniMapElement.style.position = 'relative';
-    miniMapElement.style.zIndex = '1';
-    
-    // Check coordinates
-    if (!patto.lat || !patto.lng || isNaN(patto.lat) || isNaN(patto.lng)) {
-        console.error('Invalid coordinates:', patto.lat, patto.lng);
-        miniMapElement.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                 background: var(--color-gray-100); color: var(--color-gray-500); 
-                 font-size: 0.875rem; border-radius: var(--border-radius);">
-                🔍 Coordinate non disponibili
-            </div>
-        `;
+    // Ripristina scroll del body se necessario
+    const openModals = document.querySelectorAll('.modal.show, .modal.flex');
+    if (openModals.length === 0) {
+        document.body.style.overflow = '';
+    }
+}
+
+// ==========================================
+// GESTIONE ICONE LUCIDE
+// ==========================================
+
+function setupLucideIcons() {
+    if (typeof lucide === 'undefined') {
+        console.warn('⚠️ Libreria Lucide non disponibile');
+        // Retry dopo 500ms
+        setTimeout(setupLucideIcons, 500);
         return;
     }
     
-    console.log('Valid coordinates found:', patto.lat, patto.lng);
+    // Crea le icone iniziali
+    createLucideIcons();
     
-    // Check if Leaflet is available
-    if (typeof L === 'undefined') {
-        console.error('Leaflet library not loaded');
-        miniMapElement.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                 background: var(--color-gray-100); color: var(--color-gray-500); 
-                 font-size: 0.875rem; border-radius: var(--border-radius);">
-                🗺️ Libreria mappa non disponibile
-            </div>
-        `;
+    // Ricrea le icone periodicamente per elementi caricati dinamicamente
+    setInterval(createLucideIcons, 2000);
+    
+    console.log('✅ Setup icone Lucide completato');
+}
+
+function createLucideIcons() {
+    if (window.lucide && window.lucide.createIcons) {
+        try {
+            window.lucide.createIcons();
+        } catch (e) {
+            console.warn('⚠️ Errore creazione icone Lucide:', e);
+        }
+    }
+}
+
+// ==========================================
+// OSSERVATORE PER ELEMENTI DINAMICI
+// ==========================================
+
+function setupDynamicIconObserver() {
+    if (typeof MutationObserver === 'undefined') {
+        console.warn('⚠️ MutationObserver non supportato');
         return;
     }
     
-    console.log('Leaflet available, creating enhanced map...');
-    
-    try {
-        // Create the map with explicit options
-        window.miniMap = L.map(miniMapElement, {
-            center: [parseFloat(patto.lat), parseFloat(patto.lng)],
-            zoom: 17,
-            zoomControl: true,
-            scrollWheelZoom: true,
-            doubleClickZoom: true,
-            dragging: true,
-            touchZoom: true,
-            boxZoom: false,
-            keyboard: false,
-            attributionControl: true
-        });
+    const observer = new MutationObserver(function(mutations) {
+        let needsIconUpdate = false;
         
-        console.log('Enhanced map object created successfully');
-        
-        // Add tile layer
-        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-            subdomains: ['a', 'b', 'c']
-        });
-        
-        tileLayer.addTo(window.miniMap);
-        console.log('Tile layer added to enhanced map');
-        
-        // Get status color
-        const statusColorMap = {
-            'Istruttoria in corso': '#ffdb4d',
-            'Respinta': '#ff6b6b',
-            'Patto stipulato': '#8fd67d',
-            'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
-            'In attesa di integrazione': '#b3e6ff'
-        };
-        
-        const currentStatus = patto[keys.stato] || 'Non specificato';
-        const markerColor = statusColorMap[currentStatus] || '#6b7280';
-        console.log('Using enhanced marker color:', markerColor, 'for status:', currentStatus);
-        
-        // Create and add enhanced marker
-        const marker = L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
-            radius: 12,
-            fillColor: markerColor,
-            color: 'white',
-            weight: 3,
-            opacity: 1,
-            fillOpacity: 0.8,
-            stroke: true
-        });
-        
-        marker.addTo(window.miniMap);
-        console.log('Enhanced marker added to map');
-        
-        // Add popup with info
-        const popupContent = `
-            <div style="text-align: center; font-size: 0.875rem; min-width: 150px;">
-                <strong style="display: block; margin-bottom: 0.5rem;">${patto[keys.titolo] || 'Patto'}</strong>
-                <span style="color: ${markerColor}; font-weight: 500;">${currentStatus}</span>
-            </div>
-        `;
-        marker.bindPopup(popupContent);
-        
-        // Enhanced map refresh sequence
-        const refreshSequence = [100, 300, 500, 1000];
-        refreshSequence.forEach((delay, index) => {
-            setTimeout(() => {
-                if (window.miniMap) {
-                    console.log(`Enhanced map refresh ${index + 1}...`);
-                    try {
-                        window.miniMap.invalidateSize(true);
-                        // Force a redraw
-                        window.miniMap.setView([parseFloat(patto.lat), parseFloat(patto.lng)], 17);
-                        console.log(`Enhanced map refresh ${index + 1} completed`);
-                    } catch (e) {
-                        console.error(`Error during enhanced refresh ${index + 1}:`, e);
+        mutations.forEach(function(mutation) {
+            // Controlla se sono stati aggiunti nodi con attributo data-lucide
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    if (node.hasAttribute && node.hasAttribute('data-lucide')) {
+                        needsIconUpdate = true;
+                    } else if (node.querySelector && node.querySelector('[data-lucide]')) {
+                        needsIconUpdate = true;
                     }
                 }
-            }, delay);
+            });
         });
         
-        console.log('=== ENHANCED MINI MAP INITIALIZATION COMPLETE ===');
-        
-    } catch (error) {
-        console.error('Critical error creating enhanced mini map:', error);
-        miniMapElement.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; 
-                 background: var(--color-red-50); color: var(--color-red-600); 
-                 font-size: 0.875rem; border-radius: var(--border-radius); border: 1px solid var(--color-red-200);">
-                ⌫ Errore nel caricamento della mappa: ${error.message}
-            </div>
-        `;
+        if (needsIconUpdate) {
+            createLucideIcons();
+        }
+    });
+    
+    // Osserva il body per cambiamenti
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    console.log('✅ Osservatore elementi dinamici attivato');
+}
+
+// ==========================================
+// UTILITY PER NOTIFICHE
+// ==========================================
+
+/**
+ * Mostra una notifica toast migliorata
+ */
+function showEnhancedNotification(message, type = 'info', duration = 3000) {
+    // Rimuovi notifiche esistenti
+    const existingToasts = document.querySelectorAll('.enhanced-toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = `enhanced-toast enhanced-toast-${type}`;
+    
+    const icons = {
+        'success': 'check-circle',
+        'error': 'x-circle',
+        'warning': 'alert-triangle',
+        'info': 'info'
+    };
+    
+    const colors = {
+        'success': '#10b981',
+        'error': '#ef4444',
+        'warning': '#f59e0b',
+        'info': '#3b82f6'
+    };
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i data-lucide="${icons[type] || 'info'}" 
+               style="width: 1.25rem; height: 1.25rem; color: ${colors[type] || colors.info};" 
+               aria-hidden="true"></i>
+            <span style="flex: 1;">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="background: none; border: none; cursor: pointer; padding: 0.25rem; opacity: 0.7; transition: opacity 0.2s;"
+                    aria-label="Chiudi notifica">
+                <i data-lucide="x" style="width: 1rem; height: 1rem;" aria-hidden="true"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Crea le icone nel toast
+    createLucideIcons();
+    
+    // Mostra il toast con animazione
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Rimuovi automaticamente dopo la durata specificata
+    if (duration > 0) {
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
     }
 }
 
-// Global exports for enhanced functionality
-window.showPattoDetailsEnhanced = showPattoDetailsEnhanced;
-window.initializeMiniMapEnhanced = initializeMiniMapEnhanced;
+// Aggiungi stili per i toast
+function addEnhancedToastStyles() {
+    if (document.getElementById('enhanced-toast-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'enhanced-toast-styles';
+    style.textContent = `
+        .enhanced-toast {
+            position: fixed;
+            top: calc(var(--header-height) + 1rem);
+            right: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.25rem;
+            z-index: 10000;
+            min-width: 320px;
+            max-width: 480px;
+            font-size: 0.875rem;
+            color: #1f2937;
+            border-left: 4px solid #3b82f6;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .enhanced-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .enhanced-toast-success {
+            border-left-color: #10b981;
+        }
+        
+        .enhanced-toast-error {
+            border-left-color: #ef4444;
+        }
+        
+        .enhanced-toast-warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .enhanced-toast-info {
+            border-left-color: #3b82f6;
+        }
+        
+        @media (max-width: 640px) {
+            .enhanced-toast {
+                top: calc(var(--header-height) + 0.5rem);
+                right: 0.5rem;
+                left: 0.5rem;
+                min-width: auto;
+                max-width: none;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Inizializza gli stili dei toast
+addEnhancedToastStyles();
+
+// ==========================================
+// UTILITY PER DEBUG
+// ==========================================
+
+/**
+ * Funzione di test per verificare che i modal funzionino
+ */
+window.testModalSystem = function() {
+    console.log('🧪 Test sistema modal...');
+    
+    const modals = {
+        info: document.getElementById('infoModal'),
+        patto: document.getElementById('pattoModal'),
+        table: document.getElementById('tableModal')
+    };
+    
+    console.log('Modal trovati:', {
+        info: !!modals.info,
+        patto: !!modals.patto,
+        table: !!modals.table
+    });
+    
+    // Test apertura modal info
+    if (modals.info) {
+        console.log('Apertura modal info...');
+        modals.info.classList.remove('hidden');
+        modals.info.classList.add('show', 'flex');
+        
+        setTimeout(() => {
+            console.log('Chiusura modal info...');
+            closeModalEnhanced(modals.info);
+        }, 2000);
+    }
+    
+    return modals;
+};
+
+/**
+ * Verifica lo stato dell'applicazione
+ */
+window.checkAppStatus = function() {
+    const status = {
+        dataLoaded: !!(window.allData && window.allData.length > 0),
+        dataCount: window.allData ? window.allData.length : 0,
+        filteredDataCount: window.filteredData ? window.filteredData.length : 0,
+        mapInitialized: !!window.map,
+        markersLayerExists: !!window.markersLayer,
+        chartInitialized: !!window.chart,
+        lucideAvailable: typeof window.lucide !== 'undefined',
+        functionsAvailable: {
+            updateTable: typeof window.updateTable === 'function',
+            showPattoDetails: typeof window.showPattoDetails === 'function',
+            updateMap: typeof window.updateMap === 'function',
+            applyFilters: typeof window.applyFilters === 'function'
+        }
+    };
+    
+    console.table(status);
+    return status;
+};
+
+/**
+ * Test completo della tabella
+ */
+window.testTableSystem = function() {
+    console.log('🧪 Test sistema tabella...');
+    
+    const elements = {
+        button: document.getElementById('showTableBtn'),
+        modal: document.getElementById('tableModal'),
+        closeBtn: document.getElementById('closeTableModal'),
+        tableCount: document.getElementById('tableCount'),
+        tableHeader: document.getElementById('tableHeader'),
+        tableBody: document.getElementById('tableBody')
+    };
+    
+    console.log('Elementi tabella trovati:', {
+        button: !!elements.button,
+        modal: !!elements.modal,
+        closeBtn: !!elements.closeBtn,
+        tableCount: !!elements.tableCount,
+        tableHeader: !!elements.tableHeader,
+        tableBody: !!elements.tableBody
+    });
+    
+    if (!elements.modal) {
+        console.error('❌ Modal tabella non trovato! Assicurati di aver aggiunto il HTML del modal.');
+        return false;
+    }
+    
+    // Verifica funzione updateTable
+    if (typeof window.updateTable !== 'function') {
+        console.error('❌ Funzione updateTable non disponibile!');
+        return false;
+    }
+    
+    // Test apertura
+    try {
+        console.log('Test apertura modal tabella...');
+        if (window.filteredData && window.filteredData.length > 0) {
+            window.updateTable();
+            elements.modal.classList.remove('hidden');
+            elements.modal.classList.add('flex', 'show');
+            console.log('✅ Modal tabella aperto con successo');
+            
+            setTimeout(() => {
+                console.log('Test chiusura modal tabella...');
+                closeModalEnhanced(elements.modal);
+                console.log('✅ Modal tabella chiuso con successo');
+            }, 2000);
+        } else {
+            console.warn('⚠️ Nessun dato disponibile per il test');
+        }
+    } catch (error) {
+        console.error('❌ Errore durante il test:', error);
+        return false;
+    }
+    
+    return true;
+};
+
+// ==========================================
+// MIGLIORAMENTI ACCESSIBILITÀ
+// ==========================================
+
+/**
+ * Migliora l'accessibilità dei modal
+ */
+function enhanceModalAccessibility() {
+    document.addEventListener('keydown', function(e) {
+        // Trap focus nei modal aperti
+        const openModal = document.querySelector('.modal.show, .modal.flex');
+        if (!openModal) return;
+        
+        const focusableElements = openModal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        
+        if (focusableElements.length === 0) return;
+        
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        // Tab cycling
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        }
+    });
+}
+
+enhanceModalAccessibility();
+
+// ==========================================
+// ESPORTAZIONE FUNZIONI GLOBALI
+// ==========================================
+
+window.showEnhancedNotification = showEnhancedNotification;
+window.closeModalEnhanced = closeModalEnhanced;
+window.createLucideIcons = createLucideIcons;
+
+// ==========================================
+// LOG FINALE
+// ==========================================
+
+console.log('✅ Monitoraggio P2 - Tutte le funzionalità aggiuntive caricate');
+console.log('📦 Funzioni disponibili:', {
+    showEnhancedNotification: typeof showEnhancedNotification,
+    closeModalEnhanced: typeof closeModalEnhanced,
+    testModalSystem: typeof window.testModalSystem,
+    checkAppStatus: typeof window.checkAppStatus,
+    testTableSystem: typeof window.testTableSystem
+});

@@ -1,0 +1,8 @@
+INSTALLAZIONE:
+
+1. Sostituisci index.html
+2. Copia button-fix.css in /css/v2/
+3. Fine
+
+Desktop: pulsante centrato con testo
+Mobile: pulsante rotondo in alto a destra

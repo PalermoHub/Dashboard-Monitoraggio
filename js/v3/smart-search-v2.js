@@ -30,7 +30,7 @@ function initializeSmartSearchIntegrated() {
     buildSmartSearchData();
     setupSmartSearchEventListeners();
     integrateWithExistingSystem();
-    // ❌ RIMOSSA: setupTableModalFixed(); // QUESTA LINEA VA ELIMINATA!
+    setupTableModalFixed();
     
     console.log('🔗 Ricerca intelligente unificata inizializzata:', {
         titoli: smartSearchData.titoli.length,
@@ -40,7 +40,6 @@ function initializeSmartSearchIntegrated() {
         totale: smartSearchData.combined.length
     });
 }
-
 
 /**
  * Costruisce i dati per la ricerca intelligente
@@ -649,8 +648,152 @@ function updateAllViewsUnified() {
     if (typeof updateFiltersPopup === 'function') updateFiltersPopup();
 }
 
+/**
+ * Setup tabella corretto
+ */
+function setupTableModalFixed() {
+    const showTableBtn = document.getElementById('showTableBtn');
+    const tableModal = document.getElementById('tableModal');
+    const closeTableModal = document.getElementById('closeTableModal');
+    
+    if (!showTableBtn || !tableModal || !closeTableModal) {
+        console.error('Elementi tabella non trovati');
+        return;
+    }
+    
+    // Rimuovi eventuali listener esistenti
+    const newShowTableBtn = showTableBtn.cloneNode(true);
+    showTableBtn.parentNode.replaceChild(newShowTableBtn, showTableBtn);
+    
+    newShowTableBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Apertura tabella...');
+        
+        try {
+            updateTableFixed();
+            tableModal.classList.remove('hidden');
+            tableModal.classList.add('flex', 'show');
+            console.log('Tabella mostrata correttamente');
+        } catch (error) {
+            console.error('Errore apertura tabella:', error);
+            if (typeof showNotification === 'function') {
+                showNotification('Errore nell\'apertura della tabella', 'error');
+            }
+        }
+    });
+    
+    // Chiusura tabella
+    const newCloseTableModal = closeTableModal.cloneNode(true);
+    closeTableModal.parentNode.replaceChild(newCloseTableModal, closeTableModal);
+    
+    newCloseTableModal.addEventListener('click', function() {
+        tableModal.classList.add('hidden');
+        tableModal.classList.remove('flex', 'show');
+    });
+    
+    tableModal.addEventListener('click', function(e) {
+        if (e.target === tableModal) {
+            newCloseTableModal.click();
+        }
+    });
+}
 
-
+/**
+ * Aggiornamento tabella corretto
+ */
+function updateTableFixed() {
+    const tableCount = document.getElementById('tableCount');
+    const tableHeader = document.getElementById('tableHeader');
+    const tableBody = document.getElementById('tableBody');
+    
+    if (!tableCount || !tableHeader || !tableBody) return;
+    
+    if (!filteredData || filteredData.length === 0) {
+        tableCount.textContent = '0';
+        tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
+        tableBody.innerHTML = '<tr><td colspan="100%" class="px-3 py-4 text-center text-gray-500">Nessun elemento trovato</td></tr>';
+        return;
+    }
+    
+    const excludedFields = ['foto', 'googlemaps', 'geouri', 'upl', 'lat.', 'long.', 'lat', 'lng', 'coordinate'];
+    const allKeys = Object.keys(filteredData[0]);
+    const filteredKeys = allKeys.filter(key => {
+        const keyLower = key.toLowerCase().trim();
+        return !excludedFields.some(excluded => {
+            const excludedLower = excluded.toLowerCase().trim();
+            return keyLower === excludedLower || keyLower.includes(excludedLower);
+        });
+    });
+    
+    tableCount.textContent = filteredData.length;
+    
+    // Header
+    tableHeader.innerHTML = '';
+    filteredKeys.forEach(key => {
+        const th = document.createElement('th');
+        th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+        th.textContent = key;
+        tableHeader.appendChild(th);
+    });
+    
+    const actionTh = document.createElement('th');
+    actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+    actionTh.textContent = 'Azioni';
+    tableHeader.appendChild(actionTh);
+    
+    // Body
+    tableBody.innerHTML = '';
+    filteredData.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        
+        filteredKeys.forEach(key => {
+            const td = document.createElement('td');
+            td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+            
+            let value = item[key] || 'N/A';
+            
+            if (key.toLowerCase().includes('stato')) {
+                const statusColors = {
+                    'Istruttoria in corso': '#ffdb4d',
+                    'Respinta': '#ff6b6b',
+                    'Patto stipulato': '#8fd67d',
+                    'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
+                    'In attesa di integrazione': '#b3e6ff'
+                };
+                const color = statusColors[value] || '#6b7280';
+                td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
+            } else {
+                if (value.toString().length > 40) {
+                    td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
+                } else {
+                    td.textContent = value;
+                }
+            }
+            
+            row.appendChild(td);
+        });
+        
+        const actionTd = document.createElement('td');
+        actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+        
+        const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+        actionTd.innerHTML = `
+            <button onclick="showPattoDetails('${item[idKey]}')" 
+                    class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
+                <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
+                Dettagli
+            </button>
+        `;
+        
+        row.appendChild(actionTd);
+        tableBody.appendChild(row);
+    });
+    
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
 
 /**
  * Integrazione con il sistema esistente

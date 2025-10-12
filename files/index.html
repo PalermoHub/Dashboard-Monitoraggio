@@ -12,9 +12,10 @@
     <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/v3/new-patti_pa-v2.css"> 
-	<link rel="stylesheet" href="css/v3/regolamento.css"> 
-
+    <link rel="stylesheet" href="css/v2/new-patti_pa-v2.css"> 
+	<link rel="stylesheet" href="css/v2/regolamento.css"> 
+	<link rel="stylesheet" href="css/v2/hotfix-mobile-toggle.css">
+	<link rel="stylesheet" href="css/v2/button-fix.css">
 	
     
     <!-- External Libraries -->
@@ -86,6 +87,7 @@
                     title="Informazioni sui Patti di Collaborazione"
                     aria-label="Apri informazioni sui Patti di Collaborazione">
                 <i data-lucide="info" class="h-5 w-5" aria-hidden="true"></i>
+                <span>Informazioni sui Patti di Collaborazione</span>
             </button>
             
             <div class="header-info" role="status" aria-live="polite">
@@ -514,6 +516,7 @@
             </div>
         </div>
     </footer>
+
 <!-- INFO MODAL A SCHERMO INTERO CON TAB -->
 <div id="infoModal" 
      class="modal-fullscreen"
@@ -1756,181 +1759,12 @@
     </div>
 </div>
 
-<!-- TABLE MODAL - Inserire prima degli script JS -->
-<div id="tableModal" class="modal" role="dialog" aria-labelledby="tableModalTitle" aria-modal="true">
-    <div class="modal-content table-modal">
-        <div class="modal-header">
-            <h3 id="tableModalTitle" class="modal-title">
-                <i data-lucide="table" class="h-5 w-5" aria-hidden="true"></i>
-                Vista Tabella - <span id="tableCount">0</span> risultati
-            </h3>
-            <button id="closeTableModal" 
-                    class="modal-close" 
-                    title="Chiudi tabella"
-                    aria-label="Chiudi tabella">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr id="tableHeader">
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Caricamento...
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td class="px-3 py-4 text-center text-gray-500">
-                                Caricamento dati in corso...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- MODAL TABELLA - Inserire dopo pattoModal -->
-<!-- ============================================= -->
-<div id="tableModal" class="modal" role="dialog" aria-labelledby="tableModalTitle" aria-modal="true">
-    <div class="modal-content table-modal">
-        <div class="modal-header">
-            <h3 id="tableModalTitle" class="modal-title">
-                <i data-lucide="table" class="h-5 w-5" aria-hidden="true"></i>
-                Vista Tabella - <span id="tableCount">0</span> risultati
-            </h3>
-            <button id="closeTableModal" 
-                    class="modal-close" 
-                    title="Chiudi tabella"
-                    aria-label="Chiudi tabella">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr id="tableHeader">
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Caricamento...
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td class="px-3 py-4 text-center text-gray-500">
-                                Caricamento dati in corso...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- MODAL DETTAGLI PATTO - Inserire prima degli script JS -->
-<!-- ============================================= -->
-<div id="pattoModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
-    <div class="modal-content details-modal">
-        <div class="modal-header">
-            <h3 id="modalTitle" class="modal-title">
-                <i data-lucide="file-text" class="h-5 w-5" aria-hidden="true"></i>
-                Dettagli Patto
-            </h3>
-            <button id="closeModal" 
-                    class="modal-close" 
-                    title="Chiudi dettagli"
-                    aria-label="Chiudi dettagli patto">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <!-- Colonna sinistra: Informazioni -->
-                <div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
-                            Informazioni Generali
-                        </h4>
-                        <div id="pattoDetails" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
-                            <!-- Popolato dinamicamente -->
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="activity" class="h-4 w-4" aria-hidden="true"></i>
-                            Stato di Avanzamento
-                        </h4>
-                        <div>
-                            <span id="pattoStatus" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600;">
-                                <!-- Popolato dinamicamente -->
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div id="pattoNotesContainer" class="hidden" style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
-                            Note
-                        </h4>
-                        <p id="pattoNotes" style="font-size: 0.875rem; color: #4b5563; line-height: 1.6; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
-                            <!-- Popolato dinamicamente -->
-                        </p>
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="external-link" class="h-4 w-4" aria-hidden="true"></i>
-                            Collegamenti
-                        </h4>
-                        <div id="pattoLinks" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-                            <!-- Popolato dinamicamente -->
-                        </div>
-                    </div>
-                    
-                    <div id="photoContainer" class="hidden">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="image" class="h-4 w-4" aria-hidden="true"></i>
-                            Foto
-                        </h4>
-                        <img id="pattoPhoto" 
-                             alt="Foto del patto" 
-                             style="width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    </div>
-                </div>
-                
-                <!-- Colonna destra: Mappa -->
-                <div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="map" class="h-4 w-4" aria-hidden="true"></i>
-                        Posizione
-                    </h4>
-                    <div id="miniMap" style="height: 400px; width: 100%; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
     <!-- JavaScript -->
-    <script src="js/v3/monitoraggio_p1-v2.js"></script>
-	<script src="js/v3/map-controls.js"></script>
-    <script src="js/v3/smart-search-v2.js"></script>
-	<script src="js/v3/monitoraggio_p2.js"></script>
-	<script src="js/v3/regolamento.js"></script>
+    <script src="js/v2/monitoraggio_p1-v2.js"></script>
+	<script src="js/v2/map-controls.js"></script>
+    <script src="js/v2/smart-search-v2.js"></script>
+	<script src="js/v2/monitoraggio_p2.js"></script>
+	<script src="js/v2/regolamento.js"></script>
 	
 	 
 	 <!-- Funzione per gestire le card dei filtri -->
