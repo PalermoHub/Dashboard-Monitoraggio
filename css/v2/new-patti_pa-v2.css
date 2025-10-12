@@ -672,6 +672,7 @@ body {
 .modal.flex {
     opacity: 1;
     visibility: visible;
+	Z-index:1150;
 }
 
 .modal-content {
