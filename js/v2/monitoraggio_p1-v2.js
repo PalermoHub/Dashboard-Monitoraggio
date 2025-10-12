@@ -2387,4 +2387,162 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(style);
 }
 
+// ==========================================
+// MODAL FULLSCREEN CON TAB SYSTEM
+// ==========================================
+
+function initializeFullscreenModal() {
+    console.log('Inizializzazione modal fullscreen con tab...');
+    
+    const modal = document.getElementById('infoModal');
+    const openBtn = document.getElementById('infoBtn');
+    const closeBtn = document.getElementById('closeInfoModal');
+    const tabs = document.querySelectorAll('.modal-tab');
+    const tabContents = document.querySelectorAll('.modal-tab-content');
+    const backToTop = document.getElementById('backToTop');
+    const modalBody = document.querySelector('.modal-fullscreen-body');
+    
+    if (!modal || !openBtn || !closeBtn) {
+        console.warn('Elementi modal fullscreen non trovati');
+        return;
+    }
+    
+    // Apri modal
+    openBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Apertura modal fullscreen...');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // Aggiorna statistiche nel tab About
+        setTimeout(updateAboutStats, 500);
+        
+        // Ricrea le icone Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+    });
+    
+    // Chiudi modal
+    closeBtn.addEventListener('click', function() {
+        console.log('Chiusura modal fullscreen...');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+        
+        // Reset scroll
+        if (modalBody) {
+            modalBody.scrollTop = 0;
+        }
+    });
+    
+    // Chiudi con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            closeBtn.click();
+        }
+    });
+    
+    // Chiudi cliccando fuori (sul backdrop)
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeBtn.click();
+        }
+    });
+    
+    // Gestione Tab
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            console.log('Cambio tab:', targetTab);
+            
+            // Rimuovi classe active da tutti i tab
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            
+            // Aggiungi classe active al tab cliccato
+            this.classList.add('active');
+            this.setAttribute('aria-selected', 'true');
+            
+            // Nascondi tutti i contenuti
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Mostra il contenuto del tab selezionato
+            const targetContent = document.getElementById(`tab-${targetTab}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+                
+                // Scroll al top del contenuto
+                if (modalBody) {
+                    modalBody.scrollTop = 0;
+                }
+            }
+            
+            // Ricrea le icone Lucide per il nuovo contenuto
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                setTimeout(() => {
+                    lucide.createIcons();
+                }, 100);
+            }
+        });
+    });
+    
+    // Back to Top functionality
+    if (backToTop && modalBody) {
+        modalBody.addEventListener('scroll', function() {
+            if (this.scrollTop > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        backToTop.addEventListener('click', function() {
+            modalBody.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    console.log('Modal fullscreen inizializzato con successo');
+}
+
+// Funzione per aggiornare le statistiche nel tab About
+function updateAboutStats() {
+    const totalElement = document.getElementById('aboutStatTotal');
+    if (totalElement && typeof filteredData !== 'undefined') {
+        animateCounter(totalElement, filteredData.length);
+    }
+}
+
+// Funzione helper per animare i contatori
+function animateCounter(element, targetValue) {
+    const duration = 1000;
+    const steps = 30;
+    const increment = targetValue / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= targetValue) {
+            element.textContent = targetValue;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, duration / steps);
+}
+
+// Inizializza quando il DOM è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initializeFullscreenModal, 500);
+});
+
+
 console.log('Dashboard Monitoraggio Patti - Versione Completa con Grafici Moderni caricata');
