@@ -1,0 +1,205 @@
+/* ============================================ */
+/* FIX PER TOGGLE BUTTON CHE ESCE IN MOBILE    */
+/* ============================================ */
+
+/*
+ * PROBLEMA IDENTIFICATO:
+ * - Il pulsante toggle esce dallo schermo in modalità mobile
+ * - Causato da padding eccessivo della sidebar e mancanza di gestione dello spazio
+ * 
+ * SOLUZIONE:
+ * 1. Ridurre il padding della sidebar in mobile
+ * 2. Ottimizzare lo spazio dell'header
+ * 3. Gestire meglio il responsive del layout
+ */
+
+/* ==================== */
+/* CORREZIONI MOBILE    */
+/* ==================== */
+
+@media (max-width: 768px) {
+    
+    /* === FIX 1: Ridurre padding generale === */
+    .dashboard-main {
+        padding: var(--space-2) !important;
+        gap: var(--space-2) !important;
+    }
+    
+    /* === FIX 2: Ottimizzare sidebar === */
+    .sidebar {
+        position: relative;
+        padding: var(--space-3) !important; /* Ridotto da var(--space-6) */
+        padding-bottom: var(--space-2) !important;
+        height: auto;
+        overflow: visible;
+        border-radius: var(--border-radius-sm);
+    }
+    
+    /* === FIX 3: Ottimizzare sidebar header === */
+    .sidebar-header {
+        margin-bottom: var(--space-3) !important;
+        padding-bottom: var(--space-2) !important;
+        gap: var(--space-2) !important;
+        flex-wrap: nowrap; /* Impedisce wrap degli elementi */
+    }
+    
+    /* === FIX 4: Ottimizzare titolo sidebar === */
+    .sidebar-title {
+        font-size: var(--font-size-sm) !important;
+        flex: 1;
+        min-width: 0; /* Permette il text truncation se necessario */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        gap: var(--space-1) !important;
+    }
+    
+    /* === FIX 5: Assicurare visibilità del toggle === */
+    .mobile-toggle {
+        display: flex !important;
+        position: relative;
+        z-index: 1100;
+        flex-shrink: 0; /* Impedisce al pulsante di rimpicciolirsi */
+        background: var(--color-accent);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        padding: var(--space-2) !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 44px !important;
+        max-width: 44px;
+        min-height: 44px !important;
+        max-height: 44px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-md);
+        margin-left: auto; /* Spinge il pulsante a destra */
+    }
+    
+    /* === FIX 6: Dashboard header === */
+    .dashboard-header {
+        padding: 0 var(--space-3) !important;
+    }
+    
+    /* === FIX 7: Gestione content area === */
+    .content-area {
+        height: auto;
+        gap: var(--space-2) !important;
+        overflow: visible;
+    }
+    
+    /* === FIX 8: Stats container === */
+    .stats-container {
+        align-self: auto;
+        gap: var(--space-2) !important;
+        grid-template-columns: 1fr !important;
+        min-height: auto;
+        margin-top: var(--space-2) !important;
+    }
+}
+
+/* ==================== */
+/* CORREZIONI MOBILE PICCOLI SCHERMI */
+/* ==================== */
+
+@media (max-width: 480px) {
+    
+    /* === FIX per schermi molto piccoli === */
+    .dashboard-main {
+        padding: var(--space-1) !important;
+    }
+    
+    .sidebar {
+        padding: var(--space-2) !important;
+        margin: 0 calc(var(--space-1) * -1);
+        border-radius: var(--border-radius-sm);
+    }
+    
+    .sidebar-header {
+        gap: var(--space-1) !important;
+        padding-bottom: var(--space-1) !important;
+    }
+    
+    .sidebar-title {
+        font-size: 0.75rem !important;
+    }
+    
+    .sidebar-title i {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    
+    .mobile-toggle {
+        min-width: 40px !important;
+        max-width: 40px;
+        min-height: 40px !important;
+        max-height: 40px;
+        padding: var(--space-1) !important;
+    }
+    
+    .mobile-toggle i {
+        width: 16px !important;
+        height: 16px !important;
+    }
+}
+
+/* ============================================ */
+/* ISTRUZIONI PER L'APPLICAZIONE                */
+/* ============================================ */
+
+/*
+ * COME APPLICARE QUESTO FIX:
+ * 
+ * 1. Apri il file new-patti_pa-v2.css
+ * 
+ * 2. Trova la sezione:
+ *    @media (max-width: 768px) {
+ * 
+ * 3. SOSTITUISCI le regole esistenti per:
+ *    - .dashboard-main
+ *    - .sidebar
+ *    - .sidebar-header
+ *    - .sidebar-title
+ *    - .mobile-toggle
+ *    
+ *    Con le regole corrispondenti in questo file (FIX 1-8)
+ * 
+ * 4. Aggiungi la sezione @media (max-width: 480px) se non presente
+ * 
+ * 5. Salva e testa su dispositivo mobile o con Chrome DevTools
+ * 
+ * VERIFICA:
+ * - Il pulsante toggle deve essere sempre visibile nell'angolo in alto a destra
+ * - Non deve esserci scroll orizzontale
+ * - Il titolo "Filtri & Analisi" può essere troncato se necessario ma il toggle resta visibile
+ */
+
+/* ============================================ */
+/* ALTERNATIVE QUICK FIX (se il problema persiste) */
+/* ============================================ */
+
+/* Se il problema persiste, prova questa soluzione più drastica: */
+
+@media (max-width: 768px) {
+    
+    /* Forza la sidebar a non overflow */
+    .sidebar {
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Forza l'header a gestire lo spazio correttamente */
+    .sidebar-header {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        max-width: 100% !important;
+    }
+    
+    /* Forza il toggle a rimanere nel viewport */
+    .mobile-toggle {
+        position: sticky !important;
+        right: var(--space-2) !important;
+    }
+}
