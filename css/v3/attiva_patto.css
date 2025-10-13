@@ -177,3 +177,25 @@
                 padding: 1rem;
             }
         }
+		
+		/* Fix per evitare conflitti con il modal principale */
+.modal-content.details-modal,
+.modal-content.table-modal,
+.modal-content.info-modal {
+    display: flex !important;
+}
+
+.modal.show {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Specifica che le regole .section si applicano solo dentro il tab attiva */
+#tab-attiva .section {
+    display: none;
+}
+
+#tab-attiva .section.active {
+    display: block;
+}
