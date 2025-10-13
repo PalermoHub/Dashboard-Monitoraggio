@@ -14,6 +14,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/v3/new-patti_pa-v3.css"> 
 	<link rel="stylesheet" href="css/v3/regolamento.css"> 
+		<link rel="stylesheet" href="css/v3/attiva_patto.css"> 
 
 	
     
@@ -1216,60 +1217,455 @@
                         Come Attivare un Patto di Collaborazione
                     </h3>
 
-                    <div class="content-section">
-                        <h4 class="section-subtitle">Procedura Passo-Passo</h4>
-                        
-                        <div class="steps-container">
-                            <div class="step-item">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h5>Identifica il Bene Comune</h5>
-                                    <p>Individua uno spazio pubblico nel tuo quartiere che necessita di cura o riqualificazione: un parco, una piazza, un'area verde, ecc.</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h5>Forma un Gruppo</h5>
-                                    <p>Puoi agire come singolo cittadino, gruppo informale o attraverso un'associazione. Coinvolgi i vicini e gli abitanti del quartiere!</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h5>Presenta la Proposta</h5>
-                                    <p>Compila il modulo di proposta descrivendo l'intervento che intendi realizzare e gli obiettivi che vuoi raggiungere.</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <h5>Istruttoria Comunale</h5>
-                                    <p>Il Comune valuta la proposta verificando la fattibilità tecnica e amministrativa. Potresti essere contattato per chiarimenti.</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">5</div>
-                                <div class="step-content">
-                                    <h5>Stipula del Patto</h5>
-                                    <p>Se approvata, si procede alla firma del Patto di Collaborazione che definisce impegni, tempi e modalità dell'intervento.</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">6</div>
-                                <div class="step-content">
-                                    <h5>Realizzazione e Monitoraggio</h5>
-                                    <p>Realizzi l'intervento con il supporto del Comune. Il Patto prevede momenti di verifica e monitoraggio dei risultati.</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="content1-section">
+  <div class="toc">
+            <div class="navigation-dropdowns">
+                <div class="dropdown-group">
+                    <label class="dropdown-label" for="capitolo-select">
+                        Seleziona Capitolo
+                    </label>
+                    <select id="capitolo-select" class="nav-select">
+                        <option value="cap1">L'amministrazione condivisa dei beni comuni</option>
+                        <option value="cap2">I principi generali della Collaborazione</option>
+                        <option value="cap3">Tipologie di Patti di Collaborazione</option>
+                        <option value="cap4">Modalità di finanziamento</option>
+                        <option value="cap5">L'Autofinanziamento</option>
+                        <option value="cap6">Casi in cui è necessario il parere della circoscrizione</option>
+                        <option value="cap7">Gestione delle controversie</option>
+                        <option value="cap8">Come attivare un patto di collaborazione!</option>
+                    </select>
+                </div>
+                
+                <div class="dropdown-group">
+                    <label class="dropdown-label" for="paragrafo-select">
+                        Seleziona Paragrafo
+                    </label>
+                    <select id="paragrafo-select" class="nav-select">
+                        <option value="all">Tutto il capitolo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Capitolo 1 -->
+            <div id="cap1" class="section active">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>L'amministrazione condivisa dei beni comuni</h1>
+                    
+                    <div data-paragrafo="finalita">
+                        <h2>Finalità</h2>
+                        <ul>
+                            <li>Elevare la qualità dell'ambiente urbano, a beneficio di tutta la comunità residente.</li>
+                            <li>Promuovere reti di soggetti attivi, mettere a fattor comune le energie diffuse, favorire l'inclusione e il protagonismo di cittadini, associazioni, gruppi informali.</li>
+                        </ul>
                     </div>
 
+                    <div data-paragrafo="cosa-sono">
+                        <h2>Cosa sono i beni comuni a cui si riferisce il Regolamento?</h2>
+                        <p>I beni comuni, come definiti dal Regolamento, sono beni materiali e immateriali che i cittadini e l'Amministrazione Comunale di Palermo riconoscono come essenziali per il benessere della comunità. Questi beni, in linea con l'articolo 118 comma 4 della Costituzione Italiana, contribuiscono all'esercizio dei diritti fondamentali delle persone, con particolare attenzione all'interesse delle future generazioni.</p>
+                    </div>
+
+                    <div data-paragrafo="cittadini-attivi">
+                        <h2>Chi sono i "cittadini attivi" e come possono partecipare alla cura dei beni comuni?</h2>
+                        <p>I cittadini attivi sono individui, associazioni o gruppi, anche informali, che desiderano contribuire attivamente alla cura, rigenerazione e gestione condivisa dei beni comuni. Non è richiesta la residenza o la cittadinanza, e la partecipazione può essere a tempo determinato. L'importante è l'impegno etico e la mancanza di scopo di lucro nelle attività legate ai beni comuni.</p>
+                    </div>
+
+                    <div data-paragrafo="patto-collaborazione">
+                        <h2>Cos'è un Patto di Collaborazione e cosa contiene?</h2>
+                        <p>Il Patto di Collaborazione è un <strong>accordo formale tra il Comune di Palermo e i cittadini attivi</strong> che definisce le modalità di collaborazione per la cura dei beni comuni. Il Patto definisce gli obiettivi, le azioni, la durata, gli impegni economici, gli strumenti di gestione, il monitoraggio, la valutazione, la comunicazione e le responsabilità.</p>
+
+                        <h3>Le parole chiave dei Patti di Collaborazione:</h3>
+                        <ul>
+                            <li>Partecipazione</li>
+                            <li>Sussidiarietà</li>
+                            <li>Amministrazione condivisa</li>
+                            <li>Cittadinanza attiva</li>
+                            <li>Bene Comune</li>
+                        </ul>
+
+                        <h3>Semplici principi</h3>
+                        <ul>
+                            <li>Le attività svolte dai cittadini attivi con i patti di collaborazione sono una espressione di volontariato autonomo e indipendente, e non hanno fini di lucro.</li>
+                            <li>Le attività svolte dai cittadini attivi non sostituiscono le attività di ordinaria competenza del Comune, ma producono un valore sociale che si aggiunge al livello esistente di qualità ambientale.</li>
+                            <li>Lo spazio amministrato come bene comune non viene conferito in uso esclusivo, ma conferito in adozione. Esso viene gestito dai cittadini attivi a favore di tutta la comunità residente (uso collettivo); ma è sempre possibile che nuovi soggetti si aggiungano alla gestione dello spazio, se in grado di apportare un contributo nuovo e coordinabile con le finalità stabilite nel patto iniziale.</li>
+                            <li>La proposta di un patto di collaborazione è presentata ai cittadini mediante un avviso pubblico. L'avviso non genera una selezione, ma un processo di confronto inclusivo tra le proposte raccolte.</li>
+                            <li>Il patto di collaborazione esprime una forma organica di cooperazione con i cittadini, poiché il Comune non solo riconosce il valore pubblico della loro iniziativa, ma integra queste iniziative negli interessi generali che esso persegue diventando co-produttore delle attività stipulate.</li>
+                            <li>Il Comune sostiene queste iniziative non con sovvenzioni finanziarie dirette, ma con risorse materiali e con agevolazioni procedurali.</li>
+                            <li>Il patto di collaborazione ha durata massima di tre anni; a scadenza non può essere rinnovato alle stesse condizioni, ma può essere riprogettato con contenuti innovativi.</li>
+                        </ul>
+                    </div>
+
+                    <div data-paragrafo="differenza-patti">
+                        <h2>Che differenza c'è tra Patti di Collaborazione ordinari e complessi?</h2>
+                        <p>I Patti ordinari riguardano interventi di cura di modesta entità, come pulizia, giardinaggio o piccole manutenzioni. I Patti complessi, invece, si applicano a beni di valore storico, culturale o economico significativo, e prevedono interventi di rigenerazione e gestione continuata nel tempo.</p>
+                    </div>
+
+                    <div data-paragrafo="uso-civico">
+                        <h2>Cosa si intende per "uso civico e collettivo urbano e territoriale"?</h2>
+                        <p>L'uso civico e collettivo urbano e territoriale è un modello di gestione partecipata e democratica di un bene comune da parte della comunità e dell'Ente Locale. Non si riferisce al tradizionale concetto di uso civico come diritto reale, ma a un nuovo strumento per l'utilizzo condiviso di un bene, pubblico o privato.</p>
+                    </div>
+
+                    <div data-paragrafo="dichiarazione-uso">
+                        <h2>Che ruolo ha la "Dichiarazione di uso civico e collettivo"?</h2>
+                        <p>La Dichiarazione di uso civico e collettivo definisce le regole per la partecipazione, l'uso, la fruizione, l'accesso e la gestione di un bene comune. Viene elaborata dalla comunità di riferimento e approvata dall'Amministrazione Comunale, garantendo un utilizzo non esclusivo, accessibile, inclusivo e imparziale del bene, a beneficio anche delle generazioni future.</p>
+                    </div>
+
+                    <div data-paragrafo="sostegno-economico">
+                        <h2>Quali forme di sostegno economico può fornire il Comune ai cittadini attivi?</h2>
+                        <p>Il Comune, nei limiti delle risorse disponibili, può sostenere le attività dei cittadini attivi attraverso la fruizione gratuita degli spazi, la copertura delle spese per utenze e manutenzioni, la fornitura di beni strumentali e materiali di consumo, l'affiancamento di dipendenti comunali e la promozione di iniziative di autofinanziamento.</p>
+                    </div>
+
+                    <div data-paragrafo="valutazione">
+                        <h2>Come vengono valutati i risultati dei Patti di Collaborazione?</h2>
+                        <p>La valutazione dei Patti di Collaborazione si basa su principi di chiarezza, comparabilità, periodicità e verificabilità. I risultati vengono documentati e resi pubblici attraverso il sito web del Comune, conferenze stampa, convegni e altri eventi. La valutazione considera obiettivi, azioni, risultati e risorse utilizzate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 2 -->
+            <div id="cap2" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>I principi generali della Collaborazione</h1>
+
+                    <p>L'articolo 3 del Regolamento del Comune di Palermo definisce i principi generali che ispirano la collaborazione tra cittadini e amministrazione per la cura, la rigenerazione e la gestione condivisa dei beni comuni. Questi principi, essenziali per una proficua e duratura collaborazione, sono:</p>
+
+                    <div data-paragrafo="principi-fondamentali">
+                        <h2>Principi Fondamentali</h2>
+
+                        <h3>Fiducia reciproca</h3>
+                        <p>La collaborazione si basa sulla fiducia reciproca tra l'amministrazione e i cittadini attivi. Entrambi gli attori devono operare con trasparenza e lealtà, perseguendo esclusivamente finalità di interesse generale. Questo principio è fondamentale per creare un clima di serenità e collaborazione, evitando inutili sospetti e conflitti.</p>
+
+                        <h3>Pubblicità e trasparenza</h3>
+                        <p>L'amministrazione si impegna a garantire la massima trasparenza in ogni fase della collaborazione, rendendo pubbliche tutte le informazioni relative alle opportunità di partecipazione, alle proposte ricevute, ai finanziamenti erogati, alle decisioni prese, ai risultati ottenuti e alle valutazioni effettuate. La trasparenza è lo strumento principale per assicurare l'imparzialità e la verificabilità delle azioni intraprese.</p>
+
+                        <h3>Responsabilità</h3>
+                        <p>La collaborazione si fonda sulla responsabilità di entrambe le parti. L'amministrazione è responsabile di creare un contesto favorevole alla partecipazione, fornendo strumenti e risorse adeguati, mentre i cittadini sono responsabili di utilizzare tali strumenti con diligenza e impegno, contribuendo attivamente al raggiungimento degli obiettivi. La responsabilità condivisa è la chiave per garantire l'efficacia e la sostenibilità degli interventi.</p>
+                    </div>
+
+                    <div data-paragrafo="principi-operativi">
+                        <h2>Principi Operativi</h2>
+
+                        <h3>Inclusività e apertura</h3>
+                        <p>I progetti di cura, gestione e rigenerazione dei beni comuni devono essere aperti al contributo di tutti i cittadini interessati, in qualsiasi momento del processo. La partecipazione non deve essere limitata a un gruppo ristretto di persone, ma deve essere aperta a tutti coloro che desiderano contribuire, garantendo la massima inclusione e la valorizzazione della diversità.</p>
+
+                        <h3>Pari opportunità e contrasto delle discriminazioni</h3>
+                        <p>La collaborazione deve promuovere la parità di opportunità per tutti i cittadini, indipendentemente da genere, origine, cittadinanza, condizione sociale, credo religioso, orientamento sessuale e disabilità. Ogni forma di discriminazione è incompatibile con i principi della collaborazione, che si fonda sul rispetto e la valorizzazione di ogni individuo.</p>
+
+                        <h3>Sostenibilità</h3>
+                        <p>L'amministrazione deve valutare la sostenibilità degli interventi, sia in termini economici che ambientali. Le azioni intraprese non devono comportare oneri eccessivi per la collettività, né compromettere l'utilizzo dei beni comuni da parte delle generazioni future. La sostenibilità è un principio fondamentale per garantire che gli interventi abbiano un impatto positivo e duraturo sul territorio.</p>
+
+                        <h3>Proporzionalità</h3>
+                        <p>L'amministrazione deve adattare gli adempimenti burocratici e gli standard di qualità alle effettive esigenze di tutela degli interessi pubblici coinvolti, semplificando al massimo il rapporto con i cittadini attivi. La proporzionalità è un principio importante per evitare inutili complicazioni e per rendere la partecipazione più accessibile a tutti.</p>
+
+                        <h3>Adeguatezza e differenziazione</h3>
+                        <p>Le forme di collaborazione devono essere modulate in base alle caratteristiche del bene comune e alle esigenze della comunità locale. Non esiste un modello unico di collaborazione, ma è necessario adattare gli strumenti e le modalità di intervento alle diverse situazioni, garantendo l'efficacia e la coerenza delle azioni.</p>
+
+                        <h3>Informalità</h3>
+                        <p>L'amministrazione deve favorire un rapporto informale con i cittadini, semplificando le procedure e riducendo al minimo le formalità burocratiche, pur garantendo il rispetto dei principi etici e della legalità. L'informalità è un elemento importante per creare un clima di fiducia e collaborazione, rendendo la partecipazione più spontanea e diretta.</p>
+
+                        <h3>Autonomia civica</h3>
+                        <p>L'amministrazione riconosce e valorizza l'autonomia dei cittadini nell'attivarsi per la cura dei beni comuni. La partecipazione non deve essere imposta dall'alto, ma deve nascere dalla libera iniziativa dei cittadini, che si sentono responsabili del proprio territorio. L'autonomia civica è la base per una partecipazione autentica e duratura.</p>
+
+                        <h3>Prossimità e territorialità</h3>
+                        <p>L'amministrazione riconosce il ruolo centrale delle comunità locali nella gestione dei beni comuni. I Patti di Collaborazione devono coinvolgere prioritariamente i cittadini che vivono e operano nel territorio, in quanto sono i più diretti interessati alla cura e alla valorizzazione dei beni comuni. La prossimità è un principio importante per garantire la partecipazione di coloro che conoscono meglio le esigenze del territorio e per favorire la creazione di un senso di appartenenza.</p>
+                    </div>
+
+                    <p>Questi principi generali delineano un quadro di riferimento per una collaborazione efficace e costruttiva tra cittadini e amministrazione nella gestione dei beni comuni. La loro applicazione concreta è fondamentale per garantire la buona riuscita dei Patti di Collaborazione e per creare un modello di governance partecipata e condivisa del territorio.</p>
+                </div>
+            </div>
+
+            <!-- Capitolo 3 -->
+            <div id="cap3" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>Tipologie di Patti di Collaborazione</h1>
+
+                    <p>Il Comune di Palermo prevede due principali tipologie di Patti di Collaborazione per la cura, la rigenerazione e la gestione condivisa dei beni comuni:</p>
+
+                    <div data-paragrafo="patti-ordinari">
+                        <h2>1. Patti di Collaborazione Ordinari</h2>
+
+                        <h3>Oggetto</h3>
+                        <p>Interventi di cura di modesta entità, anche ripetuti nel tempo, su spazi e beni comuni.</p>
+
+                        <h3>Esempi</h3>
+                        <ul>
+                            <li>Pulizia</li>
+                            <li>Imbiancatura</li>
+                            <li>Piccola manutenzione ordinaria</li>
+                            <li>Giardinaggio</li>
+                            <li>Allestimenti e decorazioni</li>
+                            <li>Attività di animazione territoriale</li>
+                            <li>Aggregazione sociale</li>
+                            <li>Comunicazione</li>
+                            <li>Attività culturali e formative</li>
+                        </ul>
+
+                        <h3>Procedura</h3>
+                        <ul>
+                            <li>I cittadini presentano la proposta di collaborazione all'Ufficio competente utilizzando un modello di istanza scaricabile dal sito istituzionale del Comune.</li>
+                            <li>Il modello contiene un elenco esemplificativo di interventi di cura di modesta entità e indica i requisiti e l'iter per la loro realizzazione.</li>
+                            <li>Il Dirigente responsabile verifica il rispetto dei regolamenti e la fattibilità tecnica e procede alla sottoscrizione del Patto.</li>
+                            <li>Tempistica: Il Dirigente comunica l'esito della valutazione entro 30 giorni.</li>
+                        </ul>
+                    </div>
+
+                    <div data-paragrafo="patti-complessi">
+                        <h2>2. Patti di Collaborazione Complessi</h2>
+
+                        <h3>Oggetto</h3>
+                        <p>Interventi di cura o rigenerazione complessi o innovativi su spazi e beni comuni di valore storico, culturale o economico significativo, volti al recupero, alla trasformazione e alla gestione continuata nel tempo per lo svolgimento di attività di interesse generale.</p>
+
+                        <h3>Elenco dei beni</h3>
+                        <ul>
+                            <li>Il Comune può individuare autonomamente beni comuni per Patti Complessi tramite delibera del Consiglio Comunale su proposta della Giunta.</li>
+                            <li>I cittadini possono proporre beni da inserire nell'elenco.</li>
+                        </ul>
+
+                        <h3>Procedura</h3>
+                        <ul>
+                            <li>I cittadini presentano la proposta entro 30 giorni dalla pubblicazione di un avviso pubblico.</li>
+                            <li>Il Dirigente competente valuta la proposta entro 60 giorni.</li>
+                            <li>In caso di più proposte per lo stesso bene, l'Ufficio può avviare un confronto tra i proponenti.</li>
+                            <li>Il Dirigente predispone gli atti per una delibera di Giunta entro 30 giorni dalla valutazione.</li>
+                            <li>La Giunta approva il Patto, valutando l'interesse generale.</li>
+                            <li>Il Dirigente competente sottoscrive il Patto.</li>
+                            <li>Tempistica: La procedura di valutazione e approvazione può richiedere diversi mesi.</li>
+                            <li>Durata: Non superiore a 4 anni, rinnovabile previa verifica.</li>
+                        </ul>
+                    </div>
+
+                    <div data-paragrafo="ulteriori-info">
+                        <h3>Ulteriori Informazioni</h3>
+
+                        <h4>Uso Civico e Collettivo Urbano e Territoriale</h4>
+                        <p>I beni comuni possono essere oggetto di uso civico e collettivo, anche se di proprietà privata con il consenso del proprietario o espropriati dal Comune. L'iniziativa può partire dai cittadini o dal Comune.</p>
+
+                        <h4>Dichiarazione di Uso Civico e Collettivo</h4>
+                        <p>Definisce i criteri di partecipazione, uso, fruizione, accesso e gestione del bene. Può anche proporre la revisione del Patto di Collaborazione.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 4 -->
+            <div id="cap4" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>Modalità di finanziamento</h1>
+
+                    <p>Modalità di finanziamento dei Patti di Collaborazione previste dal Comune di Palermo, sottolineando l'importanza del contributo dei cittadini attivi e la possibilità di un supporto economico da parte dell'Amministrazione, sebbene con alcune limitazioni.</p>
+
+                    <div data-paragrafo="ruolo-cittadini">
+                        <h2>Ruolo dei Cittadini Attivi</h2>
+
+                        <h3>Nessun compenso</h3>
+                        <p>L'attività dei cittadini attivi nei Patti di Collaborazione non prevede alcun compenso o rapporto di lavoro con il Comune. Si tratta di un impegno volontario basato sulla responsabilità civica e sul desiderio di contribuire al benessere della comunità.</p>
+
+                        <h3>Mobilitazione di risorse</h3>
+                        <p>I cittadini sono incoraggiati a mobilitare le proprie risorse economiche e a reperire fondi per la realizzazione dei progetti previsti dai Patti. Il Comune promuove queste iniziative a condizione che vi sia massima trasparenza sull'utilizzo dei fondi raccolti.</p>
+
+                        <h3>Autofinanziamento</h3>
+                        <p>I Patti possono prevedere attività temporanee, accessorie al programma principale, finalizzate all'autofinanziamento. Ad esempio, la vendita di prodotti artigianali realizzati durante un laboratorio o l'organizzazione di eventi a pagamento.</p>
+                    </div>
+
+                    <div data-paragrafo="supporto-comune">
+                        <h2>Supporto dell'Amministrazione Comunale</h2>
+
+                        <h3>Oneri diretti</h3>
+                        <p>Il Comune può contribuire finanziariamente alle attività dei Patti, sostenendo direttamente alcuni costi. Questo supporto è vincolato alla disponibilità di risorse economiche e viene valutato in base all'interesse pubblico del progetto e alla congruità delle risorse mobilitate dai cittadini.</p>
+
+                        <h3>No contributi in denaro</h3>
+                        <p>L'Amministrazione non può erogare direttamente contributi in denaro ai cittadini attivi. Il supporto economico si concretizza in altre forme, come la fornitura di beni e servizi.</p>
+
+                        <h3>Fruibilità gratuita degli spazi</h3>
+                        <p>I Patti possono prevedere la concessione gratuita di spazi comunali per lo svolgimento delle attività.</p>
+
+                        <h3>Copertura delle utenze e manutenzioni</h3>
+                        <p>Il Comune può farsi carico delle spese relative alle utenze (luce, acqua, gas) e alle manutenzioni degli spazi utilizzati per i Patti.</p>
+
+                        <h3>Fornitura di beni strumentali e materiali di consumo</h3>
+                        <p>L'Amministrazione può fornire in comodato d'uso gratuito i beni necessari alle attività, inclusi i dispositivi di protezione individuale.</p>
+
+                        <h3>Esonero da canoni e tributi</h3>
+                        <p>Le attività svolte nell'ambito dei Patti possono essere esonerate dal pagamento di canoni per l'occupazione di suolo pubblico e da altri tributi locali.</p>
+
+                        <h3>Affiancamento di personale comunale</h3>
+                        <p>I Patti possono prevedere la collaborazione di dipendenti comunali a supporto dei cittadini attivi.</p>
+                    </div>
+
+                    <div data-paragrafo="ulteriori-supporti">
+                        <h2>Ulteriori forme di Supporto</h2>
+
+                        <h3>Mecenatismo</h3>
+                        <p>I Patti possono prevedere forme di mecenatismo a sostegno delle attività. In questo caso, è importante garantire un'ampia visibilità ai mecenati, ad esempio attraverso la pubblicità degli interventi realizzati, ma senza concedere diritti di esclusiva sul bene comune.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 5 -->
+            <div id="cap5" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>L'Autofinanziamento</h1>
+                    
+                    <p>L'autofinanziamento rappresenta una modalità importante per sostenere i progetti di cura, rigenerazione e gestione condivisa dei beni comuni nell'ambito dei Patti di Collaborazione previsti dal Regolamento del Comune di Palermo.</p>
+                    
+                    <div data-paragrafo="principi">
+                        <h2>Principi e Caratteristiche dell'Autofinanziamento (Articolo 15)</h2>
+                        
+                        <ul>
+                            <li><strong>Promozione da parte del Comune</strong>: L'Amministrazione comunale incoraggia i cittadini a cercare forme di autofinanziamento per i loro progetti, a condizione che venga garantita la massima trasparenza sull'origine e l'utilizzo dei fondi raccolti.</li>
+                            
+                            <li><strong>Attività accessorie e temporanee</strong>: Le attività di autofinanziamento devono essere di carattere temporaneo e accessorie rispetto al programma principale del Patto di Collaborazione. Questo significa che non devono diventare l'obiettivo principale del Patto, ma devono servire a integrare le risorse disponibili per la realizzazione degli interventi previsti.</li>
+                            
+                            <li><strong>Definizione nel Patto di Collaborazione</strong>: Le modalità di autofinanziamento devono essere definite in modo chiaro e dettagliato all'interno del Patto di Collaborazione, in modo da garantire trasparenza e accountability.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="esempi">
+                        <h2>Esempi di Attività di Autofinanziamento</h2>
+                        
+                        <p>Le fonti non forniscono un elenco specifico di attività ammissibili per l'autofinanziamento. Tuttavia, sulla base dei principi generali e delle caratteristiche descritte, si possono ipotizzare alcuni esempi:</p>
+                        
+                        <ul>
+                            <li><strong>Organizzazione di eventi a pagamento</strong>: I cittadini attivi potrebbero organizzare eventi culturali, ricreativi o formativi a pagamento, destinando il ricavato al finanziamento del progetto.</li>
+                            
+                            <li><strong>Vendita di prodotti artigianali</strong>: Se il progetto prevede attività laboratoriali, i cittadini attivi potrebbero vendere i prodotti realizzati durante i laboratori per autofinanziare le attività.</li>
+                            
+                            <li><strong>Raccolta fondi tramite crowdfunding</strong>: I cittadini attivi potrebbero utilizzare piattaforme di crowdfunding per raccogliere donazioni da parte della comunità a sostegno del loro progetto.</li>
+                            
+                            <li><strong>Collaborazioni con sponsor privati</strong>: I cittadini attivi potrebbero cercare sponsorizzazioni da parte di aziende private interessate a sostenere iniziative a favore del territorio.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="trasparenza">
+                        <h2>Importanza della Trasparenza</h2>
+                        
+                        <p>In tutti i casi, è fondamentale garantire la massima trasparenza nella gestione dei fondi raccolti tramite autofinanziamento, documentando le entrate e le uscite e rendicontando l'utilizzo delle risorse alla comunità e all'Amministrazione comunale.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 6 -->
+            <div id="cap6" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>Casi in cui è necessario il parere della circoscrizione</h1>
+                    
+                    <div data-paragrafo="casi">
+                        <ul>
+                            <li>Articolo 8 bis, comma 3, lettera b): quando il Comune, con deliberazione del Consiglio Comunale, su proposta della Giunta Comunale, intende mettere a disposizione un bene comune con presidio dell'Amministrazione, è necessario sentire la Circoscrizione competente.</li>
+                            
+                            <li>Articolo 8 quinquies, comma 1: quando vi sono più richieste di uso civico urbano e territoriale dello stesso bene comune e le diverse proposte non possono essere integrate, la scelta finale spetta al Consiglio Comunale, su proposta della Giunta Comunale, sentita la Circoscrizione.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="ruolo">
+                        <h2>Ruolo della circoscrizione</h2>
+                        
+                        <p>In entrambi i casi, la Circoscrizione svolge un ruolo consultivo, esprimendo il proprio parere in merito alla decisione finale che spetta al Consiglio Comunale. Le fonti non specificano se il parere della Circoscrizione sia vincolante o meno.</p>
+                        
+                        <p>L'Articolo 8 bis, comma 3, lettera a) prevede che, quando una comunità di riferimento presenta una proposta per la definizione dell'uso civico e collettivo urbano e territoriale di un bene, il Consiglio Comunale, su proposta della Giunta Comunale, dà comunicazione alle circoscrizioni della delibera in merito all'interesse della Città a procedere. In questo caso, non si parla di parere, ma di semplice comunicazione.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 7 -->
+            <div id="cap7" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>Gestione delle controversie</h1>
+                    
+                    <p>Il Regolamento del Comune di Palermo prevede un meccanismo specifico per la gestione delle controversie che possono sorgere durante l'attuazione dei Patti di Collaborazione.</p>
+                    
+                    <div data-paragrafo="tentativo-conciliazione">
+                        <h2>Tentativo di Conciliazione</h2>
+                        
+                        <ul>
+                            <li><strong>Obbligatorietà</strong>: In caso di disaccordo tra le parti del Patto (Comune e cittadini attivi) o tra queste e terzi, è previsto un obbligatorio tentativo di conciliazione prima di intraprendere altre azioni legali.</li>
+                            
+                            <li><strong>Composizione del Comitato</strong>: Viene istituito un Comitato di conciliazione formato da tre membri: uno designato dai cittadini attivi, uno dall'amministrazione comunale e uno scelto di comune accordo tra le parti. Nel caso di controversie che coinvolgono terzi, quest'ultimo membro viene nominato dai terzi stessi.</li>
+                            
+                            <li><strong>Tempistica</strong>: Il Comitato di conciliazione ha trenta giorni di tempo dall'istanza per formulare una proposta di conciliazione alle parti coinvolte.</li>
+                            
+                            <li><strong>Natura non vincolante</strong>: La proposta elaborata dal Comitato non ha carattere vincolante, ovvero le parti sono libere di accettarla o rifiutarla.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capitolo 8 -->
+            <div id="cap8" class="section">
+                <div class="subsection active" data-paragrafo="all">
+                    <h1>Come attivare un patto di collaborazione!</h1>
+                    
+                    <p>Il Regolamento del Comune di Palermo, approvato con Delibera di Consiglio Comunale n. 31 del 20/04/2023, disciplina le modalità di attivazione di un Patto di Collaborazione tra cittadini e Amministrazione per la cura, la rigenerazione e la gestione condivisa dei beni comuni.</p>
+                    
+                    <div data-paragrafo="elementi-patto">
+                        <h2>Elementi del Patto di Collaborazione (Articolo 5)</h2>
+                        
+                        <p>Indipendentemente dalla tipologia, il Patto di Collaborazione deve definire:</p>
+                        
+                        <ul>
+                            <li>Obiettivi e azioni da realizzare;</li>
+                            <li>Durata, cause di sospensione o conclusione anticipata;</li>
+                            <li>Modalità di azione, ruoli e impegni dei soggetti coinvolti, anche economici;</li>
+                            <li>Strumenti per la fruizione collettiva del bene;</li>
+                            <li>Modalità di monitoraggio e valutazione;</li>
+                            <li>Misure di pubblicità e documentazione delle attività;</li>
+                            <li>Eventuale affiancamento del personale comunale, gestione delle controversie e sanzioni;</li>
+                            <li>Cause e modalità di esclusione dei cittadini e assetti a conclusione della collaborazione;</li>
+                            <li>Responsabilità per eventuali danni, coperture assicurative;</li>
+                            <li>Modalità di adeguamento e modifica degli interventi.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="proposta">
+                        <h2>Proposta di Collaborazione</h2>
+                        
+                        <p>Per presentare una proposta di collaborazione è necessario compilare un modulo specifico, disponibile sul sito del Comune, che include:</p>
+                        
+                        <ul>
+                            <li>Dati del proponente, (indicare i soggetti partecipanti);</li>
+                            <li>Identificare l'area interessata;</li>
+                            <li>Descrizione del bene comune;</li>
+                            <li>Presentazione sintetica del progetto;</li>
+                            <li>Finalità e obiettivi concreti del progetto;</li>
+                            <li>Strumenti e modalità di coinvolgimento dei cittadini, (presentare una programmazione di massima delle attività previste, indicando ruoli e compiti di ogni partecipante);</li>
+                            <li>Indicare le risorse materiali necessarie, specificando quelle già disponibili e quelle richieste al Comune;</li>
+                            <li>Durata del progetto;</li>
+                            <li>Eventuale copertura assicurativa.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="allegati">
+                        <h2>Al progetto di patto occorre allegare:</h2>
+                        
+                        <ul>
+                            <li>materiale utile all'identificazione dell'area, anche reperito sul web (immagini jpeg, Google Maps, Earth);</li>
+                            <li>copia della carta d'identità fronte retro o altro documento d'identificazione dei sottoscrittori in corso di validità;</li>
+                            <li>Statuto e atto costitutivo delle associazioni;</li>
+                            <li>moduli eventualmente necessari.</li>
+                        </ul>
+                    </div>
+                    
+                    <div data-paragrafo="procedura">
+                        <p>I cittadini attivi, le associazioni e i gruppi informali possono inviare in qualunque momento un progetto di patto di collaborazione alla mail: <strong>rigenerazioneurbana@comune.palermo.it</strong></p>
+                        
+                        <p>L'<strong>Ufficio Rigenerazione Urbana</strong> inizia la valutazione della fattibilità del progetto assieme ai promotori, con gli uffici tecnici interni competenti e con la Circoscrizione. Normalmente le verifiche ordinarie riguardano, secondo il caso:</p>
+                        
+                        <ul>
+                            <li>Le condizioni ambientali, quali la presenza di contaminazioni ecologiche;</li>
+                            <li>La natura delle attività di animazione previste, per eventuali autorizzazioni;</li>
+                            <li>La presenza di sottoservizi;</li>
+                            <li>La compatibilità con la mobilità pedonale e veicolare, per il rilascio di eventuali autorizzazioni;</li>
+                            <li>La compatibilità con la sicurezza stradale;</li>
+                            <li>La disponibilità di servizi utili, come allacciamento idrico, elettrico, fognario;</li>
+                            <li>La necessità di strumenti e risorse da arrecare.</li>
+                        </ul>
+                        
+                        <p>Queste attività richiedono di norma un mese di tempo salvo che, per superare le criticità emerse, non sia necessario apportare al progetto le opportune modifiche.</p>
+                    </div>
+                </div> 
+				</div>
+                    </div>
+<br>
                     <div class="content-section">
                         <h4 class="section-subtitle">Chi Può Proporre un Patto?</h4>
                         <div class="grid-2-cols">
@@ -1302,7 +1698,8 @@
                             <strong>Hai un'idea?</strong>
                             <p>Non aspettare! Ogni grande cambiamento inizia con un piccolo passo. Contatta l'Ufficio Rigenerazione Urbana per ricevere supporto nella formulazione della tua proposta.</p>
                         </div>
-                    </div>
+                    </div>		
+					
                 </div>
             </div>
 
@@ -1931,7 +2328,7 @@
     <script src="js/v3/smart-search-v2.js"></script>
 	<script src="js/v3/monitoraggio_p2.js"></script>
 	<script src="js/v3/regolamento.js"></script>
-	<script src="js/v3/app-coordinator.js"></script>
+	<script src="js/v3/attiva_patto.js"></script>
 	
 	 
 	 <!-- Funzione per gestire le card dei filtri -->
