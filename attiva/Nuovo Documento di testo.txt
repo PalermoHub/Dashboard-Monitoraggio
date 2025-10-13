@@ -1,1 +1,0 @@
-analizza i file  ed estrai in un unico file html tutto il testo nel body delle pagine
