@@ -42,6 +42,7 @@
     --status-integrazione: #f97316;
     --status-monitoraggio: #8b5cf6;
     --status-respinto: var(--color-error);
+	--status-archiviato: #64748B;
     
     /* Spacing */
     --space-1: 0.25rem;
@@ -888,7 +889,7 @@ body {
 .status-integrazione { background: var(--status-integrazione); }
 .status-monitoraggio { background: var(--status-monitoraggio); }
 .status-respinto { background: var(--status-respinto); }
-
+.status-archiviato {     background: var(--status-archiviato); }
 /* ==================== */
 /* RESPONSIVE DESIGN    */
 /* ==================== */

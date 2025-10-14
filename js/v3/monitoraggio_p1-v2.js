@@ -30,7 +30,8 @@ const statusColors = {
     'Respinta': '#ff6b6b',
     'Patto stipulato': '#8fd67d',
     'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
-    'In attesa di integrazione': '#b3e6ff'
+    'In attesa di integrazione': '#b3e6ff',
+	'Archiviata': '#94a3b8'
 };
 
 // ==========================================
@@ -45,7 +46,8 @@ const modernChartColors = {
         'Respinta': '#EF4444', 
         'Patto stipulato': '#10B981',
         'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
-        'In attesa di integrazione': '#06B6D4'
+        'In attesa di integrazione': '#06B6D4',
+		'Archiviata': '#64748B'
     },
     // Palette per proponenti (colori dinamici)
     proponenti: [
@@ -1082,6 +1084,7 @@ function updateStatistics() {
     const attesaIntegrazione = filteredData.filter(p => p[statoKey] === 'In attesa di integrazione').length;
     const monitoraggio = filteredData.filter(p => p[statoKey] === 'Proroga e/o Monitoraggio e valutazione dei risultati').length;
     const respinti = filteredData.filter(p => p[statoKey] === 'Respinta').length;
+    const archiviati = filteredData.filter(p => p[statoKey] === 'Archiviata').length; // NUOVO
     
     updateCounterWithAnimation('totalPatti', total);
     updateCounterWithAnimation('pattiStipulati', stipulati);
@@ -1089,7 +1092,9 @@ function updateStatistics() {
     updateCounterWithAnimation('pattiAttesaIntegrazione', attesaIntegrazione);
     updateCounterWithAnimation('pattiMonitoraggio', monitoraggio);
     updateCounterWithAnimation('pattiRespinti', respinti);
+    updateCounterWithAnimation('pattiArchiviati', archiviati); // NUOVO
 }
+
 
 function updateCounterWithAnimation(elementId, newValue) {
     const element = document.getElementById(elementId);
