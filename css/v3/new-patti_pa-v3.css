@@ -142,48 +142,188 @@ body {
         "footer";
 }
 
-/* Header */
+/* ==================== */
+/* HEADER - LAYOUT A 3 COLONNE */
+/* ==================== */
+
 .dashboard-header {
     grid-area: header;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
     color: var(--color-white);
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     padding: 0 var(--space-6);
     box-shadow: var(--shadow-md);
     position: relative;
     z-index: var(--z-sticky);
+    gap: var(--space-4);
 }
 
 .header-brand {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    justify-self: start;
 }
 
-.header-title {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.header-subtitle {
-    font-size: var(--font-size-sm);
-    opacity: 0.9;
-    font-weight: 400;
+.header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: center;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: var(--space-4);
+    justify-self: end;
 }
 
-.header-info {
-    text-align: right;
-    font-size: var(--font-size-xs);
-    opacity: 0.9;
+
+/* ==================== */
+/* PULSANTE INFO CON PULSE ANIMATION POTENZIATO */
+/* ==================== */
+
+.btn-icon-pulse {
+    position: relative;
+    overflow: visible !important;
+}
+
+/* Ring pulse effect */
+.btn-icon-pulse::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.btn-icon-pulse.pulsing::before {
+    animation: pulse-ring 2s ease-out;
+}
+
+@keyframes pulse-ring {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.3);
+    }
+}
+
+/* Button scale pulse */
+.btn-icon-pulse.pulsing {
+    animation: pulse-button 2s ease-in-out;
+}
+
+@keyframes pulse-button {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.05);
+    }
+}
+
+/* Glow effect durante pulse */
+.btn-icon-pulse.pulsing {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6),
+                0 0 40px rgba(96, 165, 250, 0.4);
+}
+
+/* Hover disabilita temporaneamente pulse */
+.btn-icon-pulse:hover {
+    animation: none !important;
+}
+
+.btn-icon-pulse:hover::before {
+    animation: none !important;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .dashboard-header {
+        grid-template-columns: auto 1fr auto;
+        padding: 0 var(--space-4);
+        gap: var(--space-3);
+    }
+    
+    .header-center .btn-icon span {
+        display: none;
+    }
+    
+    .header-center .btn-icon {
+        min-width: 44px;
+        padding: 0 var(--space-3);
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .dashboard-header {
+        grid-template-columns: 1fr auto;
+        padding: 0 var(--space-3);
+        gap: var(--space-2);
+    }
+    
+    .header-actions {
+        display: none;
+    }
+    
+    .header-center {
+        justify-self: end;
+    }
+    
+    .header-title {
+        font-size: var(--font-size-base);
+    }
+    
+    .header-subtitle {
+        display: none;
+    }
+    
+    .btn-icon-pulse {
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--space-2);
+    }
+    
+    .header-center .btn-icon span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 0 var(--space-2);
+    }
+    
+    .header-brand {
+        gap: var(--space-2);
+    }
+    
+    .header-brand i {
+        width: 20px;
+        height: 20px;
+    }
 }
 
 /* Main Content */
@@ -636,7 +776,7 @@ body {
 .stat-value {
     font-size: var(--font-size-2xl);
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1;
     margin-bottom: var(--space-1);
 }
 
@@ -644,7 +784,7 @@ body {
     font-size: var(--font-size-xs);
     color: var(--color-gray-600);
     font-weight: 500;
-    line-height: 1.3;
+    line-height: 1.1;
 }
 
 /* ==================== */

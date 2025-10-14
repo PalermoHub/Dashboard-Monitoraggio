@@ -2518,6 +2518,63 @@ function initializeFullscreenModal() {
     console.log('Modal fullscreen inizializzato con successo');
 }
 
+
+// ==========================================
+// EFFETTO PULSE SUL PULSANTE INFO
+// ==========================================
+
+function initializePulseEffect() {
+    console.log('Inizializzazione effetto pulse...');
+    
+    const infoBtn = document.getElementById('infoBtn');
+    
+    if (!infoBtn) {
+        console.warn('Pulsante info non trovato per effetto pulse');
+        return;
+    }
+    
+    // Funzione per triggerare il pulse
+    function triggerPulse() {
+        infoBtn.classList.add('pulsing');
+        
+        // Rimuovi la classe dopo l'animazione (2s)
+        setTimeout(() => {
+            infoBtn.classList.remove('pulsing');
+        }, 2000);
+    }
+    
+    // Sequenza di pulse nei primi 10 secondi
+    const pulseTimings = [
+        1000,  // Primo pulse dopo 1s
+        3500,  // Secondo pulse dopo 3.5s
+        6000,  // Terzo pulse dopo 6s
+        8500   // Quarto pulse dopo 8.5s
+    ];
+    
+    pulseTimings.forEach(timing => {
+        setTimeout(triggerPulse, timing);
+    });
+    
+    // Pulse singolo quando la pagina torna visibile (se l'utente cambia tab)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(triggerPulse, 500);
+        }
+    });
+    
+    console.log('Effetto pulse configurato con successo');
+}
+
+
+
+// Inizializza il pulse quando il DOM è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    // Aspetta che la pagina sia completamente caricata
+    setTimeout(initializePulseEffect, 500);
+});
+
+
+
 // Funzione per aggiornare le statistiche nel tab About
 function updateAboutStats() {
     const totalElement = document.getElementById('aboutStatTotal');
