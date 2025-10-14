@@ -1433,7 +1433,7 @@ function addModernChartStyles() {
 .stats-container {
     grid-template-columns: 1fr 2fr;
     gap: var(--space-3); /* RIDOTTO da space-6 */
-    max-height: 120px; /* LIMITA altezza statistiche */
+    /*  max-height: 120px;LIMITA altezza statistiche */
 }
 
 .legend-card,

@@ -1442,7 +1442,7 @@ body {
     }
     
     .stat-value {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-xl);
         margin-bottom: var(--space-1);
     }
     
@@ -3067,7 +3067,7 @@ body {
 }
 
 .stat-label {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--color-gray-600);
     font-weight: 500;
     text-transform: uppercase;
