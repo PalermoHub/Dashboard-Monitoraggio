@@ -37,12 +37,12 @@
     --color-gray-900: #0f172a;
     
     /* Status colors */
-    --status-stipulato: var(--color-success);
-    --status-istruttoria: var(--color-warning);
-    --status-integrazione: #f97316;
-    --status-monitoraggio: #8b5cf6;
-    --status-respinto: var(--color-error);
-    --status-archiviato: #64748B;
+    --status-stipulato: #C8E6C9;
+    --status-istruttoria: #B8D4F1;
+    --status-integrazione:#FFF9C;
+    --status-monitoraggio: #B2DFDB;
+    --status-respinto: #FFCCBC;
+    --status-archiviato: #E0E0E0;
     
     /* Spacing */
     --space-1: 0.25rem;
