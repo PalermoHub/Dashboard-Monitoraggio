@@ -46,7 +46,7 @@ const modernChartColors = {
         'Respinta': '#FFCCBC', 
         'Patto stipulato': '#C8E6C9',
         'Proroga e/o Monitoraggio e valutazione dei risultati': '#B2DFDB',
-        'In attesa di integrazione': '##FFF9C',
+        'In attesa di integrazione': '#FFF9C4',
 		'Archiviata': '#E0E0E0'
     },
     // Palette per proponenti (colori dinamici)
