@@ -42,12 +42,12 @@ const statusColors = {
 const modernChartColors = {
     // Colori per stati (mantenendo la mappatura esistente ma con tonalità moderne)
     status: {
-        'Istruttoria in corso': '#F59E0B',
-        'Respinta': '#EF4444', 
-        'Patto stipulato': '#10B981',
-        'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
-        'In attesa di integrazione': '#06B6D4',
-		'Archiviata': '#64748B'
+        'Istruttoria in corso': '#B8D4F1',
+        'Respinta': '#FFCCBC', 
+        'Patto stipulato': '#C8E6C9',
+        'Proroga e/o Monitoraggio e valutazione dei risultati': '#B2DFDB',
+        'In attesa di integrazione': '##FFF9C',
+		'Archiviata': '#E0E0E0'
     },
     // Palette per proponenti (colori dinamici)
     proponenti: [
