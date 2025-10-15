@@ -26,12 +26,12 @@ const PALERMO_BOUNDS = [
 
 // Colori per stato di avanzamento (originali)
 const statusColors = {
-    'Istruttoria in corso': '#B8D4F1',
-    'Respinta': '#FFCCBC',
-    'Patto stipulato': '#C8E6C9',
-    'Proroga e/o Monitoraggio e valutazione dei risultati': '#B2DFDB',
-    'In attesa di integrazione': '#FFF9C4',
-	'Archiviata': '#E0E0E0'
+    'Istruttoria in corso': '#ffdb4d',
+    'Respinta': '#ff6b6b',
+    'Patto stipulato': '#8fd67d',
+    'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
+    'In attesa di integrazione': '#b3e6ff',
+	'Archiviata': '#94a3b8'
 };
 
 // ==========================================
@@ -42,12 +42,12 @@ const statusColors = {
 const modernChartColors = {
     // Colori per stati (mantenendo la mappatura esistente ma con tonalità moderne)
     status: {
-        'Istruttoria in corso': '#B8D4F1',
-        'Respinta': '#FFCCBC', 
-        'Patto stipulato': '#C8E6C9',
-        'Proroga e/o Monitoraggio e valutazione dei risultati': '#B2DFDB',
-        'In attesa di integrazione': '#FFF9C4',
-		'Archiviata': '#E0E0E0'
+        'Istruttoria in corso': '#F59E0B',
+        'Respinta': '#EF4444', 
+        'Patto stipulato': '#10B981',
+        'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
+        'In attesa di integrazione': '#06B6D4',
+		'Archiviata': '#64748B'
     },
     // Palette per proponenti (colori dinamici)
     proponenti: [
