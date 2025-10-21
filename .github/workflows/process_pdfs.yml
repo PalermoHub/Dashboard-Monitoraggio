@@ -24,7 +24,22 @@ jobs:
     
     - name: Create credentials file
       run: |
-        echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+        cat > credentials.json << 'EOF'
+        ${{ secrets.GOOGLE_CREDENTIALS }}
+        EOF
+    
+    - name: Verify credentials file
+      run: |
+        echo "Checking if credentials.json exists and is valid JSON..."
+        if [ ! -f credentials.json ]; then
+          echo "ERROR: credentials.json not found!"
+          exit 1
+        fi
+        if ! python -c "import json; json.load(open('credentials.json'))"; then
+          echo "ERROR: credentials.json is not valid JSON!"
+          exit 1
+        fi
+        echo "✓ Credentials file is valid"
     
     - name: Create patti folder
       run: mkdir -p patti
