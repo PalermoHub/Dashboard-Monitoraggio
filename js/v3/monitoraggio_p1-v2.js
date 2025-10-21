@@ -1619,24 +1619,61 @@ function updateTable() {
             row.className = 'hover:bg-gray-50';
 
             orderedKeys.forEach(key => {
-                const td = document.createElement('td');
-                td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
-                
-                let value = item[key] || 'N/A';
-                
-                if (key.toLowerCase().includes('stato')) {
-                    const color = statusColors[value] || '#6b7280';
-                    td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
-                } else {
-                    if (value.toString().length > 40) {
-                        td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
-                    } else {
-                        td.textContent = value;
-                    }
-                }
-                
-                row.appendChild(td);
-            });
+    const td = document.createElement('td');
+    td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+    
+    let value = item[key] || 'N/A';
+    
+    // ✅ GESTIONE COLONNA STATO (con colori)
+    if (key.toLowerCase().includes('stato')) {
+        const color = statusColors[value] || '#6b7280';
+        td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
+    } 
+    // ✅ NUOVA GESTIONE COLONNA PDF (con link cliccabile e stile)
+    else if (key.toLowerCase().includes('scarica') && key.toLowerCase().includes('patto')) {
+        if (value && value.trim() !== '' && value !== 'N/A') {
+            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+            const pattoId = item[idKey] || 'XX';
+            const color = statusColors['Patto stipulato'] || '#8fd67d';
+            
+            td.innerHTML = `
+                <a href="${value.trim()}" 
+                   download
+                   target="_blank"
+                   rel="noopener"
+				   title="Scarica il Patto di Collaborazione" 
+                   style="background-color: ${color}; 
+                          color: white; 
+                          padding: 4px 8px; 
+                          border-radius: 4px; 
+                          font-size: 10px;
+                          font-weight: 600;
+                          text-decoration: none;
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 4px;
+                          transition: all 0.2s ease;"
+                   onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
+                   onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
+                    <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+                    Patto n° ${pattoId}
+                </a>
+            `;
+        } else {
+            td.innerHTML = `<span style="color: #9ca3af; font-size: 10px;">Non disponibile</span>`;
+        }
+    }
+    // Gestione normale altri campi
+    else {
+        if (value.toString().length > 40) {
+            td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
+        } else {
+            td.textContent = value;
+        }
+    }
+    
+    row.appendChild(td);
+});
 
             const actionTd = document.createElement('td');
             actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
@@ -1699,12 +1736,80 @@ function showPattoDetails(pattoId) {
         `;
     }
     
-    const status = document.getElementById('pattoStatus');
-    const statoText = patto[keys.stato] || 'Non specificato';
-    if (status) {
+const status = document.getElementById('pattoStatus');
+const statoText = patto[keys.stato] || 'Non specificato';
+
+if (status) {
+    // ✅ GESTIONE PDF DOWNLOAD PER PATTI STIPULATI
+    const pdfKey = Object.keys(patto).find(k => 
+        k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')
+    );
+    const pdfUrl = pdfKey ? patto[pdfKey] : null;
+    const idKey = Object.keys(patto).find(k => k.toLowerCase() === 'id');
+    const pattoId = patto[idKey] || 'XX';
+    
+    // Se è stipulato E ha il PDF, mostra stato + pulsante download
+    if (statoText === 'Patto stipulato' && pdfUrl && pdfUrl.trim() !== '') {
+        status.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span style="background-color: ${statusColors[statoText] || '#8fd67d'}; 
+                             color: white; 
+                             padding: 8px 16px; 
+                             border-radius: 8px; 
+                             font-size: 0.875rem; 
+                             font-weight: 600;
+                             display: inline-flex;
+                             align-items: center;
+                             gap: 6px;">
+                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                    ${statoText}
+                </span>
+                
+                <a href="${pdfUrl.trim()}" 
+                   download
+                   target="_blank"
+                   rel="noopener"
+				    title="Scarica il Patto di Collaborazione"
+                   style="background-color: ${statusColors[statoText] || '#8fd67d'}; 
+                          color: white; 
+                          padding: 8px 16px; 
+                          border-radius: 8px; 
+                          font-size: 0.875rem; 
+                          font-weight: 600;
+                          text-decoration: none;
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 8px;
+                          transition: all 0.3s ease;
+                          border: 2px solid transparent;"
+                   onmouseover="this.style.backgroundColor='${statusColors[statoText] || '#8fd67d'}dd'; 
+                                this.style.borderColor='${statusColors[statoText] || '#8fd67d'}'; 
+                                this.style.transform='translateY(-2px)';
+                                this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+                   onmouseout="this.style.backgroundColor='${statusColors[statoText] || '#8fd67d'}'; 
+                               this.style.borderColor='transparent';
+                               this.style.transform='translateY(0)';
+                               this.style.boxShadow='none';">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Scarica il patto
+                </a>
+            </div>
+        `;
+    } 
+    // Altrimenti mostra solo lo stato normale
+    else {
         status.textContent = statoText;
         status.style.backgroundColor = statusColors[statoText] || '#6b7280';
+        status.style.color = 'white';
+        status.style.padding = '8px 16px';
+        status.style.borderRadius = '8px';
+        status.style.fontSize = '0.875rem';
+        status.style.fontWeight = '600';
+        status.style.display = 'inline-flex';
+        status.style.alignItems = 'center';
+        status.style.gap = '6px';
     }
+}
     
     const notesContainer = document.getElementById('pattoNotesContainer');
     const notes = document.getElementById('pattoNotes');
