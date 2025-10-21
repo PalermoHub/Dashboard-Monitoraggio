@@ -1,0 +1,84 @@
+name: Process PDF from Google Sheets
+
+on:
+  workflow_dispatch:  # Esecuzione manuale
+  schedule:
+   # - cron: '0 2 * * *'  # Esecuzione automatica ogni giorno alle 2:00
+   # - cron: '0 * * * *' # ogni ora
+   # - cron: '0 */12 * * *' ogni 12 ore
+   # - cron: '0 */4 * * *'  # Ogni 4 ore
+   - cron: '0 */6 * * *'  # Ogni 6 ore
+
+jobs:
+  process-pdfs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: gh-pages
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install gspread oauth2client google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+    
+    - name: Create credentials file
+      run: |
+        cat > credentials.json << 'EOF'
+        ${{ secrets.GOOGLE_CREDENTIALS }}
+        EOF
+    
+    - name: Verify credentials file
+      run: |
+        echo "Checking if credentials.json exists and is valid JSON..."
+        if [ ! -f credentials.json ]; then
+          echo "ERROR: credentials.json not found!"
+          exit 1
+        fi
+        if ! python -c "import json; json.load(open('credentials.json'))"; then
+          echo "ERROR: credentials.json is not valid JSON!"
+          exit 1
+        fi
+        echo "✓ Credentials file is valid"
+    
+    - name: Create patti folder
+      run: mkdir -p patti
+    
+    - name: Run PDF processing script
+      env:
+        SPREADSHEET_ID: '1Y-beHZa8pX94f7_5TmKM3DMmOXVOWpD5VzoiwUhDKtE'
+      run: python process_pdfs.py
+    
+    - name: Clean up credentials
+      if: always()
+      run: rm -f credentials.json
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # Verifica se ci sono file nella cartella patti
+        if [ -d "patti" ] && [ "$(ls -A patti)" ]; then
+          echo "File trovati nella cartella patti:"
+          ls -lh patti/
+          
+          git add patti/
+          
+          # Verifica se ci sono cambiamenti da committare
+          if git diff --staged --quiet; then
+            echo "Nessun nuovo file da committare (file già presenti nel repository)"
+          else
+            git commit -m "Add/Update PDF files in patti folder [skip ci]"
+            git push origin gh-pages
+            echo "✓ File committati e pushati con successo su gh-pages!"
+          fi
+        else
+          echo "⚠ Nessun file trovato nella cartella patti"
+        fi
