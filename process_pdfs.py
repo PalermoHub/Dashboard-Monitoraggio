@@ -91,10 +91,6 @@ def main():
                     print(f"Riga {idx}: Dati incompleti (Id_Prog={id_prog}, Link={pdf_link})")
                 continue
             
-            if not pdf_link:
-                print(f"Riga {idx}: Link PDF non trovato")
-                continue
-            
             # Pulisci il link dagli smart chip (potrebbe contenere testo extra)
             # Gli smart chip possono avere formato "=HYPERLINK(url, label)" o contenere solo l'url
             if '=HYPERLINK' in pdf_link.upper():
