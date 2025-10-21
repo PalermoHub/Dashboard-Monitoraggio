@@ -1,20 +1,5 @@
-// Side Panel Flottante - Versione Stabile
+// Side Panel Flottante - Versione Migliorata
 // File: js/v5/side-panel.js
-
-
-// All'inizio di side-panel.js, aggiungi:
-function waitForData(callback, maxAttempts = 50) {
-    let attempts = 0;
-    const checkData = setInterval(() => {
-        if (window.allData && window.allData.length > 0) {
-            clearInterval(checkData);
-            callback();
-        } else if (attempts++ > maxAttempts) {
-            clearInterval(checkData);
-            console.error('Timeout: dati non caricati dopo 5 secondi');
-        }
-    }, 100);
-}
 
 console.log('Side Panel: Inizio caricamento');
 
@@ -22,6 +7,7 @@ console.log('Side Panel: Inizio caricamento');
 let panelMiniMap = null;
 let currentPanelIndex = 0;
 let panelFavorites = [];
+let highlightedMarker = null; // ✅ NUOVO: Per evidenziare il marker corrente
 
 // Carica preferiti da localStorage
 function loadPanelFavorites() {
@@ -120,7 +106,7 @@ function createSidePanelHTML() {
     console.log('Side Panel HTML creato');
 }
 
-// Aggiungi CSS
+// ✅ CORREZIONE: Aggiungi CSS con altezza corretta
 function addSidePanelStyles() {
     if (document.getElementById('sidePanelStyles')) return;
 
@@ -130,8 +116,8 @@ function addSidePanelStyles() {
         .side-panel {
             position: fixed;
             right: -400px;
-            top: 0;
-            bottom: 0;
+            top: 70px; /* ✅ Inizia dopo l'header */
+            bottom: 60px; /* ✅ Finisce prima del footer */
             width: 400px;
             background: var(--color-white);
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
@@ -253,6 +239,7 @@ function addSidePanelStyles() {
             flex-wrap: wrap;
         }
 
+        /* ✅ CORREZIONE: Stato con colori dinamici */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -265,12 +252,13 @@ function addSidePanelStyles() {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .download-btn {
+        /* ✅ NUOVO: Pulsante PDF download */
+        .download-pdf-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            background: var(--color-accent);
+            padding: 10px 16px;
+            background: var(--status-stipulato);
             color: var(--color-white);
             text-decoration: none;
             border-radius: 6px;
@@ -279,12 +267,18 @@ function addSidePanelStyles() {
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .download-btn:hover {
-            background: var(--color-accent-light);
+        .download-pdf-btn:hover {
+            background: var(--color-success);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .download-pdf-btn i {
+            width: 16px;
+            height: 16px;
         }
 
         .panel-notes {
@@ -398,10 +392,13 @@ function addSidePanelStyles() {
             text-align: center;
         }
 
+        /* ✅ MOBILE: Pannello a schermo intero */
         @media (max-width: 768px) {
             .side-panel {
                 width: 100%;
                 right: -100%;
+                top: 60px; /* Dopo header mobile */
+                bottom: 0; /* Fino al fondo (copre footer) */
             }
         }
     `;
@@ -410,14 +407,75 @@ function addSidePanelStyles() {
     console.log('Side Panel CSS aggiunto');
 }
 
+// ✅ NUOVO: Funzione per evidenziare marker nella mappa
+function highlightMarkerOnMap(patto) {
+    if (!window.map || !window.markersLayer) return;
+    
+    // Rimuovi l'evidenziazione precedente
+    if (highlightedMarker) {
+        window.map.removeLayer(highlightedMarker);
+        highlightedMarker = null;
+    }
+    
+    if (!patto || !patto.lat || !patto.lng) return;
+    
+    // Crea un marker pulsante piÃ¹ grande
+    highlightedMarker = L.circleMarker([patto.lat, patto.lng], {
+        radius: 15,
+        fillColor: '#3b82f6',
+        color: '#ffffff',
+        weight: 4,
+        opacity: 1,
+        fillOpacity: 0.7,
+        className: 'highlighted-marker-pulse'
+    }).addTo(window.map);
+    
+    // Centra la mappa sul marker
+    window.map.setView([patto.lat, patto.lng], 16, {
+        animate: true,
+        duration: 0.5
+    });
+    
+    // Aggiungi animazione CSS per il pulse
+    addPulseAnimation();
+}
+
+// ✅ NUOVO: Animazione pulse per marker evidenziato
+function addPulseAnimation() {
+    if (document.getElementById('markerPulseAnimation')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'markerPulseAnimation';
+    style.textContent = `
+        @keyframes marker-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .highlighted-marker-pulse {
+            animation: marker-pulse 1.5s ease-in-out infinite;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Apri panel
 function openSidePanel(pattoId) {
-    console.log('🔷 Apertura panel per patto:', pattoId);
+    console.log('📷 Apertura panel per patto:', pattoId);
 
     createSidePanelHTML();
     addSidePanelStyles();
 
-    // ✅ CONTROLLO SEMPLIFICATO
     if (!window.allData || !Array.isArray(window.allData) || window.allData.length === 0) {
         console.error('❌ Nessun dato disponibile. Dati:', window.allData);
         alert('I dati non sono ancora stati caricati. Attendi qualche secondo e riprova.');
@@ -448,8 +506,7 @@ function openSidePanel(pattoId) {
     console.log('✅ Panel aperto con successo');
 }
 
-
-// Popola contenuto
+// ✅ CORREZIONE: Popola contenuto con colori stati e PDF
 function populateSidePanelContent(patto) {
     const keys = {
         titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo')),
@@ -463,7 +520,9 @@ function populateSidePanelContent(patto) {
         nota: Object.keys(patto).find(k => k.toLowerCase().includes('nota')),
         googlemaps: Object.keys(patto).find(k => k.toLowerCase().includes('googlemaps')),
         geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
-        foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto'))
+        foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto')),
+        pdf: Object.keys(patto).find(k => k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')),
+        id: Object.keys(patto).find(k => k.toLowerCase() === 'id')
     };
 
     // Titolo
@@ -483,17 +542,46 @@ function populateSidePanelContent(patto) {
         `;
     }
 
-    // Stato
+    // ✅ CORREZIONE: Stato con colore IDENTICO alla tabella
     const status = document.getElementById('panelStatus');
     const statoText = patto[keys.stato] || 'Non specificato';
-    const statusColor = window.statusColors?.[statoText] || '#6b7280';
+    
+    // Usa gli stessi colori della tabella (da monitoraggio_p1-v2.js)
+    const statusColors = {
+        'Istruttoria in corso': '#ffdb4d',
+        'Respinta': '#ff6b6b',
+        'Patto stipulato': '#8fd67d',
+        'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
+        'In attesa di integrazione': '#b3e6ff',
+        'Archiviata': '#94a3b8'
+    };
+    
+    const statusColor = statusColors[statoText] || '#6b7280';
 
     if (status) {
-        status.innerHTML = `
+        let statusHTML = `
             <div class="status-badge" style="background-color: ${statusColor};">
                 ${statoText}
             </div>
         `;
+
+        // ✅ NUOVO: Aggiungi pulsante PDF se il patto è stipulato
+        if (statoText === 'Patto stipulato' && keys.pdf && patto[keys.pdf] && patto[keys.pdf].trim() !== '') {
+            const pattoId = patto[keys.id] || 'XX';
+            statusHTML += `
+                <a href="${patto[keys.pdf].trim()}" 
+                   download
+                   target="_blank"
+                   rel="noopener"
+                   class="download-pdf-btn"
+                   title="Scarica il Patto di Collaborazione">
+                    <i data-lucide="download"></i>
+                    <span>Patto n° ${pattoId}</span>
+                </a>
+            `;
+        }
+
+        status.innerHTML = statusHTML;
     }
 
     // Note
@@ -543,10 +631,18 @@ function populateSidePanelContent(patto) {
         photoContainer.classList.add('hidden');
     }
 
+    // ✅ NUOVO: Evidenzia marker nella mappa
+    highlightMarkerOnMap(patto);
+
     // Minimap
     setTimeout(() => initializeSidePanelMiniMap(patto), 300);
 
     updateSidePanelCounter();
+
+    // Ricrea icone Lucide
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        setTimeout(() => lucide.createIcons(), 100);
+    }
 }
 
 // Minimap
@@ -593,7 +689,7 @@ function initializeSidePanelMiniMap(patto) {
     }
 }
 
-// Chiudi panel
+// ✅ CORREZIONE: Chiudi panel e rimuovi evidenziazione
 function closeSidePanel() {
     const panel = document.getElementById('pattoSidePanel');
     if (panel) {
@@ -603,6 +699,12 @@ function closeSidePanel() {
                 panelMiniMap.remove();
             } catch (e) {}
             panelMiniMap = null;
+        }
+        
+        // ✅ NUOVO: Rimuovi evidenziazione marker
+        if (highlightedMarker && window.map) {
+            window.map.removeLayer(highlightedMarker);
+            highlightedMarker = null;
         }
     }
 }
@@ -630,12 +732,12 @@ function setupSidePanelListeners() {
     });
 }
 
-// Naviga
+
+// ✅ CORREZIONE: Naviga con evidenziazione
 function navigateSidePanel(direction) {
     const newIndex = currentPanelIndex + direction;
     if (newIndex >= 0 && newIndex < window.allData.length) {
         currentPanelIndex = newIndex;
-        const idKey = Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id');
         const patto = window.allData[currentPanelIndex];
         populateSidePanelContent(patto);
         
