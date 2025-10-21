@@ -17,6 +17,9 @@ let currentSuggestionIndex = -1;
 let currentChartType = 'stato'; // 'stato' o 'proponente'
 let proponenteFilter = ''; // Filtro nascosto per proponente
 
+let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
+let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
+
 // Coordinate precise di Palermo
 const PALERMO_CENTER = [38.1157, 13.3615]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
@@ -946,7 +949,10 @@ function updateFilterAppearance(selectElement, value) {
 }
 
 function applyFilters() {
-    const filters = {
+    lastClickedChartValue = null;  // Reset tracking quando filtri cambiano manualmente
+    lastClickedChartType = null;
+  
+  const filters = {
         stato: document.getElementById('filterStato')?.value?.trim() || '',
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
@@ -1268,27 +1274,79 @@ y: {
     beginAtZero: true
 }
             },
-            onClick: (event, elements) => {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    
-                    if (type === 'stato') {
-                        const selectedStatus = fullLabels ? fullLabels[index] : labels[index];
-                        const statusSelect = document.getElementById('filterStato');
-                        if (statusSelect) {
-                            // Trova la corrispondenza esatta
-                            const statusKey = Object.keys(statusColors).find(key => 
-                                key.includes(selectedStatus) || selectedStatus.includes(key)
-                            );
-                            statusSelect.value = statusKey || selectedStatus;
-                            applyFilters();
-                        }
-                    } else {
-                        const selectedProponente = fullLabels ? fullLabels[index] : labels[index];
-                        applyProponenteFilter(selectedProponente);
-                    }
+			onClick: (event, elements) => {
+    if (elements.length > 0) {
+        const index = elements[0].index;
+        const clickedValue = fullLabels ? fullLabels[index] : labels[index];
+        
+        // 🔄 TOGGLE LOGIC: Se clicco sulla stessa barra, resetto tutto
+        if (lastClickedChartValue === clickedValue && lastClickedChartType === type) {
+            console.log('🔄 Secondo click sulla stessa barra - RESET');
+            
+            // Reset variabili di tracking
+            lastClickedChartValue = null;
+            lastClickedChartType = null;
+            
+            // Reset tutti i filtri
+            const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
+            filterIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = '';
+                    updateFilterAppearance(element, '');
                 }
-            },
+            });
+            
+            // Reset filtro proponente nascosto
+            proponenteFilter = '';
+            
+            // Nascondi suggestions autocomplete
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            if (suggestions) {
+                suggestions.classList.add('hidden');
+            }
+            
+            // Reset dati
+            filteredData = [...allData];
+            
+            // Aggiorna tutto
+            updateFilters();
+            updateMap();
+            updateStatistics();
+            updateChart();
+            updateTable();
+            hideFiltersPopup();
+            
+            // Notifica all'utente
+            showNotification('Filtri resettati', 'info');
+            
+            return; // ⚠️ IMPORTANTE: Esci dalla funzione
+        }
+        
+        // 🎯 PRIMO CLICK: Applica il filtro normalmente
+        console.log('🎯 Primo click sulla barra - FILTRO:', clickedValue);
+        
+        // Salva il valore cliccato
+        lastClickedChartValue = clickedValue;
+        lastClickedChartType = type;
+        
+        if (type === 'stato') {
+            const statusSelect = document.getElementById('filterStato');
+            if (statusSelect) {
+                // Trova la corrispondenza esatta
+                const statusKey = Object.keys(statusColors).find(key => 
+                    key.includes(clickedValue) || clickedValue.includes(key)
+                );
+                statusSelect.value = statusKey || clickedValue;
+                applyFilters();
+            }
+        } else {
+            applyProponenteFilter(clickedValue);
+        }
+    }
+},
+			
+			
             onHover: (event, elements) => {
                 const canvas = event.native.target;
                 canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
@@ -2122,14 +2180,21 @@ function setupEventListeners() {
     
     // === CHART TYPE SELECTOR ===
     totalAttempts++;
-    if (safeAddEventListener('chartTypeSelector', 'change', function() {
-        currentChartType = this.value;
-        updateChart();
-        updateChartInterface();
-    }, 'Selettore tipo grafico')) {
-        successCount++;
-    }
+if (safeAddEventListener('chartTypeSelector', 'change', function() {
+    currentChartType = this.value;
     
+    // ✅ RESET TRACKING quando cambio tipo di grafico
+    lastClickedChartValue = null;
+    lastClickedChartType = null;
+    
+    updateChart();
+    updateChartInterface();
+}, 'Selettore tipo grafico')) {
+    successCount++;
+}
+    
+	
+	
     // === FILTRI CON LOGICA CASCATA ===
     const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione'];
     
@@ -2504,8 +2569,8 @@ function setupAutoUpdate() {
 // ==========================================
 
 function showNotification(message, type = 'info') {
-    // Mostra solo notifiche di errore e warning importanti
-    if (type !== 'error' && type !== 'warning') {
+    // Mostra errori, warning e info importanti
+    if (type !== 'error' && type !== 'warning' && type !== 'info') {
         return;
     }
     

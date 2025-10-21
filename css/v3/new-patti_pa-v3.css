@@ -3550,3 +3550,13 @@ body {
         height: 250px !important;
     }
 }
+
+/* Effetto barra selezionata nel grafico*/
+.chart-container canvas {
+    cursor: pointer;
+}
+
+.chart-bar-selected {
+    filter: brightness(1.2);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+} 
