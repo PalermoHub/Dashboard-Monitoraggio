@@ -2255,9 +2255,8 @@
 	<script src="js/v5/monitoraggio_p2.js"></script>
 	<script src="js/v5/attiva_patto.js"></script>
 	<script src="js/v5/regolamento.js"></script>
-
-<script src="js/v5/side-panel.js"></script>
-	
+	<script src="js/v5/side-panel.js"></script>
+	<script src="js/v5/side-panel-map-sync.js"></script>
 	 
 	 <!-- Funzione per gestire le card dei filtri -->
 	 <script>
@@ -2291,6 +2290,51 @@
 		 });
 	 });
 	 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercetta il cambio di filtri
+    const filterElements = [
+        'filterStato',
+        'filterUpl', 
+        'filterQuartiere',
+        'filterCircoscrizione',
+        'filterTitolo'
+    ];
 
+    filterElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            // Salva l'originale addEventListener
+            const originalChange = element.onchange;
+            
+            element.addEventListener('change', function() {
+                console.log('🔍 Filtro cambiato, sincronizzazione side panel...');
+                
+                // Attendi che applyFilters termini
+                setTimeout(() => {
+                    const sidePanelOpen = document.getElementById('pattoSidePanel')?.classList.contains('open');
+                    if (sidePanelOpen && window.filteredData) {
+                        // Reset side panel
+                        sidePanelData = window.filteredData && window.filteredData.length > 0 
+                            ? window.filteredData 
+                            : window.allData;
+                        currentSidePanelIndex = 0;
+
+                        console.log('✓ Side panel sincronizzato:', sidePanelData.length, 'elementi');
+
+                        // Mostra il primo elemento filtrato
+                        if (sidePanelData && sidePanelData.length > 0) {
+                            populateSidePanelContent(sidePanelData[0]);
+                            updateSidePanelCounter();
+                        } else {
+                            closeSidePanel();
+                        }
+                    }
+                }, 100);
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>

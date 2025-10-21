@@ -1016,6 +1016,35 @@ function applyFilters() {
     updateChart();
     updateTable();
     updateFiltersPopup();
+	
+		  // Sincronizza il side panel con i nuovi filtri
+    if (typeof window.updateSidePanelForFilters === 'function') {
+        window.updateSidePanelForFilters();
+    }
+	
+	// Sincronizza side panel con i nuovi filtri
+    if (typeof applyFiltersWithSidePanelSync !== 'undefined') {
+        console.log('🔄 Sincronizzazione filtri con side panel...');
+        
+        const sidePanelOpen = document.getElementById('pattoSidePanel')?.classList.contains('open');
+        if (sidePanelOpen) {
+            // Reset side panel data
+            sidePanelData = window.filteredData && window.filteredData.length > 0 
+                ? window.filteredData 
+                : window.allData;
+            currentSidePanelIndex = 0;
+
+            if (sidePanelData && sidePanelData.length > 0) {
+                populateSidePanelContent(sidePanelData[0]);
+                updateSidePanelCounter();
+            } else {
+                closeSidePanel();
+                alert('Nessun patto corrisponde ai filtri selezionati.');
+            }
+        }
+    }
+	
+
 }
 
 // ==========================================
@@ -1092,6 +1121,54 @@ function centerMapOnFilteredData() {
     const bounds = L.latLngBounds(coordinates);
     map.fitBounds(bounds, { padding: [15, 15] });
 }
+
+// Funzione per evidenziare un patto sulla mappa principale
+window.highlightPattoMarkerOnMap = function(patto) {
+    if (!map || !patto || !patto.lat || !patto.lng) return false;
+    
+    try {
+        // Rimuovi highlight precedente se esiste
+        if (window.currentPattoHighlight) {
+            try {
+                map.removeLayer(window.currentPattoHighlight);
+            } catch (e) {}
+        }
+        
+        // Crea nuovo highlight
+        window.currentPattoHighlight = L.circleMarker(
+            [parseFloat(patto.lat), parseFloat(patto.lng)],
+            {
+                radius: 20,
+                fillColor: '#3b82f6',
+                color: '#ffffff',
+                weight: 4,
+                opacity: 1,
+                fillOpacity: 0.7,
+                className: 'side-panel-highlight-pulse',
+                interactive: false
+            }
+        ).addTo(map);
+        
+        return true;
+    } catch (error) {
+        console.error('Errore evidenziazione marker:', error);
+        return false;
+    }
+};
+
+// Funzione per rimuovere highlight
+window.removePattoHighlight = function() {
+    if (window.currentPattoHighlight && map) {
+        try {
+            map.removeLayer(window.currentPattoHighlight);
+            window.currentPattoHighlight = null;
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    return false;
+};
 
 // ==========================================
 // STATISTICHE E GRAFICI MODERNI
@@ -1597,6 +1674,31 @@ function addModernChartStyles() {
 }
     `;
     document.head.appendChild(style);
+	
+	// Stile per highlight del side panel sulla mappa principale
+    const sidePanelHighlightStyle = document.createElement('style');
+    sidePanelHighlightStyle.id = 'sidePanelHighlightStyle';
+    sidePanelHighlightStyle.textContent = `
+        @keyframes side-panel-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .side-panel-highlight-pulse {
+            animation: side-panel-pulse 2s ease-in-out infinite !important;
+        }
+    `;
+    document.head.appendChild(sidePanelHighlightStyle);
 }
 
 // ==========================================
@@ -2024,6 +2126,11 @@ if (safeAddEventListener('chartTypeSelector', 'change', function() {
         updateChart();
         updateTable();
         hideFiltersPopup();
+		
+	    // AGGIUNGI QUESTA PARTE:
+    if (typeof window.updateSidePanelForFilters === 'function') {
+        window.updateSidePanelForFilters();
+    }	
         
     }, 'Reset filtri')) {
         successCount++;
@@ -2273,6 +2380,19 @@ function updateLegend() {
         legend.appendChild(div);
     });
 }
+
+// Funzione per chiudere popup dalla mappa - esposta globalmente
+window.closeMainMapPopup = function() {
+    if (map && typeof map.closePopup === 'function') {
+        try {
+            map.closePopup();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    return false;
+};
 
 function updateLastUpdate() {
     const now = new Date();
