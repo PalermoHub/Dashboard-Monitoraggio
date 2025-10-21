@@ -57,6 +57,22 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add patti/
-        git diff --staged --quiet || git commit -m "Add/Update PDF files in patti folder [skip ci]"
-        git push
+        
+        # Verifica se ci sono file nella cartella patti
+        if [ -d "patti" ] && [ "$(ls -A patti)" ]; then
+          echo "File trovati nella cartella patti:"
+          ls -lh patti/
+          
+          git add patti/
+          
+          # Verifica se ci sono cambiamenti da committare
+          if git diff --staged --quiet; then
+            echo "Nessun nuovo file da committare (file già presenti nel repository)"
+          else
+            git commit -m "Add/Update PDF files in patti folder [skip ci]"
+            git push
+            echo "✓ File committati e pushati con successo!"
+          fi
+        else
+          echo "⚠ Nessun file trovato nella cartella patti"
+        fi
