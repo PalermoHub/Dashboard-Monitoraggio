@@ -15,10 +15,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.classList.remove('show', 'flex');
                 modal.classList.add('hidden');
                 
-                // Clean up mini map if exists
+                // Clean up mini map if exists - IMPROVED CLEANUP
                 if (modal.id === 'pattoModal' && window.miniMap) {
-                    window.miniMap.remove();
+                    try {
+                        window.miniMap.off();
+                        window.miniMap._container = null;
+                        window.miniMap.remove();
+                    } catch (e) {
+                        console.log('Error during map cleanup:', e);
+                    }
                     window.miniMap = null;
+                    
+                    // Also clear the wrapper to ensure complete cleanup
+                    const miniMapWrapper = document.getElementById('miniMapWrapper');
+                    if (miniMapWrapper) {
+                        miniMapWrapper.innerHTML = '<div id="miniMap"></div>';
+                    }
                 }
             });
         }
@@ -201,11 +213,13 @@ function showPattoDetailsEnhanced(pattoId) {
         if (keys.geouri && patto[keys.geouri] && patto[keys.geouri].trim()) {
             const link = document.createElement('a');
             link.href = patto[keys.geouri].trim();
-            link.className = 'btn btn-secondary';
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.className = 'btn btn-primary';
             link.style.textDecoration = 'none';
             link.innerHTML = `
-                <i data-lucide="map-pin" style="width: 1rem; height: 1rem;"></i>
-                <span>Geo URI</span>
+                <i data-lucide="navigation" style="width: 1rem; height: 1rem;"></i>
+                <span>Navigatore</span>
             `;
             links.appendChild(link);
         }
@@ -258,6 +272,26 @@ function showPattoDetailsEnhanced(pattoId) {
 function initializeMiniMapEnhanced(patto, keys) {
     console.log('=== ENHANCED MINI MAP INITIALIZATION START ===');
     
+    // First, completely clean up any existing map
+    if (window.miniMap) {
+        try {
+            console.log('Removing existing mini map...');
+            window.miniMap.off();
+            window.miniMap._container = null;
+            window.miniMap.remove();
+            window.miniMap = null;
+        } catch (e) {
+            console.log('Error removing old map:', e);
+            window.miniMap = null;
+        }
+    }
+    
+    // Reset the wrapper HTML completely
+    const miniMapWrapper = document.getElementById('miniMapWrapper');
+    if (miniMapWrapper) {
+        miniMapWrapper.innerHTML = '<div id="miniMap"></div>';
+    }
+    
     const miniMapElement = document.getElementById('miniMap');
     if (!miniMapElement) {
         console.error('Mini map element not found');
@@ -268,23 +302,12 @@ function initializeMiniMapEnhanced(patto, keys) {
     console.log('Element dimensions:', miniMapElement.offsetWidth, 'x', miniMapElement.offsetHeight);
     console.log('Element is visible:', miniMapElement.offsetParent !== null);
     
-    // Clean up existing map
-    if (window.miniMap) {
-        try {
-            console.log('Removing existing mini map...');
-            window.miniMap.remove();
-        } catch (e) {
-            console.log('Error removing old map:', e);
-        }
-        window.miniMap = null;
-    }
-    
-    // Clear the container completely
-    miniMapElement.innerHTML = '';
+    // Set styles for the container
     miniMapElement.style.height = '400px';
     miniMapElement.style.width = '100%';
     miniMapElement.style.position = 'relative';
     miniMapElement.style.zIndex = '1';
+    miniMapElement.style.display = 'block';
     
     // Check coordinates
     if (!patto.lat || !patto.lng || isNaN(patto.lat) || isNaN(patto.lng)) {
@@ -379,11 +402,11 @@ function initializeMiniMapEnhanced(patto, keys) {
         `;
         marker.bindPopup(popupContent);
         
-        // Enhanced map refresh sequence
+        // Enhanced map refresh sequence with better handling
         const refreshSequence = [100, 300, 500, 1000];
         refreshSequence.forEach((delay, index) => {
             setTimeout(() => {
-                if (window.miniMap) {
+                if (window.miniMap && window.miniMap._container) {
                     console.log(`Enhanced map refresh ${index + 1}...`);
                     try {
                         window.miniMap.invalidateSize(true);

@@ -1766,32 +1766,98 @@ function showPattoDetails(pattoId) {
         photoContainer.classList.add('hidden');
     }
     
-    // Mini mappa
+    // Mini mappa - VERSIONE CORRETTA CON FIX CSS ✅
     setTimeout(() => {
+        // 🔧 CORREZIONE: Pulire completamente la minimap precedente
         if (miniMap) {
-            miniMap.remove();
+            try {
+                miniMap.remove();
+            } catch (e) {}
+            miniMap = null;
         }
         
         const miniMapContainer = document.getElementById('miniMap');
         if (miniMapContainer) {
-            miniMap = L.map('miniMap').setView([patto.lat, patto.lng], 16);
+            // Pulire COMPLETAMENTE il container
+            miniMapContainer.innerHTML = '';
+            miniMapContainer.textContent = '';
+            miniMapContainer.style.cssText = '';
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(miniMap);
+            // Rimuovere tutte le classi e attributi
+            while (miniMapContainer.attributes.length > 0) {
+                miniMapContainer.removeAttribute(miniMapContainer.attributes[0].name);
+            }
+            miniMapContainer.className = '';
             
-            const color = statusColors[statoText] || '#6b7280';
-            L.circleMarker([patto.lat, patto.lng], {
-                radius: 8,
-                fillColor: color,
-                color: 'white',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(miniMap);
+            // Reimpostare l'ID (necessario per Leaflet)
+            miniMapContainer.id = 'miniMap';
             
+            // Aggiungere una pausa prima di ricreare
             setTimeout(() => {
-                miniMap.invalidateSize();
+                try {
+                    const miniMapContainer = document.getElementById('miniMap');
+                    if (!miniMapContainer) return;
+                    
+                    // Assicurarsi che il container sia visible e corretto
+                    miniMapContainer.style.display = 'block';
+                    miniMapContainer.style.height = '400px';
+                    miniMapContainer.style.width = '100%';
+                    miniMapContainer.style.position = 'relative';
+                    miniMapContainer.style.overflow = 'hidden';
+                    
+                    // Ricreare la mappa con tutte le opzioni
+                    miniMap = L.map('miniMap', {
+                        center: [patto.lat, patto.lng],
+                        zoom: 16,
+                        dragging: true,
+                        touchZoom: true,
+                        scrollWheelZoom: false,
+                        zoomControl: true,
+                        attributionControl: true
+                    });
+                    
+                    // Aggiungere il tile layer
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors',
+                        maxZoom: 19,
+                        minZoom: 1
+                    }).addTo(miniMap);
+                    
+                    // Marker colorato
+                    const color = statusColors[statoText] || '#6b7280';
+                    L.circleMarker([patto.lat, patto.lng], {
+                        radius: 8,
+                        fillColor: color,
+                        color: 'white',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(miniMap);
+                    
+                    // Marker icon
+                    L.marker([patto.lat, patto.lng], {
+                        icon: L.icon({
+                            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                            shadowSize: [41, 41],
+                            shadowAnchor: [13, 41]
+                        })
+                    }).addTo(miniMap).bindPopup(patto[keys.titolo] || 'Posizione patto');
+                    
+                    // Invalidare la size
+                    setTimeout(() => {
+                        if (miniMap && miniMap.invalidateSize) {
+                            miniMap.invalidateSize(true);
+                        }
+                    }, 100);
+                    
+                    console.log('✅ Minimap ricreata con successo');
+                    
+                } catch (error) {
+                    console.error('❌ Errore nella creazione minimap:', error);
+                }
             }, 100);
         }
     }, 100);
@@ -2141,8 +2207,27 @@ function setupEventListeners() {
         }
         
         if (miniMap) {
-            miniMap.remove();
+            try {
+                miniMap.remove();
+            } catch (e) {}
             miniMap = null;
+        }
+        
+        // 🔧 CORREZIONE: Pulire COMPLETAMENTE il container nel modal close
+        const miniMapContainer = document.getElementById('miniMap');
+        if (miniMapContainer) {
+            miniMapContainer.innerHTML = '';
+            miniMapContainer.textContent = '';
+            miniMapContainer.style.cssText = '';
+            miniMapContainer.className = '';
+            
+            // Rimuovere tutti gli attributi
+            while (miniMapContainer.attributes.length > 0) {
+                miniMapContainer.removeAttribute(miniMapContainer.attributes[0].name);
+            }
+            
+            // Reimpostare l'ID
+            miniMapContainer.id = 'miniMap';
         }
     }, 'Chiudi modal dettagli')) {
         successCount++;
