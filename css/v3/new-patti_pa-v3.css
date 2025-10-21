@@ -623,8 +623,8 @@ body {
 /* Map Controls */
 .map-controls {
     position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
+    top: 80px; /* Sotto i controlli zoom di Leaflet */
+    left: var(--space-2);
     z-index: var(--z-fixed);
     display: flex;
     flex-direction: column;
@@ -648,7 +648,13 @@ body {
 .map-control:hover {
     background: var(--color-gray-50);
     box-shadow: var(--shadow-md);
+    transform: scale(1.05);
 }
+
+.map-control:active {
+    transform: scale(0.95);
+}
+
 
 .layer-menu {
     position: absolute;

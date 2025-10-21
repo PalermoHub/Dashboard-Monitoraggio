@@ -20,8 +20,8 @@ let proponenteFilter = ''; // Filtro nascosto per proponente
 let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
 let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
 
-// Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
-const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
+// Coordinate precise di Palermo
+const PALERMO_CENTER = [38.1157, 13.3615]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
     [38.0500, 13.2500], // Sud-Ovest (include area metropolitana)
     [38.3000, 13.4200]  // Nord-Est (include Sferracavallo e Bagheria)
@@ -675,8 +675,8 @@ function initializeMap() {
         }).addTo(map);
         
         centerMarker
-            .bindPopup('<b>Ufficio Rigenerazione Urbana</b><br>Ex Noviziato dei Crociferi<br><small>Click per centrare qui</small>')
-            .bindTooltip('Ufficio Rigenerazione Urbana', {permanent: false, direction: 'top'});
+            .bindPopup('<b>Centro Storico di Palermo</b><br>Palazzo delle Aquile<br><small>Click per centrare qui</small>')
+            .bindTooltip('Centro di Palermo', {permanent: false, direction: 'top'});
         
         centerMarker.on('click', function() {
             centerMapOnPalermo();
@@ -2860,6 +2860,158 @@ function animateCounter(element, targetValue) {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeFullscreenModal, 500);
 });
+
+// ==========================================
+// GESTIONE PANNELLO FLOTTANTE MOBILE
+// ==========================================
+
+function setupFloatingStatsPanel() {
+    console.log('🎨 Setup pannello flottante...');
+    
+    const panel = document.getElementById('statsFloatingPanel');
+    const toggleBtn = document.getElementById('statsToggleMobile');
+    const closeBtn = document.getElementById('closeMobileStats');
+    const backdrop = document.getElementById('statsPanelBackdrop');
+    const header = panel?.querySelector('.stats-panel-header');
+    
+    if (!panel || !toggleBtn) {
+        console.warn('Elementi pannello flottante non trovati');
+        return;
+    }
+    
+    // Mostra header solo su mobile
+    function updatePanelLayout() {
+        if (window.innerWidth <= 768) {
+            if (header) header.style.display = 'flex';
+        } else {
+            if (header) header.style.display = 'none';
+            panel.classList.remove('open');
+            backdrop?.classList.remove('show');
+        }
+    }
+    
+    // Toggle pannello
+    toggleBtn.addEventListener('click', function() {
+        const isOpen = panel.classList.contains('open');
+        
+        if (isOpen) {
+            panel.classList.remove('open');
+            backdrop?.classList.remove('show');
+            this.setAttribute('aria-expanded', 'false');
+        } else {
+            panel.classList.add('open');
+            backdrop?.classList.add('show');
+            this.setAttribute('aria-expanded', 'true');
+        }
+        
+        // Ricrea icone
+        if (window.lucide) {
+            setTimeout(() => window.lucide.createIcons(), 100);
+        }
+    });
+    
+    // Chiudi con backdrop
+    if (backdrop) {
+        backdrop.addEventListener('click', function() {
+            panel.classList.remove('open');
+            this.classList.remove('show');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+    
+    // Chiudi con pulsante
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            panel.classList.remove('open');
+            backdrop?.classList.remove('show');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+    
+    // Gestione swipe down per chiudere (touch)
+    let startY = 0;
+    let currentY = 0;
+    
+    const dragHandle = panel.querySelector('.stats-panel-drag-handle');
+    if (dragHandle) {
+        dragHandle.addEventListener('touchstart', function(e) {
+            startY = e.touches[0].clientY;
+        });
+        
+        dragHandle.addEventListener('touchmove', function(e) {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            
+            if (diff > 0) {
+                panel.style.transform = `translateY(${diff}px)`;
+            }
+        });
+        
+        dragHandle.addEventListener('touchend', function() {
+            const diff = currentY - startY;
+            
+            if (diff > 100) {
+                panel.classList.remove('open');
+                backdrop?.classList.remove('show');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+            
+            panel.style.transform = '';
+            startY = 0;
+            currentY = 0;
+        });
+    }
+    
+    // Aggiorna badge
+    function updateStatsBadge() {
+        const badge = document.getElementById('statsToggleBadge');
+        const total = filteredData ? filteredData.length : 0;
+        if (badge) {
+            badge.textContent = total > 99 ? '99+' : total;
+        }
+    }
+    
+    // Chiudi con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            backdrop?.classList.remove('show');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Inizializza
+    updatePanelLayout();
+    updateStatsBadge();
+    
+    // Update on resize
+    window.addEventListener('resize', updatePanelLayout);
+    
+    // Update badge quando filteredData cambia
+    window.updateStatsBadge = updateStatsBadge;
+    
+    console.log('✅ Pannello flottante configurato');
+}
+
+// Integra nel DOMContentLoaded esistente
+document.addEventListener('DOMContentLoaded', function() {
+    // ... codice esistente ...
+    
+    // Aggiungi setup pannello flottante
+    setTimeout(setupFloatingStatsPanel, 500);
+});
+
+// Aggiorna badge quando cambiano i dati filtrati
+const originalUpdateStatistics = window.updateStatistics;
+window.updateStatistics = function() {
+    if (originalUpdateStatistics) {
+        originalUpdateStatistics.apply(this, arguments);
+    }
+    
+    if (window.updateStatsBadge) {
+        window.updateStatsBadge();
+    }
+};
 
 
 console.log('Dashboard Monitoraggio Patti - Versione Completa con Grafici Moderni caricata');

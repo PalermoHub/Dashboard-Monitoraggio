@@ -623,8 +623,8 @@ body {
 /* Map Controls */
 .map-controls {
     position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
+    top: 80px; /* Sotto i controlli zoom di Leaflet */
+    left: var(--space-2);
     z-index: var(--z-fixed);
     display: flex;
     flex-direction: column;
@@ -648,7 +648,13 @@ body {
 .map-control:hover {
     background: var(--color-gray-50);
     box-shadow: var(--shadow-md);
+    transform: scale(1.05);
 }
+
+.map-control:active {
+    transform: scale(0.95);
+}
+
 
 .layer-menu {
     position: absolute;
@@ -3419,3 +3425,144 @@ body {
         gap: var(--space-3);
     }
 }
+
+/* ==================== */
+/* MINIMAP STYLING      */
+/* ==================== */
+
+#miniMap {
+    height: 400px !important;
+    width: 100% !important;
+    border-radius: 0.75rem;
+    overflow: hidden !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: #ffffff !important;
+    position: relative !important;
+    display: block !important;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+}
+
+#miniMap * {
+    box-sizing: border-box;
+}
+
+.leaflet-container {
+    background-color: #fff !important;
+    outline: 0;
+    font-family: "Titillium Web", sans-serif;
+}
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-pane,
+.leaflet-popup-pane {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.leaflet-pane {
+    z-index: 400;
+}
+
+.leaflet-tile-pane {
+    z-index: 200;
+}
+
+.leaflet-overlay-pane {
+    z-index: 400;
+}
+
+.leaflet-shadow-pane {
+    z-index: 500;
+}
+
+.leaflet-marker-pane {
+    z-index: 600;
+}
+
+.leaflet-tooltip-pane {
+    z-index: 650;
+}
+
+.leaflet-popup-pane {
+    z-index: 700;
+}
+
+.leaflet-map-pane canvas {
+    max-width: none !important;
+    max-height: none !important;
+}
+
+.leaflet-tile {
+    filter: inherit;
+    will-change: auto;
+}
+
+.leaflet-tile.leaflet-tile-loaded {
+    visibility: inherit;
+}
+
+.leaflet-marker-icon {
+    margin-left: -12px;
+    margin-top: -41px;
+}
+
+.leaflet-circle-marker {
+    border: 2px solid white;
+}
+
+.leaflet-popup-content-wrapper {
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-popup-content {
+    margin: 13px 19px;
+    line-height: 1.4;
+    color: #334155;
+}
+
+.leaflet-popup-close-button {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    padding: 4px 4px 0 0;
+    border: 0;
+    background: transparent;
+    font-size: 21px;
+    line-height: 20px;
+    color: #999;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.leaflet-popup-close-button:hover {
+    color: #333;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    #miniMap {
+        height: 300px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #miniMap {
+        height: 250px !important;
+    }
+}
+
+/* Effetto barra selezionata nel grafico*/
+.chart-container canvas {
+    cursor: pointer;
+}
+
+.chart-bar-selected {
+    filter: brightness(1.2);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+} 

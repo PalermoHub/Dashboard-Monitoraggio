@@ -357,8 +357,8 @@ function initializeMapFixed() {
         }).addTo(map);
         
         centerMarker
-            .bindPopup('<b>Ufficio Rigenerazione Urbana</b><br>Ex Noviziato dei Crociferi<br><small>Click per centrare qui</small>')
-            .bindTooltip('Ufficio Rigenerazione Urbana', {permanent: false, direction: 'top'});
+            .bindPopup('<b>Centro Storico di Palermo</b><br>Palazzo delle Aquile<br><small>Click per centrare qui</small>')
+            .bindTooltip('Centro di Palermo', {permanent: false, direction: 'top'});
         
         // Event listener per il marker centrale
         centerMarker.on('click', function() {

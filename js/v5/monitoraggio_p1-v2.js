@@ -6,8 +6,10 @@
 let map;
 let miniMap;
 let markersLayer;
-let allData = [];
-let filteredData = [];
+window.allData = [];
+window.filteredData = [];
+let allData = window.allData;
+let filteredData = window.filteredData;
 let chart;
 let currentMapLayer = 'standard';
 let autocompleteData = [];
@@ -19,6 +21,7 @@ let proponenteFilter = ''; // Filtro nascosto per proponente
 
 let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
 let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
+
 
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
@@ -602,10 +605,9 @@ function updateLayerButtons(activeLayer) {
 // INIZIALIZZAZIONE PRINCIPALE
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM caricato, inizializzazione...');
     
-    // Aggiungi stili moderni per i grafici
     addModernChartStyles();
     
     if (typeof lucide !== 'undefined' && lucide.createIcons) {
@@ -613,7 +615,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     initializeMap();
-    loadData();
+    
+    // ✅ ATTENDI il caricamento dei dati
+    try {
+        await loadData();
+        console.log('✅ Dati caricati con successo:', window.allData.length, 'elementi');
+    } catch (error) {
+        console.error('❌ Errore nel caricamento dei dati:', error);
+    }
+    
     setupEventListeners();
     setupAutoUpdate();
     handleViewportResize();
@@ -628,6 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1500);
 });
+
 
 // ==========================================
 // INIZIALIZZAZIONE MAPPA
@@ -694,13 +705,14 @@ function initializeMap() {
 // ==========================================
 // CARICAMENTO E PARSING DATI
 // ==========================================
-
 async function loadData() {
     try {
         const response = await fetch('https://raw.githubusercontent.com/PalermoHub/Dashboard-Monitoraggio/refs/heads/main/dati/monit_patti_pa.csv');
         const csvText = await response.text();
         
         allData = parseCSV(csvText);
+        window.allData = allData; // ✅ AGGIUNGI QUESTA RIGA
+        window.filteredData = [...allData]; // ✅ AGGIUNGI QUESTA RIGA
         filteredData = [...allData];
         
         setupAutocomplete();
@@ -714,11 +726,15 @@ async function loadData() {
         
         hideFiltersPopup();
         
+        console.log('✅ Dati caricati:', allData.length, 'patti'); // ✅ AGGIUNGI LOG
+        
     } catch (error) {
         console.error('Errore nel caricamento dei dati:', error);
         showError('Errore nel caricamento dei dati. Riprova più tardi.');
     }
 }
+
+
 
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
@@ -1755,286 +1771,12 @@ function updateTable() {
     }
 }
 
-// ==========================================
-// DETTAGLI PATTO
-// ==========================================
-
 function showPattoDetails(pattoId) {
-    const idKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase() === 'id');
-    const patto = allData.find(p => p[idKey] === pattoId);
-    if (!patto) return;
-    
-    const keys = {
-        titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo')),
-        proponente: Object.keys(patto).find(k => k.toLowerCase().includes('proponente')),
-        rappresentante: Object.keys(patto).find(k => k.toLowerCase().includes('rappresentante')),
-        upl: Object.keys(patto).find(k => k.toLowerCase() === 'upl'),
-        quartiere: Object.keys(patto).find(k => k.toLowerCase().includes('quartiere')),
-        circoscrizione: Object.keys(patto).find(k => k.toLowerCase().includes('circoscrizione')),
-        indirizzo: Object.keys(patto).find(k => k.toLowerCase().includes('indirizzo')),
-        stato: Object.keys(patto).find(k => k.toLowerCase().includes('stato')),
-        note: Object.keys(patto).find(k => k.toLowerCase().includes('nota')),
-        googlemaps: Object.keys(patto).find(k => k.toLowerCase().includes('googlemaps')),
-        geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
-        foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto'))
-    };
-    
-    const modalTitle = document.getElementById('modalTitle');
-    if (modalTitle) modalTitle.textContent = patto[keys.titolo] || 'Patto senza titolo';
-    
-    const details = document.getElementById('pattoDetails');
-    if (details) {
-        details.innerHTML = `
-            <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
-            <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
-            <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
-            <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
-            <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
-            <p><strong>Indirizzo:</strong> ${patto[keys.indirizzo] || 'N/A'}</p>
-        `;
-    }
-    
-const status = document.getElementById('pattoStatus');
-const statoText = patto[keys.stato] || 'Non specificato';
-
-if (status) {
-    // ✅ GESTIONE PDF DOWNLOAD PER PATTI STIPULATI
-    const pdfKey = Object.keys(patto).find(k => 
-        k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')
-    );
-    const pdfUrl = pdfKey ? patto[pdfKey] : null;
-    const idKey = Object.keys(patto).find(k => k.toLowerCase() === 'id');
-    const pattoId = patto[idKey] || 'XX';
-    
-    // Se è stipulato E ha il PDF, mostra stato + pulsante download
-    if (statoText === 'Patto stipulato' && pdfUrl && pdfUrl.trim() !== '') {
-        status.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <span style="background-color: ${statusColors[statoText] || '#8fd67d'}; 
-                             color: white; 
-                             padding: 8px 16px; 
-                             border-radius: 8px; 
-                             font-size: 0.875rem; 
-                             font-weight: 600;
-                             display: inline-flex;
-                             align-items: center;
-                             gap: 6px;">
-                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
-                    ${statoText}
-                </span>
-                
-                <a href="${pdfUrl.trim()}" 
-                   download
-                   target="_blank"
-                   rel="noopener"
-				    title="Scarica il Patto di Collaborazione"
-                   style="background-color: ${statusColors[statoText] || '#8fd67d'}; 
-                          color: white; 
-                          padding: 8px 16px; 
-                          border-radius: 8px; 
-                          font-size: 0.875rem; 
-                          font-weight: 600;
-                          text-decoration: none;
-                          display: inline-flex;
-                          align-items: center;
-                          gap: 8px;
-                          transition: all 0.3s ease;
-                          border: 2px solid transparent;"
-                   onmouseover="this.style.backgroundColor='${statusColors[statoText] || '#8fd67d'}dd'; 
-                                this.style.borderColor='${statusColors[statoText] || '#8fd67d'}'; 
-                                this.style.transform='translateY(-2px)';
-                                this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
-                   onmouseout="this.style.backgroundColor='${statusColors[statoText] || '#8fd67d'}'; 
-                               this.style.borderColor='transparent';
-                               this.style.transform='translateY(0)';
-                               this.style.boxShadow='none';">
-                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
-                    Scarica il patto
-                </a>
-            </div>
-        `;
-    } 
-    // Altrimenti mostra solo lo stato normale
-    else {
-        status.textContent = statoText;
-        status.style.backgroundColor = statusColors[statoText] || '#6b7280';
-        status.style.color = 'white';
-        status.style.padding = '8px 16px';
-        status.style.borderRadius = '8px';
-        status.style.fontSize = '0.875rem';
-        status.style.fontWeight = '600';
-        status.style.display = 'inline-flex';
-        status.style.alignItems = 'center';
-        status.style.gap = '6px';
-    }
-}
-    
-    const notesContainer = document.getElementById('pattoNotesContainer');
-    const notes = document.getElementById('pattoNotes');
-    if (keys.note && patto[keys.note] && notesContainer && notes) {
-        notesContainer.classList.remove('hidden');
-        notes.textContent = patto[keys.note];
-    } else if (notesContainer) {
-        notesContainer.classList.add('hidden');
-    }
-    
-    const links = document.getElementById('pattoLinks');
-    if (links) {
-        links.innerHTML = '';
-        
-        if (keys.googlemaps && patto[keys.googlemaps]) {
-            const link = document.createElement('a');
-            link.href = patto[keys.googlemaps].trim();
-            link.target = '_blank';
-            link.className = 'inline-flex items-center space-x-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors';
-            link.innerHTML = `
-                <i data-lucide="map" class="h-4 w-4"></i>
-                <span>Google Maps</span>
-                <i data-lucide="external-link" class="h-3 w-3"></i>
-            `;
-            links.appendChild(link);
-        }
-        
-        if (keys.geouri && patto[keys.geouri]) {
-            const link = document.createElement('a');
-            link.href = patto[keys.geouri];
-            link.className = 'inline-flex items-center space-x-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors';
-            link.innerHTML = `
-                <i data-lucide="map-pin" class="h-4 w-4"></i>
-                <span>Geo URI</span>
-                <i data-lucide="external-link" class="h-3 w-3"></i>
-            `;
-            links.appendChild(link);
-        }
-    }
-    
-    const photoContainer = document.getElementById('photoContainer');
-    const photo = document.getElementById('pattoPhoto');
-    if (keys.foto && patto[keys.foto] && patto[keys.foto].trim() !== '' && photoContainer && photo) {
-        photoContainer.classList.remove('hidden');
-        const fotoUrl = patto[keys.foto].trim();
-        
-        photo.onload = function() {
-            console.log('Immagine caricata:', fotoUrl);
-        };
-        
-        photo.onerror = function() {
-            console.error('Errore caricamento immagine:', fotoUrl);
-            photoContainer.classList.add('hidden');
-        };
-        
-        photo.src = fotoUrl;
-        photo.alt = patto[keys.titolo] || 'Foto patto';
-    } else if (photoContainer) {
-        photoContainer.classList.add('hidden');
-    }
-    
-    // Mini mappa - VERSIONE CORRETTA CON FIX CSS ✅
-    setTimeout(() => {
-        // 🔧 CORREZIONE: Pulire completamente la minimap precedente
-        if (miniMap) {
-            try {
-                miniMap.remove();
-            } catch (e) {}
-            miniMap = null;
-        }
-        
-        const miniMapContainer = document.getElementById('miniMap');
-        if (miniMapContainer) {
-            // Pulire COMPLETAMENTE il container
-            miniMapContainer.innerHTML = '';
-            miniMapContainer.textContent = '';
-            miniMapContainer.style.cssText = '';
-            
-            // Rimuovere tutte le classi e attributi
-            while (miniMapContainer.attributes.length > 0) {
-                miniMapContainer.removeAttribute(miniMapContainer.attributes[0].name);
-            }
-            miniMapContainer.className = '';
-            
-            // Reimpostare l'ID (necessario per Leaflet)
-            miniMapContainer.id = 'miniMap';
-            
-            // Aggiungere una pausa prima di ricreare
-            setTimeout(() => {
-                try {
-                    const miniMapContainer = document.getElementById('miniMap');
-                    if (!miniMapContainer) return;
-                    
-                    // Assicurarsi che il container sia visible e corretto
-                    miniMapContainer.style.display = 'block';
-                    miniMapContainer.style.height = '400px';
-                    miniMapContainer.style.width = '100%';
-                    miniMapContainer.style.position = 'relative';
-                    miniMapContainer.style.overflow = 'hidden';
-                    
-                    // Ricreare la mappa con tutte le opzioni
-                    miniMap = L.map('miniMap', {
-                        center: [patto.lat, patto.lng],
-                        zoom: 16,
-                        dragging: true,
-                        touchZoom: true,
-                        scrollWheelZoom: false,
-                        zoomControl: true,
-                        attributionControl: true
-                    });
-                    
-                    // Aggiungere il tile layer
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors',
-                        maxZoom: 19,
-                        minZoom: 1
-                    }).addTo(miniMap);
-                    
-                    // Marker colorato
-                    const color = statusColors[statoText] || '#6b7280';
-                    L.circleMarker([patto.lat, patto.lng], {
-                        radius: 8,
-                        fillColor: color,
-                        color: 'white',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(miniMap);
-                    
-                    // Marker icon
-                    L.marker([patto.lat, patto.lng], {
-                        icon: L.icon({
-                            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-                            iconSize: [25, 41],
-                            iconAnchor: [12, 41],
-                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-                            shadowSize: [41, 41],
-                            shadowAnchor: [13, 41]
-                        })
-                    }).addTo(miniMap).bindPopup(patto[keys.titolo] || 'Posizione patto');
-                    
-                    // Invalidare la size
-                    setTimeout(() => {
-                        if (miniMap && miniMap.invalidateSize) {
-                            miniMap.invalidateSize(true);
-                        }
-                    }, 100);
-                    
-                    console.log('✅ Minimap ricreata con successo');
-                    
-                } catch (error) {
-                    console.error('❌ Errore nella creazione minimap:', error);
-                }
-            }, 100);
-        }
-    }, 100);
-    
+    // ... il vecchio codice del modal ...
     const modal = document.getElementById('pattoModal');
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-    }
-    
-    map.setView([patto.lat, patto.lng], 16);
-    
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        lucide.createIcons();
     }
 }
 
@@ -2598,7 +2340,7 @@ function showError(message) {
 }
 
 // Funzione globale per mostrare dettagli (chiamata dai popup)
-window.showPattoDetails = showPattoDetails;
+// window.showPattoDetails = showPattoDetails;
 
 // CSS aggiuntivo per il marker centro
 if (typeof document !== 'undefined') {
