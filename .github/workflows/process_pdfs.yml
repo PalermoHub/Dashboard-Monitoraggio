@@ -1,0 +1,47 @@
+name: Process PDF from Google Sheets
+
+on:
+  workflow_dispatch:  # Esecuzione manuale
+  schedule:
+    - cron: '0 2 * * *'  # Esecuzione automatica ogni giorno alle 2:00
+
+jobs:
+  process-pdfs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install gspread oauth2client google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+    
+    - name: Create credentials file
+      run: |
+        echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+    
+    - name: Create patti folder
+      run: mkdir -p patti
+    
+    - name: Run PDF processing script
+      env:
+        SPREADSHEET_ID: '1Y-beHZa8pX94f7_5TmKM3DMmOXVOWpD5VzoiwUhDKtE'
+      run: python process_pdfs.py
+    
+    - name: Clean up credentials
+      if: always()
+      run: rm -f credentials.json
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add patti/
+        git diff --staged --quiet || git commit -m "Add/Update PDF files in patti folder [skip ci]"
+        git push
