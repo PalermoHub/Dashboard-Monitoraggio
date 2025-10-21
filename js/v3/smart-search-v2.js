@@ -710,7 +710,21 @@ function clearAllFiltersIncludingSmart() {
     }
     
     filteredData = [...allData];
-    updateAllViewsUnified();
+    
+    // 🔧 CORREZIONE: Rigenerare i dropdown ripopolando le opzioni
+    if (typeof updateFilters === 'function') {
+        console.log('🔄 Rigenerando opzioni dropdown...');
+        updateFilters();
+    } else {
+        console.warn('⚠️ updateFilters non disponibile');
+    }
+    
+    // ✅ IMPORTANTE: Aggiorna SEMPRE tutte le viste (mappa, tabella, grafici)
+    if (typeof updateAllViewsUnified === 'function') {
+        updateAllViewsUnified();
+    } else {
+        console.warn('⚠️ updateAllViewsUnified non disponibile');
+    }
     
     if (typeof hideFiltersPopup === 'function') {
         hideFiltersPopup();
