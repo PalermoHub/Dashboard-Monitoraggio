@@ -140,7 +140,7 @@ function addSidePanelStyles() {
             flex-direction: column;
             
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border-left: 1px solid var(--border-color);
+          /*  border-left: 1px solid var(--border-color);*/
         }
 
         .side-panel.open {
