@@ -3921,7 +3921,7 @@ body {
     font-size: var(--font-size-xs);
     line-height: 1.5;
     border-top: 2px solid rgba(59, 130, 246, 0.3);
-    height: calc(100vh - 450px);
+    height: calc(100vh - 540px);
     overflow-y: auto;
     align-items: center; /* Centra i figli */
 }
@@ -4025,11 +4025,11 @@ body {
 .footer-contact-column {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
 }
 
 .footer-column-title {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: 600;
     color: var(--color-white);
     margin: 0;
@@ -4076,22 +4076,25 @@ body {
 
 .footer-social-links {
     display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
+    gap: var(--space-4);
+    flex-wrap: nowrap; /* Impedisce il wrap */
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-4);
 }
 
 .footer-social-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     background: rgba(59, 130, 246, 0.2);
     border: 1px solid rgba(59, 130, 246, 0.4);
     border-radius: var(--border-radius-sm);
     color: var(--color-accent-light);
     transition: all 0.2s ease;
     text-decoration: none;
+    flex-shrink: 0;
 }
 
 .footer-social-link:hover {
@@ -4104,11 +4107,12 @@ body {
 .footer-hours-box {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-2);
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
     background: rgba(59, 130, 246, 0.1);
     border-left: 3px solid var(--color-accent);
     border-radius: var(--border-radius-sm);
+    margin-top: var(--space-3);
 }
 
 .footer-hours-box span {
@@ -4219,6 +4223,26 @@ body {
         gap: var(--space-2);
         padding: var(--space-3);
     }
+}
+
+.footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.footer-contact-item span {
+    white-space: nowrap;
+}
+
+.footer-contact-item .footer-contact-label {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.footer-contact-item .footer-contact-link {
+    white-space: nowrap;
 }
 
 /* RESPONSIVE MOBILE */
