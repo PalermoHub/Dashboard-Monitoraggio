@@ -3921,7 +3921,7 @@ body {
     font-size: var(--font-size-xs);
     line-height: 1.5;
     border-top: 2px solid rgba(59, 130, 246, 0.3);
-    height: calc(100vh - 540px);
+    height: calc(100vh - 500px);
     overflow-y: auto;
     align-items: center; /* Centra i figli */
 }
@@ -4077,9 +4077,11 @@ body {
 .footer-social-links {
     display: flex;
     gap: var(--space-4);
-    flex-wrap: nowrap; /* Impedisce il wrap */
+    flex-wrap: nowrap;
     margin-top: var(--space-4);
     margin-bottom: var(--space-4);
+    justify-content: center; /* ⭐ Centra le icone social */
+    width: 100%;
 }
 
 .footer-social-link {
@@ -4343,4 +4345,70 @@ body {
         width: 14px;
         height: 14px;
     }
+}
+
+/* Aggiungi queste regole al tuo CSS */
+
+/* Allinea verticalmente tutte le colonne del footer */
+.footer-contact-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start; /* Allinea tutto a sinistra */
+}
+
+/* Assicura che i titoli delle colonne abbiano la stessa altezza */
+.footer-column-title {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-white);
+    margin: 0;
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%; /* ⭐ Linea su tutta la larghezza della colonna */
+    min-height: 40px;
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Normalizza l'altezza del contenuto delle colonne */
+.footer-column-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1; /* Fa crescere il contenuto per riempire lo spazio */
+}
+
+/* Posiziona i social link con margini consistenti */
+.footer-social-links {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: nowrap;
+    margin-top: var(--space-4);
+    margin-bottom: 0; /* ⭐ Rimuovi il margin-bottom per allineare meglio */
+    align-items: center; /* Centra verticalmente le icone */
+}
+
+/* Assicura che tutti gli elementi della colonna social siano allineati */
+.footer-contact-column:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ⭐ Centra tutto il contenuto della colonna */
+}
+
+/* Specifica per l'immagine nella colonna social */
+.footer-contact-column:last-child > div[style*="margin-top"] {
+    margin-top: auto !important; /* Spinge l'immagine in basso */
+    text-align: center;
+}
+/* Stile specifico per il contenitore dell'immagine */
+.footer-contact-column:last-child > div:last-child {
+    margin-top: auto;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-4);
 }
