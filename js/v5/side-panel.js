@@ -145,11 +145,11 @@ function addSidePanelStyles() {
             pointer-events: none;
         }
 
-        .side-panel.open ~ .side-panel-overlay {
+       /* .side-panel.open ~ .side-panel-overlay {
             opacity: 0.3;
             visibility: visible;
             pointer-events: auto;
-        }
+        }*/
 
         .side-panel-header {
             padding: 16px;
