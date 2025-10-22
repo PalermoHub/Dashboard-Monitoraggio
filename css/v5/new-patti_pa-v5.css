@@ -147,8 +147,10 @@ body {
 .tt {
     font-size: 1.35rem;
     font-weight: 700;
-    text-align: left;
-}
+    text-align: left;}
+	
+.logo_test 	{height:65px }
+
 
 /* ==================== */
 /* HEADER - LAYOUT A 3 COLONNE */
@@ -3691,6 +3693,8 @@ body {
         text-align: center;
     }
     
+	.logo_test 	{height:45px }
+	
     .dashboard-header {
         padding: 0 var(--space-2);
     }

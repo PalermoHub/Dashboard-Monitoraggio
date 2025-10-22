@@ -143,9 +143,11 @@ body {
         "footer";
 }
 
-.tt { font-size: 1.35rem;
+.tt { font-size: 1.25rem;
     font-weight: 700;
 	text-align: left;	}
+
+	.logo_test 	{height:65px }
 
 /* ==================== */
 /* HEADER - LAYOUT A 3 COLONNE */
@@ -4205,6 +4207,9 @@ body {
 .tt { font-size: 1.25rem;
     font-weight: 700;
 	text-align: left;	}
+	
+		.logo_test 	{height:45px }
+	
     .footer-column-title {
         font-size: 0.7rem;
         padding-bottom: var(--space-1);
@@ -4272,10 +4277,14 @@ body {
 .tt { font-size: .85rem;
     font-weight: 700;
 	text-align: center;	}
+	
+	.logo_test 	{height:45px }
+	
     .footer-contact-column {
         gap: var(--space-2);
     }
-
+	.logo_test 	{height:45px }
+	
     .footer-org-box {
         gap: var(--space-2);
     }
