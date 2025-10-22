@@ -1405,7 +1405,8 @@ body {
     }
 	
 	 body {
-        overflow: auto !important;  /* CAMBIA DA 'hidden' a 'auto' */
+        overflow-y: auto !important;  /* CAMBIA DA 'hidden' a 'auto' */
+		overflow-x: hidden;
     }
 
 	
