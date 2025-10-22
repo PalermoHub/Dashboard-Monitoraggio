@@ -12,8 +12,8 @@
     <title>Dashboard di Monitoraggio Cittadino - Palermo</title>
     
     <!-- CSS -->
-	<link rel="stylesheet" href="css/v3/new-patti_pa-v3.css"> 
-	<link rel="stylesheet" href="css/v3/reg_att.css"> 
+	<link rel="stylesheet" href="css/v5/new-patti_pa-v5.css"> 
+	<link rel="stylesheet" href="css/v5/reg_att.css"> 
  <!--	   -->
 	
     
@@ -449,19 +449,7 @@
 
             <!-- STATISTICS AND LEGEND -->
             <div class="stats-container">
-                <!-- Legend -->
-                <div class="legend-card">
-                    <h3 class="section-title">
-                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
-                        Legenda Stati
-                    </h3>
-                    
-                    <div id="legend" class="legend-items" role="list">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-
-                <!-- Statistics -->
+			                <!-- Statistics -->
                 <div class="stats-card">
                     <h3 class="section-title">
                         <i data-lucide="bar-chart-4" class="h-4 w-4" aria-hidden="true"></i>
@@ -499,8 +487,22 @@
 </div>
                     </div>
                 </div>
-            </div>
+    
+			
+                <!-- Legend -->
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
+                        Legenda Stati
+                    </h3>
+                    
+                    <div id="legend" class="legend-items" role="list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
         </div>
+        </div>
+
     </main>
 
     <!-- FOOTER -->
@@ -2246,104 +2248,17 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- MODAL DETTAGLI PATTO - Inserire prima degli script JS -->
-<!-- ============================================= -->
-<div id="pattoModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
-    <div class="modal-content details-modal">
-        <div class="modal-header">
-            <h3 id="modalTitle" class="modal-title">
-                <i data-lucide="file-text" class="h-5 w-5" aria-hidden="true"></i>
-                Dettagli Patto
-            </h3>
-            <button id="closeModal" 
-                    class="modal-close" 
-                    title="Chiudi dettagli"
-                    aria-label="Chiudi dettagli patto">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <!-- Colonna sinistra: Informazioni -->
-                <div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
-                            Informazioni Generali
-                        </h4>
-                        <div id="pattoDetails" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
-                            <!-- Popolato dinamicamente -->
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="activity" class="h-4 w-4" aria-hidden="true"></i>
-                            Stato di Avanzamento
-                        </h4>
-                        <div>
-                            <span id="pattoStatus" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600;">
-                                <!-- Popolato dinamicamente -->
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div id="pattoNotesContainer" class="hidden" style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
-                            Note
-                        </h4>
-                        <p id="pattoNotes" style="font-size: 0.875rem; color: #4b5563; line-height: 1.6; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
-                            <!-- Popolato dinamicamente -->
-                        </p>
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="external-link" class="h-4 w-4" aria-hidden="true"></i>
-                            Collegamenti
-                        </h4>
-                        <div id="pattoLinks" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-                            <!-- Popolato dinamicamente -->
-                        </div>
-                    </div>
-                    
-                    <div id="photoContainer" class="hidden">
-                        <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="image" class="h-4 w-4" aria-hidden="true"></i>
-                            Foto
-                        </h4>
-                        <img id="pattoPhoto" 
-                             alt="Foto del patto" 
-                             style="width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    </div>
-                </div>
-                
-                <!-- Colonna destra: Mappa -->
-                <div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i data-lucide="map" class="h-4 w-4" aria-hidden="true"></i>
-                        Posizione
-                    </h4>
-                    <div id="miniMapWrapper" style="width: 100%; height: 400px; position: relative; display: block; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"><div id="miniMap"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
     <!-- JavaScript -->
-    <script src="js/v3/monitoraggio_p1-v2.js"></script>
-	<script src="js/v3/map-controls.js"></script>
-    <script src="js/v3/smart-search-v2.js"></script>
-	<script src="js/v3/monitoraggio_p2.js"></script>
-	<script src="js/v3/attiva_patto.js"></script>
-	<script src="js/v3/regolamento.js"></script>
-	
-	
+    <script src="js/v5/monitoraggio_p1-v2.js"></script>
+	<script src="js/v5/map-controls.js"></script>
+    <script src="js/v5/smart-search-v2.js"></script>
+	<script src="js/v5/monitoraggio_p2.js"></script>
+	<script src="js/v5/attiva_patto.js"></script>
+	<script src="js/v5/regolamento.js"></script>
+	<script src="js/v5/side-panel.js"></script>
+	<script src="js/v5/side-panel-map-sync.js"></script>
 	 
 	 <!-- Funzione per gestire le card dei filtri -->
 	 <script>
@@ -2377,5 +2292,51 @@
 		 });
 	 });
 	 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercetta il cambio di filtri
+    const filterElements = [
+        'filterStato',
+        'filterUpl', 
+        'filterQuartiere',
+        'filterCircoscrizione',
+        'filterTitolo'
+    ];
+
+    filterElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            // Salva l'originale addEventListener
+            const originalChange = element.onchange;
+            
+            element.addEventListener('change', function() {
+                console.log('🔍 Filtro cambiato, sincronizzazione side panel...');
+                
+                // Attendi che applyFilters termini
+                setTimeout(() => {
+                    const sidePanelOpen = document.getElementById('pattoSidePanel')?.classList.contains('open');
+                    if (sidePanelOpen && window.filteredData) {
+                        // Reset side panel
+                        sidePanelData = window.filteredData && window.filteredData.length > 0 
+                            ? window.filteredData 
+                            : window.allData;
+                        currentSidePanelIndex = 0;
+
+                        console.log('✓ Side panel sincronizzato:', sidePanelData.length, 'elementi');
+
+                        // Mostra il primo elemento filtrato
+                        if (sidePanelData && sidePanelData.length > 0) {
+                            populateSidePanelContent(sidePanelData[0]);
+                            updateSidePanelCounter();
+                        } else {
+                            closeSidePanel();
+                        }
+                    }
+                }, 100);
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>
