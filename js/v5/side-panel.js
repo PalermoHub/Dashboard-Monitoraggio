@@ -116,7 +116,7 @@ function addSidePanelStyles() {
     styles.id = 'sidePanelStyles';
     styles.textContent = `
         .side-panel {
-            position: fixed;
+            position: absolute;
             right: -400px;
             top: 70px; /* ✅ Inizia dopo l'header */
             bottom: 60px; /* ✅ Finisce prima del footer */
@@ -134,7 +134,7 @@ function addSidePanelStyles() {
             right: 0;
         }
 
-        .side-panel-overlay {
+    /*      .side-panel-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0);
@@ -145,7 +145,7 @@ function addSidePanelStyles() {
             pointer-events: none;
         }
 
-       /* .side-panel.open ~ .side-panel-overlay {
+      .side-panel.open ~ .side-panel-overlay {
             opacity: 0.3;
             visibility: visible;
             pointer-events: auto;
