@@ -108,24 +108,37 @@ function createSidePanelHTML() {
     console.log('Side Panel HTML creato');
 }
 
-// ✅ CORREZIONE: Aggiungi CSS con altezza corretta
+
+// ==========================================
+// SIDE PANEL - DENTRO LA MAPPA
+// Posizionato in absolute dentro .content-area
+// ==========================================
+
 function addSidePanelStyles() {
     if (document.getElementById('sidePanelStyles')) return;
 
     const styles = document.createElement('style');
     styles.id = 'sidePanelStyles';
     styles.textContent = `
+        /* ============================================
+           SIDE PANEL - CONTAINER PRINCIPALE
+           ============================================ */
+        
         .side-panel {
-            position: absolute;
-            right: -400px;
-            top: 70px; /* ✅ Inizia dopo l'header */
-            bottom: 60px; /* ✅ Finisce prima del footer */
-            width: 400px;
+            position: fixed;
+            right: -420px;
+            top: 0;
+            bottom: 0;
+            width: 380px;
+            max-width: calc(100vw - 320px);
+            
             background: var(--color-white);
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
             z-index: 1200;
+            
             display: flex;
             flex-direction: column;
+            
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             border-left: 1px solid var(--border-color);
         }
@@ -134,25 +147,18 @@ function addSidePanelStyles() {
             right: 0;
         }
 
-    /*      .side-panel-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0);
-            z-index: 1199;
-            opacity: 0;
+        .side-panel-overlay {
+            display: none !important;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            pointer-events: none;
+            opacity: 0;
         }
 
-      .side-panel.open ~ .side-panel-overlay {
-            opacity: 0.3;
-            visibility: visible;
-            pointer-events: auto;
-        }*/
-
+        /* ============================================
+           SIDE PANEL - HEADER (fisso, non scorre)
+           ============================================ */
+        
         .side-panel-header {
-            padding: 16px;
+            padding: 14px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -160,14 +166,18 @@ function addSidePanelStyles() {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
             color: var(--color-white);
             flex-shrink: 0;
-            gap: 12px;
+            gap: 10px;
+            min-height: 52px;
         }
 
         .side-panel-title {
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 600;
             margin: 0;
             flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .side-panel-close {
@@ -175,190 +185,66 @@ function addSidePanelStyles() {
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: var(--color-white);
             border-radius: 4px;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 36px;
-            min-height: 36px;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
         }
 
         .side-panel-close:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
         }
+
+        /* ============================================
+           SIDE PANEL - CONTENT (scrollabile, flex: 1)
+           ============================================ */
 
         .side-panel-content {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            overflow-x: hidden;
+            padding: 14px;
             scroll-behavior: smooth;
         }
 
-        .panel-section {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
+        /* Scrollbar personalizzata */
+        .side-panel-content::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .panel-section.hidden {
-            display: none;
-        }
-
-        .panel-section-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--color-gray-800);
-            margin: 0 0 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .panel-details {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .panel-details p {
-            margin: 0;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
-            line-height: 1.5;
-        }
-
-        .panel-details strong {
-            color: var(--color-gray-800);
-            font-weight: 600;
-        }
-
-        .panel-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* ✅ CORREZIONE: Stato con colori dinamici */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: var(--color-white);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ✅ NUOVO: Pulsante PDF download */
-        .download-pdf-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: var(--status-stipulato);
-            color: var(--color-white);
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .download-pdf-btn:hover {
-            background: var(--color-success);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .download-pdf-btn i {
-            width: 16px;
-            height: 16px;
-        }
-
-        .panel-notes {
-            margin: 0;
-            padding: 12px;
-            background: var(--color-gray-50);
-            border-left: 4px solid var(--color-accent);
-            border-radius: 4px;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
-            line-height: 1.6;
-        }
-
-        .panel-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .panel-link-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            background: var(--color-gray-50);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--color-accent);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .panel-link-btn:hover {
-            background: var(--color-accent);
-            color: var(--color-white);
-            border-color: var(--color-accent);
-            transform: translateX(4px);
-        }
-
-        .panel-photo {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .panel-photo:hover {
-            transform: scale(1.02);
-        }
-
-        .panel-minimap-wrapper {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .panel-minimap {
-            width: 100%;
-            height: 100%;
+        .side-panel-content::-webkit-scrollbar-track {
             background: var(--color-gray-100);
         }
 
+        .side-panel-content::-webkit-scrollbar-thumb {
+            background: var(--color-gray-400);
+            border-radius: 3px;
+        }
+
+        .side-panel-content::-webkit-scrollbar-thumb:hover {
+            background: var(--color-gray-500);
+        }
+
+        /* ============================================
+           SIDE PANEL - FOOTER (fisso, sempre visibile)
+           ============================================ */
+
         .side-panel-footer {
-            padding: 16px;
+            padding: 12px;
             border-top: 1px solid var(--border-color);
             background: var(--color-gray-50);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
+            min-height: 48px;
         }
 
         .panel-nav-btn {
@@ -366,8 +252,8 @@ function addSidePanelStyles() {
             border: none;
             color: var(--color-gray-700);
             border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -387,23 +273,207 @@ function addSidePanelStyles() {
         }
 
         .panel-counter {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--color-gray-600);
             font-weight: 600;
-            min-width: 60px;
+            min-width: 55px;
             text-align: center;
         }
 
-        /* ✅ MOBILE: Pannello a schermo intero */
-        @media (max-width: 768px) {
-            .side-panel {
-                width: 100%;
-                right: -100%;
-                top: 60px; /* Dopo header mobile */
-                bottom: 0; /* Fino al fondo (copre footer) */
-            }
+        /* ============================================
+           SIDE PANEL - SEZIONI CONTENUTO
+           ============================================ */
+
+        .panel-section {
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
         }
-		/* Animazione highlight mappa */
+
+        .panel-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .panel-section.hidden {
+            display: none;
+        }
+
+        .panel-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============================================
+           SIDE PANEL - DETTAGLI
+           ============================================ */
+
+        .panel-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .panel-details p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+            line-height: 1.4;
+        }
+
+        .panel-details strong {
+            color: var(--color-gray-800);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           SIDE PANEL - STATUS
+           ============================================ */
+
+        .panel-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--color-white);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        .download-pdf-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            background: var(--status-stipulato);
+            color: var(--color-white);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .download-pdf-btn:hover {
+            background: var(--color-success);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .download-pdf-btn i {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ============================================
+           SIDE PANEL - NOTE
+           ============================================ */
+
+        .panel-notes {
+            margin: 0;
+            padding: 10px;
+            background: var(--color-gray-50);
+            border-left: 3px solid var(--color-accent);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: var(--color-gray-700);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           SIDE PANEL - LINK
+           ============================================ */
+
+        .panel-links {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .panel-link-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--color-gray-50);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .panel-link-btn:hover {
+            background: var(--color-accent);
+            color: var(--color-white);
+            border-color: var(--color-accent);
+            transform: translateX(3px);
+        }
+
+        /* ============================================
+           SIDE PANEL - FOTO
+           ============================================ */
+
+        .panel-photo {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            object-fit: cover;
+        }
+
+        .panel-photo:hover {
+            transform: scale(1.02);
+        }
+
+        /* ============================================
+           SIDE PANEL - MINIMAP
+           ============================================ */
+
+        .panel-minimap-wrapper {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-minimap {
+            width: 100%;
+            height: 100%;
+            background: var(--color-gray-100);
+        }
+
+        /* ============================================
+           ANIMAZIONE HIGHLIGHT
+           ============================================ */
+
         @keyframes side-panel-pulse {
             0% {
                 transform: scale(1);
@@ -418,16 +488,58 @@ function addSidePanelStyles() {
                 opacity: 1;
             }
         }
-        
+
         .side-panel-highlight-pulse {
-            animation: side-panel-pulse 2s ease-in-out infinite !important;
+            animation: side-panel-pulse 1.5s ease-in-out infinite !important;
         }
-		
+
+        /* ============================================
+           MEDIA QUERY - TABLET
+           ============================================ */
+
+        @media (max-width: 1024px) {
+            .side-panel {
+                width: 320px;
+                right: -340px;
+            }
+
+            .panel-minimap-wrapper {
+                height: 120px;
+            }
+        }
+
+        /* ============================================
+           MEDIA QUERY - MOBILE
+           ============================================ */
+
+        @media (max-width: 768px) {
+            .side-panel {
+                position: fixed;
+                width: 100%;
+                right: -100%;
+                top: 0;
+                bottom: 0;
+            }
+
+            .side-panel.open {
+                right: 0;
+            }
+
+            .side-panel-header {
+                padding: 16px;
+                min-height: 56px;
+            }
+
+            .side-panel-title {
+                font-size: 1.1rem;
+            }
+        }
     `;
 
     document.head.appendChild(styles);
     console.log('Side Panel CSS aggiunto');
 }
+
 
 // ✅ NUOVO: Funzione per evidenziare marker nella mappa
 function highlightMarkerOnMap(patto) {
