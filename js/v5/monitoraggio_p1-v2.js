@@ -35,7 +35,7 @@ const statusColors = {
     'Istruttoria in corso': '#ffdb4d',
     'Respinta': '#ff6b6b',
     'Patto stipulato': '#8fd67d',
-    'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
+    'Proroga e/o Monitoraggio': '#9b59b6',
     'In attesa di integrazione': '#b3e6ff',
 	'Archiviata': '#94a3b8'
 };
