@@ -3909,7 +3909,7 @@ body {
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 } 
 
-/*FOOTER AGID*/ 
+/*FOOTER AGID*/
 
 .dashboard-footer {
     grid-area: footer;
@@ -3921,9 +3921,9 @@ body {
     font-size: var(--font-size-xs);
     line-height: 1.5;
     border-top: 2px solid rgba(59, 130, 246, 0.3);
-    height: calc(100vh - 450px);
+	height: calc(100vh - 450px);
+	/*height: auto;*/  /* CAMBIA DA 'calc(100vh - 450px)' a 'auto' */
     overflow-y: auto;
-    align-items: center; /* Centra i figli */
 }
 
 /* SEZIONE SUPERIORE */
@@ -3931,11 +3931,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-6) var(--space-12);
+    padding: var(--space-6);
     border-bottom: 1px solid rgba(226, 232, 240, 0.1);
-   /* background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);*/
-    width: 100%;
-    max-width: 1400px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .footer-org-box {
@@ -4004,11 +4002,10 @@ body {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: var(--space-6);
-    padding: var(--space-6) var(--space-12);
- /*   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);*/
+    padding: var(--space-6);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     border-bottom: 1px solid rgba(226, 232, 240, 0.1);
-    width: 100%;
-    max-width: 1400px;
+
 }
 
 
@@ -4122,12 +4119,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-4) var(--space-12);
-   /* background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);*/
+    padding: var(--space-4) var(--space-6);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     gap: var(--space-4);
-    width: 100%;
-    max-width: 1400px;
-}
+	}
 
 .footer-bottom-left {
     display: flex;
