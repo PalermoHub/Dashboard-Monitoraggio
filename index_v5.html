@@ -158,6 +158,37 @@
                     </div>
                 </div>
 
+<!-- FILTRO AMBITI DI AZIONE -->
+<div class="filter-card">
+    <div class="filter-card-header" onclick="toggleFilterCard('ambiti-filters')">
+        <div class="filter-card-title">
+            <i data-lucide="target" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Ambiti di Azione</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <div class="filter-badge" id="ambiti-badge" style="display: none;">0</div>
+            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="filter-card-content" id="ambiti-filters">
+        <div class="filter-card-body">
+            <div class="filter-group">
+                <label for="filterAmbiti" class="filter-label">
+                    Ambiti di Azione
+                </label>
+                <select id="filterAmbiti" 
+                        class="filter-select"
+                        aria-describedby="ambiti-help">
+                    <option value="">Tutti gli ambiti</option>
+                </select>
+                <div id="ambiti-help" class="sr-only">
+                    Filtra per ambiti di azione dei patti
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
                 <!-- FILTRI GEOGRAFICI -->
                 <div class="filter-card">
                     <div class="filter-card-header" onclick="toggleFilterCard('geo-filters')">

@@ -648,24 +648,32 @@ function openSidePanel(pattoId) {
     }, 300);
 }
 
-// ✅ CORREZIONE: Popola contenuto con colori stati e PDF
+// Funzione corretta per popolare il contenuto del side panel
 function populateSidePanelContent(patto) {
-    const keys = {
-        titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo')),
-        proponente: Object.keys(patto).find(k => k.toLowerCase().includes('proponente')),
-        rappresentante: Object.keys(patto).find(k => k.toLowerCase().includes('rappresentante')),
-        upl: Object.keys(patto).find(k => k.toLowerCase() === 'upl'),
-        quartiere: Object.keys(patto).find(k => k.toLowerCase().includes('quartiere')),
-        circoscrizione: Object.keys(patto).find(k => k.toLowerCase().includes('circoscrizione')),
-        indirizzo: Object.keys(patto).find(k => k.toLowerCase().includes('indirizzo')),
-        stato: Object.keys(patto).find(k => k.toLowerCase().includes('stato')),
-        nota: Object.keys(patto).find(k => k.toLowerCase().includes('nota')),
-        googlemaps: Object.keys(patto).find(k => k.toLowerCase().includes('googlemaps')),
-        geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
-        foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto')),
-        pdf: Object.keys(patto).find(k => k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')),
-        id: Object.keys(patto).find(k => k.toLowerCase() === 'id')
+    // ✅ CORREZIONE: Definisci findDataKeys qui se non disponibile globalmente
+    const findDataKeysLocal = function() {
+        if (!patto) return {};
+        
+        return {
+            titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo') && k.toLowerCase().includes('proposta')),
+            proponente: Object.keys(patto).find(k => k.toLowerCase().includes('proponente')),
+            rappresentante: Object.keys(patto).find(k => k.toLowerCase().includes('rappresentante')),
+            upl: Object.keys(patto).find(k => k.toLowerCase() === 'upl'),
+            quartiere: Object.keys(patto).find(k => k.toLowerCase().includes('quartiere')),
+            circoscrizione: Object.keys(patto).find(k => k.toLowerCase().includes('circoscrizione')),
+            indirizzo: Object.keys(patto).find(k => k.toLowerCase().includes('indirizzo')),
+            stato: Object.keys(patto).find(k => k.toLowerCase().includes('stato')),
+            nota: Object.keys(patto).find(k => k.toLowerCase().includes('nota')),
+            googlemaps: Object.keys(patto).find(k => k.toLowerCase().includes('googlemaps')),
+            geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
+            foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto')),
+            pdf: Object.keys(patto).find(k => k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')),
+            ambiti: Object.keys(patto).find(k => k.toLowerCase().includes('ambiti')), // NUOVO
+            id: Object.keys(patto).find(k => k.toLowerCase() === 'id')
+        };
     };
+
+    const keys = findDataKeysLocal();
 
     // Titolo
     const titleEl = document.getElementById('sidePanelTitle');
@@ -677,6 +685,7 @@ function populateSidePanelContent(patto) {
         details.innerHTML = `
             <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
             <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
+            <p><strong>Ambiti di Azione:</strong> ${patto[keys.ambiti] || 'N/A'}</p>
             <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
             <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
             <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
@@ -684,11 +693,10 @@ function populateSidePanelContent(patto) {
         `;
     }
 
-    // ✅ CORREZIONE: Stato con colore IDENTICO alla tabella
+    // Stato con colore
     const status = document.getElementById('panelStatus');
     const statoText = patto[keys.stato] || 'Non specificato';
     
-    // Usa gli stessi colori della tabella (da monitoraggio_p1-v2.js)
     const statusColors = {
         'Istruttoria in corso': '#ffdb4d',
         'Respinta': '#ff6b6b',
@@ -707,7 +715,6 @@ function populateSidePanelContent(patto) {
             </div>
         `;
 
-        // ✅ NUOVO: Aggiungi pulsante PDF se il patto è stipulato
         if (statoText === 'Patto stipulato' && keys.pdf && patto[keys.pdf] && patto[keys.pdf].trim() !== '') {
             const pattoId = patto[keys.id] || 'XX';
             statusHTML += `
@@ -773,10 +780,10 @@ function populateSidePanelContent(patto) {
         photoContainer.classList.add('hidden');
     }
 
-    // ✅ NUOVO: Evidenzia marker nella mappa
+    // Evidenzia marker nella mappa
     highlightMarkerOnMap(patto);
 
-    // Nuovo: Sincronizzazione con mappa principale
+    // Sincronizzazione con mappa principale
     if (window.syncSidePanelWithMap && typeof window.syncSidePanelWithMap === 'function') {
         setTimeout(() => {
             window.syncSidePanelWithMap(patto);
@@ -793,6 +800,11 @@ function populateSidePanelContent(patto) {
         setTimeout(() => lucide.createIcons(), 100);
     }
 }
+
+
+
+
+
 
 // Minimap
 function initializeSidePanelMiniMap(patto) {

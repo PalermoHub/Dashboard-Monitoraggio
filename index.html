@@ -77,7 +77,7 @@
 <header class="dashboard-header" role="banner">
     <!-- Colonna Sinistra: Brand -->
     <div class="header-brand">
-        <img src="img/logo_patti.png" class="logo_test" title="Comune di Palermo - ​​​Area Urbanistica e della rigenerazione urbana, della mobilità e del centro storico - Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" alt="Logo 1" >
+        <img src="img/logo_test.png" class="logo_test" title="Comune di Palermo - ​​​Area Urbanistica e della rigenerazione urbana, della mobilità e del centro storico - Ufficio per la rigenerazione urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" alt="Logo 1" >
         <div>
             <p class="tt">Report interattivo di monitoraggio<br> Patti di Collaborazione</p>
             
@@ -157,6 +157,37 @@
                         </div>
                     </div>
                 </div>
+
+<!-- FILTRO AMBITI DI AZIONE -->
+<div class="filter-card">
+    <div class="filter-card-header" onclick="toggleFilterCard('ambiti-filters')">
+        <div class="filter-card-title">
+            <i data-lucide="target" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Ambiti di Azione</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <div class="filter-badge" id="ambiti-badge" style="display: none;">0</div>
+            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="filter-card-content" id="ambiti-filters">
+        <div class="filter-card-body">
+            <div class="filter-group">
+                <label for="filterAmbiti" class="filter-label">
+                    Ambiti di Azione
+                </label>
+                <select id="filterAmbiti" 
+                        class="filter-select"
+                        aria-describedby="ambiti-help">
+                    <option value="">Tutti gli ambiti</option>
+                </select>
+                <div id="ambiti-help" class="sr-only">
+                    Filtra per ambiti di azione dei patti
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- FILTRI GEOGRAFICI -->
                 <div class="filter-card">

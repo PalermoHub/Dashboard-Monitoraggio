@@ -22,6 +22,8 @@ let proponenteFilter = ''; // Filtro nascosto per proponente
 let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
 let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
 
+let allDataMonitoraggio = [];
+let uniqueValuesCache = {};
 
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
@@ -248,19 +250,21 @@ function updateFiltersPopup() {
         return;
     }
     
-    const filters = {};
-    const stato = document.getElementById('filterStato')?.value?.trim() || '';
-    const upl = document.getElementById('filterUpl')?.value?.trim() || '';
-    const quartiere = document.getElementById('filterQuartiere')?.value?.trim() || '';
-    const circoscrizione = document.getElementById('filterCircoscrizione')?.value?.trim() || '';
-    const titolo = document.getElementById('filterTitolo')?.value?.trim() || '';
-    
-    if (stato) filters['Stato'] = stato;
-    if (upl) filters['UPL'] = upl;
-    if (quartiere) filters['Quartiere'] = quartiere;
-    if (circoscrizione) filters['Circoscrizione'] = circoscrizione;
-    if (titolo) filters['Titolo'] = `"${titolo}"`;
-    if (proponenteFilter && proponenteFilter.trim()) filters['Proponente'] = proponenteFilter;
+	const filters = {};
+	const stato = document.getElementById('filterStato')?.value?.trim() || '';
+	const upl = document.getElementById('filterUpl')?.value?.trim() || '';
+	const quartiere = document.getElementById('filterQuartiere')?.value?.trim() || '';
+	const circoscrizione = document.getElementById('filterCircoscrizione')?.value?.trim() || '';
+	const ambiti = document.getElementById('filterAmbiti')?.value?.trim() || ''; // AGGIUNGI QUESTA RIGA
+	const titolo = document.getElementById('filterTitolo')?.value?.trim() || '';
+
+	if (stato) filters['Stato'] = stato;
+	if (upl) filters['UPL'] = upl;
+	if (quartiere) filters['Quartiere'] = quartiere;
+	if (circoscrizione) filters['Circoscrizione'] = circoscrizione;
+	if (ambiti) filters['Ambiti'] = ambiti; // AGGIUNGI QUESTA RIGA
+	if (titolo) filters['Titolo'] = `"${titolo}"`;
+	if (proponenteFilter && proponenteFilter.trim()) filters['Proponente'] = proponenteFilter;
     
     const activeFilters = Object.keys(filters);
     
@@ -808,18 +812,22 @@ function setupAutocomplete() {
 function updateFilters() {
     console.log('Aggiornamento filtri con logica cascata...');
     
+    // ✅ INCLUDI filterAmbiti nella lista dei mapping
     const filterMappings = [
         { id: 'filterStato', key: 'Stato di avanzamento', isGeographical: false },
-        { id: 'filterUpl', key: 'UPL', isGeographical: true },
+        { id: 'filterCircoscrizione', key: 'Circoscrizione', isGeographical: true },
         { id: 'filterQuartiere', key: 'Quartiere', isGeographical: true },
-        { id: 'filterCircoscrizione', key: 'Circoscrizione', isGeographical: true }
+        { id: 'filterUpl', key: 'UPL', isGeographical: true },
+        { id: 'filterAmbiti', key: 'Ambiti di azione', isGeographical: true } // NUOVO
     ];
 
+    // ✅ INCLUDI filterAmbiti nei currentFilters
     const currentFilters = {
         stato: document.getElementById('filterStato')?.value || '',
         upl: document.getElementById('filterUpl')?.value || '',
         quartiere: document.getElementById('filterQuartiere')?.value || '',
-        circoscrizione: document.getElementById('filterCircoscrizione')?.value || ''
+        circoscrizione: document.getElementById('filterCircoscrizione')?.value || '',
+        ambiti: document.getElementById('filterAmbiti')?.value || '' // NUOVO
     };
 
     filterMappings.forEach(({ id, key, isGeographical }) => {
@@ -892,6 +900,18 @@ function updateFilters() {
                     );
                 }
             }
+
+            // ✅ NUOVO: Filtra per ambiti di azione
+            if (currentFilters.ambiti && id !== 'filterAmbiti') {
+                const ambitiKey = Object.keys(allData[0] || {}).find(k => 
+                    k.toLowerCase().includes('ambiti')
+                );
+                if (ambitiKey) {
+                    dataToFilter = dataToFilter.filter(item => 
+                        item[ambitiKey] && item[ambitiKey].trim() === currentFilters.ambiti.trim()
+                    );
+                }
+            }
         } else {
             if (currentFilters.circoscrizione) {
                 const circKey = Object.keys(allData[0] || {}).find(k => 
@@ -925,6 +945,18 @@ function updateFilters() {
                     );
                 }
             }
+
+            // ✅ NUOVO: Filtra per ambiti
+            if (currentFilters.ambiti) {
+                const ambitiKey = Object.keys(allData[0] || {}).find(k => 
+                    k.toLowerCase().includes('ambiti')
+                );
+                if (ambitiKey) {
+                    dataToFilter = dataToFilter.filter(item => 
+                        item[ambitiKey] && item[ambitiKey].trim() === currentFilters.ambiti.trim()
+                    );
+                }
+            }
         }
         
         const uniqueValues = [...new Set(
@@ -945,7 +977,6 @@ function updateFilters() {
             select.value = currentValue;
         } else if (currentValue) {
             select.value = '';
-            console.log(`Valore "${currentValue}" non più valido per ${key}, resettato`);
         }
         
         updateFilterAppearance(select, select.value);
@@ -965,14 +996,15 @@ function updateFilterAppearance(selectElement, value) {
 }
 
 function applyFilters() {
-    lastClickedChartValue = null;  // Reset tracking quando filtri cambiano manualmente
+    lastClickedChartValue = null;
     lastClickedChartType = null;
   
-  const filters = {
+    const filters = {
         stato: document.getElementById('filterStato')?.value?.trim() || '',
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value?.trim() || '',
+        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '', // NUOVO
         titolo: document.getElementById('filterTitolo')?.value?.toLowerCase()?.trim() || '',
         proponente: proponenteFilter.trim()
     };
@@ -984,6 +1016,7 @@ function applyFilters() {
         const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
         const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
+        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti')); // NUOVO
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
@@ -991,15 +1024,17 @@ function applyFilters() {
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
+        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti); // NUOVO
         const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
         const proponenteMatch = !filters.proponente || (item[proponenteKey] && item[proponenteKey].trim() === filters.proponente);
         
-        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && titoloMatch && proponenteMatch;
+        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch; // INCLUDI ambitiMatch
     });
     
     console.log(`Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione'].forEach(id => {
+    // ✅ AGGIUNGI filterAmbiti nella lista
+    ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             updateFilterAppearance(element, element.value);
@@ -1016,35 +1051,6 @@ function applyFilters() {
     updateChart();
     updateTable();
     updateFiltersPopup();
-	
-		  // Sincronizza il side panel con i nuovi filtri
-    if (typeof window.updateSidePanelForFilters === 'function') {
-        window.updateSidePanelForFilters();
-    }
-	
-	// Sincronizza side panel con i nuovi filtri
-    if (typeof applyFiltersWithSidePanelSync !== 'undefined') {
-        console.log('🔄 Sincronizzazione filtri con side panel...');
-        
-        const sidePanelOpen = document.getElementById('pattoSidePanel')?.classList.contains('open');
-        if (sidePanelOpen) {
-            // Reset side panel data
-            sidePanelData = window.filteredData && window.filteredData.length > 0 
-                ? window.filteredData 
-                : window.allData;
-            currentSidePanelIndex = 0;
-
-            if (sidePanelData && sidePanelData.length > 0) {
-                populateSidePanelContent(sidePanelData[0]);
-                updateSidePanelCounter();
-            } else {
-                closeSidePanel();
-                alert('Nessun patto corrisponde ai filtri selezionati.');
-            }
-        }
-    }
-	
-
 }
 
 // ==========================================
@@ -2039,31 +2045,31 @@ if (safeAddEventListener('chartTypeSelector', 'change', function() {
     
 	
 	
-    // === FILTRI CON LOGICA CASCATA ===
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione'];
+// === FILTRI CON LOGICA CASCATA ===
+const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
+
+filterIds.forEach(id => {
+    totalAttempts++;
+    const element = document.getElementById(id);
     
-    filterIds.forEach(id => {
-        totalAttempts++;
-        const element = document.getElementById(id);
-        
-        if (element) {
-            element.addEventListener('change', function() {
-                console.log(`Filtro ${id} cambiato a: "${this.value}"`);
-                
-                if (typeof window.applyFiltersUnified === 'function') {
-                    window.applyFiltersUnified();
-                } else {
-                    applyFilters();
-                }
-                
-                setTimeout(() => {
-                    updateFilters();
-                }, 100);
-            });
+    if (element) {
+        element.addEventListener('change', function() {
+            console.log(`Filtro ${id} cambiato a: "${this.value}"`);
             
-            successCount++;
-        }
-    });
+            if (typeof window.applyFiltersUnified === 'function') {
+                window.applyFiltersUnified();
+            } else {
+                applyFilters();
+            }
+            
+            setTimeout(() => {
+                updateFilters();
+            }, 100);
+        });
+        
+        successCount++;
+    }
+});
     
     // === MODAL INFO ===
     totalAttempts++;
@@ -2098,43 +2104,61 @@ if (safeAddEventListener('chartTypeSelector', 'change', function() {
         });
     }
     
-    // === RESET FILTRI ===
-    totalAttempts++;
-    if (safeAddEventListener('clearFilters', 'click', function() {
-        console.log('Reset filtri richiesto');
-        
-        const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
-        filterIds.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.value = '';
-                updateFilterAppearance(element, '');
-            }
-        });
-        
-        const suggestions = document.getElementById('autocompleteSuggestions');
-        if (suggestions) {
-            suggestions.classList.add('hidden');
-        }
-        
-        proponenteFilter = '';
-        filteredData = [...allData];
-        
+	totalAttempts++;
+if (safeAddEventListener('filterAmbiti', 'change', function() {
+    console.log(`Filtro Ambiti cambiato a: "${this.value}"`);
+    
+    if (typeof window.applyFiltersUnified === 'function') {
+        window.applyFiltersUnified();
+    } else {
+        applyFilters();
+    }
+    
+    setTimeout(() => {
         updateFilters();
-        updateMap();
-        updateStatistics();
-        updateChart();
-        updateTable();
-        hideFiltersPopup();
-		
-	    // AGGIUNGI QUESTA PARTE:
+    }, 100);
+}, 'Filtro Ambiti di azione')) {
+    successCount++;
+}
+	
+    // === RESET FILTRI ===
+totalAttempts++;
+if (safeAddEventListener('clearFilters', 'click', function() {
+    console.log('Reset filtri richiesto');
+    
+    // ✅ INCLUDI filterAmbiti nel reset
+    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti', 'filterTitolo'];
+    filterIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = '';
+            updateFilterAppearance(element, '');
+        }
+    });
+    
+    const suggestions = document.getElementById('autocompleteSuggestions');
+    if (suggestions) {
+        suggestions.classList.add('hidden');
+    }
+    
+    proponenteFilter = '';
+    filteredData = [...allData];
+    
+    updateFilters();
+    updateMap();
+    updateStatistics();
+    updateChart();
+    updateTable();
+    hideFiltersPopup();
+    
+    // AGGIUNGI QUESTA PARTE:
     if (typeof window.updateSidePanelForFilters === 'function') {
         window.updateSidePanelForFilters();
-    }	
-        
-    }, 'Reset filtri')) {
-        successCount++;
     }
+    
+}, 'Reset filtri')) {
+    successCount++;
+}
     
     // === CONTROLLI MAPPA ===
     totalAttempts++;
