@@ -42,6 +42,35 @@ const statusColors = {
 	'Archiviata': '#94a3b8'
 };
 
+
+// ==========================================
+// FUNZIONE GLOBALE: CHIUDI POPUP E APRI PANNELLO
+// ==========================================
+function closeMapPopupAndOpenPanel(pattoId) {
+    console.log('🔄 Chiusura popup e apertura pannello per patto:', pattoId);
+    
+    try {
+        // Chiudi il popup della mappa
+        if (map && typeof map.closePopup === 'function') {
+            map.closePopup();
+            console.log('✅ Popup mappa chiuso');
+        }
+        
+        // Aspetta un momento e poi apri il pannello
+        setTimeout(() => {
+            if (typeof window.showPattoDetails === 'function') {
+                window.showPattoDetails(pattoId);
+                console.log('✅ Pannello aperto per patto:', pattoId);
+            } else {
+                console.error('❌ Funzione showPattoDetails non trovata');
+            }
+        }, 100);
+    } catch (error) {
+        console.error('❌ Errore nella chiusura popup:', error);
+    }
+}
+
+
 // ==========================================
 // CONFIGURAZIONE GRAFICI MODERNI
 // ==========================================
@@ -663,7 +692,7 @@ function initializeMap() {
             minZoom: 11,
             zoomControl: true,
             preferCanvas: true,
-            closePopupOnClick: true,
+            closePopupOnClick: false,
             doubleClickZoom: true,
             dragging: true,
             keyboard: true,
@@ -1057,7 +1086,14 @@ function applyFilters() {
 // AGGIORNAMENTO MAPPA
 // ==========================================
 
+
+// ==========================================
+// AGGIORNAMENTO MAPPA - FUNZIONE COMPLETA
+// ==========================================
+
 function updateMap() {
+    console.log('🗺️ Aggiornamento mappa con', filteredData.length, 'patti');
+    
     markersLayer.clearLayers();
     
     filteredData.forEach(patto => {
@@ -1065,6 +1101,7 @@ function updateMap() {
         const stato = patto[statoKey] || '';
         const color = statusColors[stato] || '#6b7280';
         
+        // Crea il marker circolare
         const marker = L.circleMarker([patto.lat, patto.lng], {
             radius: 6,
             fillColor: color,
@@ -1074,23 +1111,33 @@ function updateMap() {
             fillOpacity: 0.8
         }).addTo(markersLayer);
         
+        // Keys per i dati
         const titoloKey = Object.keys(patto).find(k => k.toLowerCase().includes('titolo'));
         const uplKey = Object.keys(patto).find(k => k.toLowerCase() === 'upl');
         const quartiereKey = Object.keys(patto).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(patto).find(k => k.toLowerCase().includes('circoscrizione'));
         const idKey = Object.keys(patto).find(k => k.toLowerCase() === 'id');
+        const proponenteKey = Object.keys(patto).find(k => k.toLowerCase().includes('proponente'));
         
         const titolo = patto[titoloKey] || 'Titolo non disponibile';
+        
+        // ==========================================
+        // TOOLTIP AL PASSAGGIO DEL MOUSE
+        // ==========================================
         marker.bindTooltip(titolo, {
             permanent: false,
             direction: 'top',
             className: 'custom-tooltip'
         });
         
+        // ==========================================
+        // CONTENUTO DEL POPUP
+        // ==========================================
         const popupContent = `
             <div class="p-2 max-w-xs">
                 <h3 class="font-semibold text-xs mb-2">${titolo}</h3>
                 <div class="text-xs space-y-1">
+                    <p><strong>Proponente:</strong> ${patto[proponenteKey] || 'N/A'}</p>
                     <p><strong>UPL:</strong> ${patto[uplKey] || 'N/A'}</p>
                     <p><strong>Quartiere:</strong> ${patto[quartiereKey] || 'N/A'}</p>
                     <p><strong>Circoscrizione:</strong> ${patto[circoscrizioneKey] || 'N/A'}</p>
@@ -1100,17 +1147,90 @@ function updateMap() {
                         </span>
                     </p>
                 </div>
-                <button onclick="showPattoDetails('${patto[idKey]}')" class="mt-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
+                <button onclick="closeMapPopupAndOpenPanel('${patto[idKey]}');" class="mt-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors w-full">
                     Vedi dettagli
                 </button>
             </div>
         `;
         
+        // ==========================================
+        // GESTIONE CLICK SUL MARKER
+        // ==========================================
+        marker.on('click', function(e) {
+            console.log('📍 Click su marker per patto:', patto[idKey]);
+            
+            // 🔄 CHIUDI TUTTI GLI ALTRI POPUP PRIMA DI APRIRE QUESTO
+            if (map && typeof map.closePopup === 'function') {
+                map.closePopup();
+                console.log('✅ Popup precedente chiuso');
+            }
+            
+            // Apri il popup di questo marker
+            this.openPopup();
+            
+            // Stop propagation per evitare conflitti
+            L.DomEvent.stopPropagation(e);
+        });
+        
+        // Bind il popup al marker
         marker.bindPopup(popupContent);
+        
+        // ==========================================
+        // GESTIONE APERTURA POPUP
+        // ==========================================
+        marker.on('popupopen', function() {
+            console.log('✨ Popup aperto per patto:', patto[idKey]);
+            
+            // Ricrea le icone Lucide quando il popup è aperto
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                setTimeout(() => {
+                    try {
+                        lucide.createIcons();
+                        console.log('🎨 Icone Lucide ricreate');
+                    } catch (e) {
+                        console.warn('⚠️ Errore ricreazione icone:', e);
+                    }
+                }, 50);
+            }
+        });
+        
+        // ==========================================
+        // GESTIONE CHIUSURA POPUP
+        // ==========================================
+        marker.on('popupclose', function() {
+            console.log('🔒 Popup chiuso per patto:', patto[idKey]);
+        });
     });
     
+    console.log('✅ Mappa aggiornata con', filteredData.length, 'marker');
+    
+    // Centra la mappa sui dati filtrati
     centerMapOnFilteredData();
 }
+
+// ==========================================
+// FUNZIONE SUPPORTO: CENTRA MAPPA SUI DATI FILTRATI
+// ==========================================
+
+function centerMapOnFilteredData() {
+    if (!filteredData || filteredData.length === 0) {
+        console.log('📍 Nessun dato filtrato, centra su Palermo');
+        map.setView(PALERMO_CENTER, 13);
+        return;
+    }
+
+    if (filteredData.length === 1) {
+        console.log('📍 Un solo patto, zoom a 16');
+        map.setView([filteredData[0].lat, filteredData[0].lng], 16);
+        return;
+    }
+
+    console.log('📍 Più patti, calcola bounds');
+    const coordinates = filteredData.map(item => [item.lat, item.lng]);
+    const bounds = L.latLngBounds(coordinates);
+    map.fitBounds(bounds, { padding: [15, 15] });
+}
+
 
 function centerMapOnFilteredData() {
     if (filteredData.length === 0) {
@@ -1879,7 +1999,14 @@ function updateTable() {
     }
 }
 
-
+//function showPattoDetails(pattoId) {
+    // ... il vecchio codice del modal ...
+ //   const modal = document.getElementById('pattoModal');
+//    if (modal) {
+//       modal.classList.remove('hidden');
+ //       modal.classList.add('flex');
+//    }
+// }
 
 // ==========================================
 // AUTOCOMPLETAMENTO

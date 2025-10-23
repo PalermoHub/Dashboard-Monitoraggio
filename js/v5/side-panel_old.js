@@ -1,7 +1,7 @@
-// Side Panel Flottante - VERSIONE CORRETTA E FUNZIONANTE
+// Side Panel Flottante - Versione Corretta
 // File: js/v5/side-panel.js
 
-console.log('🚀 Side Panel: Inizio caricamento');
+console.log('Side Panel: Inizio caricamento');
 
 let panelMiniMap = null;
 let currentPanelIndex = 0;
@@ -9,21 +9,6 @@ let panelFavorites = [];
 let highlightedMarker = null;
 let sidePanelData = null;
 let currentSidePanelIndex = 0;
-
-// ==========================================
-// FUNZIONE GLOBALE PER CHIUDERE POPUP MAPPA
-// ==========================================
-window.closeMapPopups = function() {
-    console.log('🔄 Chiusura popup mappa globale...');
-    if (window.map && typeof window.map.closePopup === 'function') {
-        try {
-            window.map.closePopup();
-            console.log('✅ Popup mappa chiuso');
-        } catch (e) {
-            console.warn('⚠️ Errore chiusura popup:', e);
-        }
-    }
-};
 
 function loadPanelFavorites() {
     try {
@@ -38,15 +23,11 @@ function savePanelFavorites() {
 }
 
 function createSidePanelHTML() {
-    if (document.getElementById('pattoSidePanel')) {
-        console.log('⚠️ Side Panel HTML esiste già');
-        return;
-    }
+    if (document.getElementById('pattoSidePanel')) return;
 
     const html = `
         <div id="pattoSidePanel" class="side-panel">
             <div class="side-panel-header">
-                <img src="img/patti.png" alt="Logo Patti" class="side-panel-logo" title="Patti di Collaborazione">
                 <h2 id="sidePanelTitle" class="side-panel-title">Dettagli Patto</h2>
                 <button id="closeSidePanel" class="side-panel-close" title="Chiudi">
                     <i data-lucide="x" class="h-5 w-5"></i>
@@ -121,10 +102,11 @@ function createSidePanelHTML() {
     const mapContainer = document.querySelector('.map-container');
     if (mapContainer) {
         mapContainer.insertAdjacentHTML('beforeend', html);
-        console.log('✅ Side Panel HTML creato dentro map-container');
+        console.log('Side Panel HTML creato dentro map-container');
     } else {
+        // Fallback: inserisci nel body se map-container non esiste
         document.body.insertAdjacentHTML('beforeend', html);
-        console.log('⚠️ Side Panel HTML creato nel body');
+        console.log('Side Panel HTML creato nel body (map-container non trovato)');
     }
 }
 
@@ -134,6 +116,7 @@ function addSidePanelStyles() {
     const styles = document.createElement('style');
     styles.id = 'sidePanelStyles';
     styles.textContent = `
+        /* SIDE PANEL - CONTAINER PRINCIPALE */
         .side-panel {
             position: absolute;
             right: -340px;
@@ -155,6 +138,13 @@ function addSidePanelStyles() {
             right: 0;
         }
 
+        .side-panel-overlay {
+            display: none !important;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        /* HEADER */
         .side-panel-header {
             padding: 12px;
             border-bottom: 1px solid var(--border-color);
@@ -166,19 +156,6 @@ function addSidePanelStyles() {
             flex-shrink: 0;
             gap: 8px;
             min-height: 48px;
-        }
-
-        .side-panel-logo {
-            height: 32px;
-            width: auto;
-            max-width: 32px;
-            object-fit: contain;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-
-        .side-panel-logo:hover {
-            transform: scale(1.05) rotate(-5deg);
         }
 
         .side-panel-title {
@@ -213,6 +190,7 @@ function addSidePanelStyles() {
             transform: rotate(90deg);
         }
 
+        /* CONTENT */
         .side-panel-content {
             flex: 1;
             overflow-y: auto;
@@ -238,6 +216,7 @@ function addSidePanelStyles() {
             background: var(--color-gray-500);
         }
 
+        /* FOOTER */
         .side-panel-footer {
             padding: 10px;
             border-top: 1px solid var(--border-color);
@@ -285,6 +264,7 @@ function addSidePanelStyles() {
             text-align: center;
         }
 
+        /* SEZIONI */
         .panel-section {
             margin-bottom: 14px;
             padding-bottom: 12px;
@@ -442,26 +422,24 @@ function addSidePanelStyles() {
             background: var(--color-gray-100);
         }
 
-        @keyframes highlighted-marker-pulse {
-            0%, 100% { 
-                transform: scale(1); 
-                opacity: 1;
-            }
-            50% { 
-                transform: scale(1.3); 
-                opacity: 0.7;
-            }
+        @keyframes side-panel-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
         }
 
-        .highlighted-marker-pulse {
-            animation: highlighted-marker-pulse 1.5s ease-in-out infinite !important;
+        .side-panel-highlight-pulse {
+            animation: side-panel-pulse 1.5s ease-in-out infinite !important;
         }
 
+        /* MEDIA QUERY - DESKTOP GRANDE */
         @media (max-width: 1400px) {
             .side-panel {
                 width: 300px;
                 right: -320px;
                 max-width: 35%;
+            }
+            .panel-minimap-wrapper {
+                height: 100px;
             }
         }
 
@@ -471,8 +449,16 @@ function addSidePanelStyles() {
                 right: -300px;
                 max-width: 30%;
             }
+            .side-panel-header {
+                min-height: 44px;
+                padding: 10px;
+            }
+            .panel-minimap-wrapper {
+                height: 90px;
+            }
         }
 
+        /* MEDIA QUERY - TABLET */
         @media (max-width: 768px) {
             .side-panel {
                 position: fixed;
@@ -489,17 +475,16 @@ function addSidePanelStyles() {
     `;
 
     document.head.appendChild(styles);
-    console.log('✅ Side Panel CSS aggiunto');
+    console.log('Side Panel CSS aggiunto');
 }
 
 function openSidePanel(pattoId) {
-    console.log('📂 Apertura panel per patto ID:', pattoId);
-    
+    console.log('Apertura panel per patto:', pattoId);
     createSidePanelHTML();
     addSidePanelStyles();
 
     if (!window.allData || !Array.isArray(window.allData) || window.allData.length === 0) {
-        console.error('❌ Nessun dato disponibile');
+        console.error('Nessun dato disponibile');
         alert('I dati non sono ancora stati caricati. Attendi e riprova.');
         return;
     }
@@ -508,15 +493,11 @@ function openSidePanel(pattoId) {
     const patto = window.allData.find(p => p[idKey] == pattoId);
 
     if (!patto) {
-        console.error('❌ Patto non trovato:', pattoId);
+        console.error('Patto non trovato');
         return;
     }
 
     currentPanelIndex = window.allData.indexOf(patto);
-    
-    // 🔄 CHIUDI I POPUP DELLA MAPPA PRIMA DI APRIRE IL PANNELLO
-    window.closeMapPopups();
-    
     populateSidePanelContent(patto);
     setupSidePanelListeners();
 
@@ -527,11 +508,10 @@ function openSidePanel(pattoId) {
         setTimeout(() => lucide.createIcons(), 100);
     }
 
-    // 🗺️ SINCRONIZZA LA MAPPA DOPO CHE IL PANNELLO È APERTO
     setTimeout(() => {
-        const pattoToSync = window.allData[currentPanelIndex];
-        if (pattoToSync) syncMapWithSidePanel(pattoToSync);
-    }, 500);
+        const patto = window.allData[currentPanelIndex];
+        if (patto) syncMapWithSidePanel(patto);
+    }, 300);
 }
 
 function populateSidePanelContent(patto) {
@@ -589,7 +569,7 @@ function populateSidePanelContent(patto) {
         statusHTML += `
             <a href="${patto[keys.pdf].trim()}" download target="_blank" rel="noopener" class="download-pdf-btn">
                 <i data-lucide="download"></i>
-                <span>Patto nº ${pattoId}</span>
+                <span>Patto n° ${pattoId}</span>
             </a>
         `;
     }
@@ -630,30 +610,16 @@ function populateSidePanelContent(patto) {
 }
 
 function highlightMarkerOnMap(patto) {
-    console.log('✨ Evidenziamento marker per patto:', patto);
-    
-    if (!window.map || !patto.lat || !patto.lng) {
-        console.warn('⚠️ Mappa o coordinate non disponibili');
-        return;
-    }
-    
-    if (!window.map._container) {
-        console.warn('⚠️ Contenitore mappa non inizializzato');
-        return;
-    }
+    if (!window.map || !patto.lat || !patto.lng) return;
+    if (!window.map._container) return; // Verifica che la mappa sia inizializzata
     
     try {
-        // ✅ RIMUOVI HIGHLIGHT PRECEDENTE
         if (highlightedMarker) {
             try {
                 window.map.removeLayer(highlightedMarker);
-                console.log('🗑️ Marker precedente rimosso');
-            } catch (e) {
-                console.warn('⚠️ Errore rimozione marker precedente:', e);
-            }
+            } catch (e) {}
         }
         
-        // ✅ CREA NUOVO HIGHLIGHT CON ANIMAZIONE PULSE
         highlightedMarker = L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
             radius: 15,
             fillColor: '#3b82f6',
@@ -664,17 +630,18 @@ function highlightMarkerOnMap(patto) {
             className: 'highlighted-marker-pulse'
         }).addTo(window.map);
 
-        console.log('✨ Marker evidenziato alle coordinate:', patto.lat, patto.lng);
+        window.map.setView([parseFloat(patto.lat), parseFloat(patto.lng)], 16, { 
+            animate: true, 
+            duration: 0.5 
+        });
     } catch (error) {
-        console.error('❌ Errore highlight marker:', error);
+        console.warn('Errore highlight marker:', error);
     }
 }
 
 function initializeSidePanelMiniMap(patto) {
     if (panelMiniMap) {
-        try { 
-            panelMiniMap.remove(); 
-        } catch (e) {}
+        try { panelMiniMap.remove(); } catch (e) {}
         panelMiniMap = null;
     }
 
@@ -708,31 +675,20 @@ function initializeSidePanelMiniMap(patto) {
 
         setTimeout(() => panelMiniMap && panelMiniMap.invalidateSize(true), 100);
     } catch (error) {
-        console.error('❌ Errore minimap:', error);
+        console.error('Errore minimap:', error);
     }
 }
 
 function closeSidePanel() {
-    console.log('❌ Chiusura side panel');
-    
     const panel = document.getElementById('pattoSidePanel');
     if (panel) {
         panel.classList.remove('open');
         if (panelMiniMap) {
-            try { 
-                panelMiniMap.remove(); 
-            } catch (e) {}
+            try { panelMiniMap.remove(); } catch (e) {}
             panelMiniMap = null;
         }
-        
-        // ✅ RIMUOVI HIGHLIGHT DEL MARKER QUANDO CHIUDI IL PANNELLO
         if (highlightedMarker && window.map) {
-            try {
-                window.map.removeLayer(highlightedMarker);
-                console.log('🗑️ Highlight marker rimosso alla chiusura');
-            } catch (e) {
-                console.warn('⚠️ Errore rimozione highlight:', e);
-            }
+            window.map.removeLayer(highlightedMarker);
             highlightedMarker = null;
         }
     }
@@ -740,79 +696,32 @@ function closeSidePanel() {
 
 function setupSidePanelListeners() {
     const closeBtn = document.getElementById('closeSidePanel');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeSidePanel);
-        console.log('🎯 Event listener close panel configurato');
-    }
+    if (closeBtn) closeBtn.addEventListener('click', closeSidePanel);
 
     const prevBtn = document.getElementById('sidePanelPrevious');
     const nextBtn = document.getElementById('sidePanelNext');
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            console.log('⬆️ Navigazione pannello: PRECEDENTE');
-            navigateSidePanel(-1);
-        });
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            console.log('⬇️ Navigazione pannello: SUCCESSIVO');
-            navigateSidePanel(1);
-        });
-    }
+    if (prevBtn) prevBtn.addEventListener('click', () => navigateSidePanel(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => navigateSidePanel(1));
 
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
         const panel = document.getElementById('pattoSidePanel');
         if (!panel || !panel.classList.contains('open')) return;
-        
-        if (e.key === 'Escape') {
-            console.log('🎹 Tasto ESC - Chiusura pannello');
-            closeSidePanel();
-        }
-        if (e.key === 'ArrowUp') {
-            console.log('🎹 Freccia SU - Navigazione precedente');
-            navigateSidePanel(-1);
-        }
-        if (e.key === 'ArrowDown') {
-            console.log('🎹 Freccia GIÙ - Navigazione successivo');
-            navigateSidePanel(1);
-        }
+        if (e.key === 'Escape') closeSidePanel();
+        if (e.key === 'ArrowUp') navigateSidePanel(-1);
+        if (e.key === 'ArrowDown') navigateSidePanel(1);
     });
 }
 
 function navigateSidePanel(direction) {
     const newIndex = currentPanelIndex + direction;
-    
-    console.log(`🔄 Navigazione: indice attuale ${currentPanelIndex}, nuovo indice ${newIndex}`);
-    
     if (newIndex >= 0 && newIndex < window.allData.length) {
         currentPanelIndex = newIndex;
         const patto = window.allData[currentPanelIndex];
-        
-        console.log('📂 Caricamento patto:', patto);
-        
-        // 🔄 CHIUDI I POPUP DELLA MAPPA PRIMA DI NAVIGARE
-        window.closeMapPopups();
-        
-        // Popola il pannello con i nuovi dati
         populateSidePanelContent(patto);
-        
         const content = document.querySelector('.side-panel-content');
         if (content) content.scrollTop = 0;
-        
         if (typeof lucide !== 'undefined') lucide.createIcons();
-        
         updateSidePanelCounter();
-        
-        // 🗺️ SINCRONIZZA LA MAPPA CON IL NUOVO PATTO
-        setTimeout(() => {
-            console.log('🗺️ Sincronizzazione mappa con nuovo patto');
-            syncMapWithSidePanel(patto);
-        }, 300);
-    } else {
-        console.warn('⚠️ Indice fuori range:', newIndex);
     }
 }
 
@@ -821,64 +730,28 @@ function updateSidePanelCounter() {
     const prevBtn = document.getElementById('sidePanelPrevious');
     const nextBtn = document.getElementById('sidePanelNext');
 
-    if (counter) {
-        counter.textContent = `${currentPanelIndex + 1}/${window.allData.length}`;
-    }
-    
-    if (prevBtn) {
-        prevBtn.disabled = currentPanelIndex === 0;
-    }
-    
-    if (nextBtn) {
-        nextBtn.disabled = currentPanelIndex === window.allData.length - 1;
-    }
+    if (counter) counter.textContent = `${currentPanelIndex + 1}/${window.allData.length}`;
+    if (prevBtn) prevBtn.disabled = currentPanelIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentPanelIndex === window.allData.length - 1;
 }
 
 function syncMapWithSidePanel(patto) {
-    console.log('🗺️ Sincronizzazione mappa con patto:', patto);
-    
-    if (!patto || !patto.lat || !patto.lng || !window.map) {
-        console.warn('⚠️ Dati mancanti per sincronizzazione:', {
-            patto: !!patto,
-            lat: patto?.lat,
-            lng: patto?.lng,
-            map: !!window.map
-        });
-        return;
-    }
+    if (!patto || !patto.lat || !patto.lng || !window.map) return;
     
     try {
-        if (!window.map._container) {
-            console.warn('⚠️ Contenitore mappa non inizializzato');
-            return;
-        }
+        if (!window.map._container) return; // Verifica che la mappa sia inizializzata
         
-        // 🎯 ZOOM E CENTRA LA MAPPA SULLE COORDINATE DEL PATTO
-        console.log('🎯 Zoom a livello 17, coordinate:', patto.lat, patto.lng);
-        
-        window.map.setView(
-            [parseFloat(patto.lat), parseFloat(patto.lng)], 
-            17, 
-            {
-                animate: true,
-                duration: 1.0,
-                easeLinearity: 0.25
-            }
-        );
-        
-        console.log('✅ Mappa sincronizzata');
+        window.map.setView([parseFloat(patto.lat), parseFloat(patto.lng)], 17, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 0.25
+        });
     } catch (error) {
-        console.error('❌ Errore sincronizzazione mappa:', error);
+        console.warn('Errore sincronizzazione mappa:', error);
     }
 }
 
-// ==========================================
-// INIZIALIZZAZIONE
-// ==========================================
-
+window.showPattoDetails = openSidePanel;
 loadPanelFavorites();
 
-// Esporta la funzione globale
-window.showPattoDetails = openSidePanel;
-
-console.log('✅ Side Panel caricato correttamente');
+console.log('Side Panel caricato correttamente');
