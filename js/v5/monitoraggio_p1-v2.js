@@ -1879,14 +1879,7 @@ function updateTable() {
     }
 }
 
-function showPattoDetails(pattoId) {
-    // ... il vecchio codice del modal ...
-    const modal = document.getElementById('pattoModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-}
+
 
 // ==========================================
 // AUTOCOMPLETAMENTO

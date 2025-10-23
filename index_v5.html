@@ -527,7 +527,7 @@
                 <div class="legend-card">
                     <h3 class="section-title">
                         <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
-                        Legenda Stati
+                        Legenda stato di avanzamento
                     </h3>
                     
                     <div id="legend" class="legend-items" role="list">
@@ -2298,7 +2298,7 @@
                     </section>
 
                     <section class="content-section">
-                        <h4 class="section-subtitle">Legenda Stati</h4>
+                        <h4 class="section-subtitle">Legenda stato di avanzamento</h4>
                         <div class="legend-grid">
                             <div class="legend-item-full">
                                 <div class="legend-color-dot" style="background: var(--status-stipulato);"></div>
@@ -2520,5 +2520,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<!-- MODAL DETTAGLI PATTO -->
+<div id="pattoModal" class="modal hidden" role="dialog" aria-labelledby="pattoModalTitle" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="pattoModalTitle" class="modal-title">
+                <i data-lucide="file-text" class="h-5 w-5" aria-hidden="true"></i>
+                Dettagli Patto di Collaborazione
+            </h3>
+            <button id="closeModal" 
+                    class="modal-close" 
+                    title="Chiudi dettagli"
+                    aria-label="Chiudi dettagli">
+                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Mini Mappa -->
+            <div id="miniMapContainer" style="margin-bottom: 20px;">
+                <div id="miniMap" style="height: 200px; width: 100%; border-radius: 8px;"></div>
+            </div>
+            
+            <!-- Contenuto dettagli -->
+            <div id="pattoDetailsContent">
+                <p class="text-center text-gray-500">Caricamento dettagli...</p>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
