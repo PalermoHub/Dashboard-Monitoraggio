@@ -2363,6 +2363,18 @@ body {
     opacity: 1;
 }
 
+#map .leaflet-control-attribution {
+    float: left !important;
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+#map .leaflet-bottom.leaflet-right {
+    right: auto;
+    left: 0;
+}
+
 @media (max-width: 768px) {
     #miniMap {
         height: 300px !important;
