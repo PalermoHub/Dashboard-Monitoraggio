@@ -1,17 +1,15 @@
-// Side Panel Flottante - Versione Migliorata
+// Side Panel Flottante - Versione Corretta
 // File: js/v5/side-panel.js
 
 console.log('Side Panel: Inizio caricamento');
 
-// Variabili globali
 let panelMiniMap = null;
 let currentPanelIndex = 0;
 let panelFavorites = [];
-let highlightedMarker = null; // ✅ NUOVO: Per evidenziare il marker corrente
-let sidePanelData = null;      // Array dei dati correnti (filtrati o no)
-let currentSidePanelIndex = 0;  // Indice nel sidePanelData
+let highlightedMarker = null;
+let sidePanelData = null;
+let currentSidePanelIndex = 0;
 
-// Carica preferiti da localStorage
 function loadPanelFavorites() {
     try {
         panelFavorites = JSON.parse(localStorage.getItem('pattoFavorites') || '[]');
@@ -20,12 +18,10 @@ function loadPanelFavorites() {
     }
 }
 
-// Salva preferiti
 function savePanelFavorites() {
     localStorage.setItem('pattoFavorites', JSON.stringify(panelFavorites));
 }
 
-// Crea HTML del pannello
 function createSidePanelHTML() {
     if (document.getElementById('pattoSidePanel')) return;
 
@@ -100,19 +96,19 @@ function createSidePanelHTML() {
                 </button>
             </div>
         </div>
-
-        <div id="sidePanelOverlay" class="side-panel-overlay"></div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', html);
-    console.log('Side Panel HTML creato');
+    // Inserisci il pannello DENTRO .map-container
+    const mapContainer = document.querySelector('.map-container');
+    if (mapContainer) {
+        mapContainer.insertAdjacentHTML('beforeend', html);
+        console.log('Side Panel HTML creato dentro map-container');
+    } else {
+        // Fallback: inserisci nel body se map-container non esiste
+        document.body.insertAdjacentHTML('beforeend', html);
+        console.log('Side Panel HTML creato nel body (map-container non trovato)');
+    }
 }
-
-
-// ==========================================
-// SIDE PANEL - DENTRO LA MAPPA
-// Posizionato in absolute dentro .content-area
-// ==========================================
 
 function addSidePanelStyles() {
     if (document.getElementById('sidePanelStyles')) return;
@@ -120,27 +116,22 @@ function addSidePanelStyles() {
     const styles = document.createElement('style');
     styles.id = 'sidePanelStyles';
     styles.textContent = `
-        /* ============================================
-           SIDE PANEL - CONTAINER PRINCIPALE
-           ============================================ */
-        
+        /* SIDE PANEL - CONTAINER PRINCIPALE */
         .side-panel {
-            position: fixed;
-            right: -420px;
+            position: absolute;
+            right: -340px;
             top: 0;
             bottom: 0;
-            width: 380px;
-            max-width: calc(100vw - 320px);
-            
+            width: 320px;
+            max-width: 40%;
             background: var(--color-white);
             box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
             z-index: 1200;
-            
             display: flex;
             flex-direction: column;
-            
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          /*  border-left: 1px solid var(--border-color);*/
+            border-left: 1px solid var(--border-color);
+            overflow: hidden;
         }
 
         .side-panel.open {
@@ -153,12 +144,9 @@ function addSidePanelStyles() {
             opacity: 0;
         }
 
-        /* ============================================
-           SIDE PANEL - HEADER (fisso, non scorre)
-           ============================================ */
-        
+        /* HEADER */
         .side-panel-header {
-            padding: 14px;
+            padding: 12px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -166,12 +154,12 @@ function addSidePanelStyles() {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
             color: var(--color-white);
             flex-shrink: 0;
-            gap: 10px;
-            min-height: 52px;
+            gap: 8px;
+            min-height: 48px;
         }
 
         .side-panel-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             margin: 0;
             flex: 1;
@@ -185,15 +173,16 @@ function addSidePanelStyles() {
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: var(--color-white);
             border-radius: 4px;
-            padding: 6px;
+            padding: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
+            min-width: 28px;
         }
 
         .side-panel-close:hover {
@@ -201,21 +190,17 @@ function addSidePanelStyles() {
             transform: rotate(90deg);
         }
 
-        /* ============================================
-           SIDE PANEL - CONTENT (scrollabile, flex: 1)
-           ============================================ */
-
+        /* CONTENT */
         .side-panel-content {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 14px;
+            padding: 12px;
             scroll-behavior: smooth;
         }
 
-        /* Scrollbar personalizzata */
         .side-panel-content::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
 
         .side-panel-content::-webkit-scrollbar-track {
@@ -231,20 +216,17 @@ function addSidePanelStyles() {
             background: var(--color-gray-500);
         }
 
-        /* ============================================
-           SIDE PANEL - FOOTER (fisso, sempre visibile)
-           ============================================ */
-
+        /* FOOTER */
         .side-panel-footer {
-            padding: 12px;
+            padding: 10px;
             border-top: 1px solid var(--border-color);
             background: var(--color-gray-50);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
-            min-height: 48px;
+            min-height: 44px;
         }
 
         .panel-nav-btn {
@@ -252,13 +234,15 @@ function addSidePanelStyles() {
             border: none;
             color: var(--color-gray-700);
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            padding: 0;
+            min-width: 28px;
         }
 
         .panel-nav-btn:hover:not(:disabled) {
@@ -273,20 +257,17 @@ function addSidePanelStyles() {
         }
 
         .panel-counter {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--color-gray-600);
             font-weight: 600;
-            min-width: 55px;
+            min-width: 50px;
             text-align: center;
         }
 
-        /* ============================================
-           SIDE PANEL - SEZIONI CONTENUTO
-           ============================================ */
-
+        /* SEZIONI */
         .panel-section {
-            margin-bottom: 18px;
-            padding-bottom: 14px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -300,25 +281,21 @@ function addSidePanelStyles() {
         }
 
         .panel-section-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: var(--color-gray-800);
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* ============================================
-           SIDE PANEL - DETTAGLI
-           ============================================ */
-
         .panel-details {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .panel-details p {
@@ -333,91 +310,74 @@ function addSidePanelStyles() {
             font-weight: 600;
         }
 
-        /* ============================================
-           SIDE PANEL - STATUS
-           ============================================ */
-
         .panel-status {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 12px;
-            border-radius: 5px;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--color-white);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             white-space: nowrap;
         }
 
         .download-pdf-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 12px;
+            gap: 5px;
+            padding: 6px 10px;
             background: var(--status-stipulato);
             color: var(--color-white);
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
 
         .download-pdf-btn:hover {
             background: var(--color-success);
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
         }
-
-        .download-pdf-btn i {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* ============================================
-           SIDE PANEL - NOTE
-           ============================================ */
 
         .panel-notes {
             margin: 0;
-            padding: 10px;
+            padding: 8px;
             background: var(--color-gray-50);
-            border-left: 3px solid var(--color-accent);
+            border-left: 2px solid var(--color-accent);
             border-radius: 3px;
             font-size: 0.8rem;
             color: var(--color-gray-700);
             line-height: 1.5;
         }
 
-        /* ============================================
-           SIDE PANEL - LINK
-           ============================================ */
-
         .panel-links {
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 6px;
         }
 
         .panel-link-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px;
+            gap: 6px;
+            padding: 8px;
             background: var(--color-gray-50);
             border: 1px solid var(--border-color);
-            border-radius: 5px;
+            border-radius: 4px;
             color: var(--color-accent);
             text-decoration: none;
             font-weight: 500;
@@ -430,18 +390,14 @@ function addSidePanelStyles() {
             background: var(--color-accent);
             color: var(--color-white);
             border-color: var(--color-accent);
-            transform: translateX(3px);
+            transform: translateX(2px);
         }
-
-        /* ============================================
-           SIDE PANEL - FOTO
-           ============================================ */
 
         .panel-photo {
             width: 100%;
             height: auto;
-            max-height: 200px;
-            border-radius: 6px;
+            max-height: 150px;
+            border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
             object-fit: cover;
@@ -451,15 +407,11 @@ function addSidePanelStyles() {
             transform: scale(1.02);
         }
 
-        /* ============================================
-           SIDE PANEL - MINIMAP
-           ============================================ */
-
         .panel-minimap-wrapper {
             position: relative;
             width: 100%;
-            height: 150px;
-            border-radius: 6px;
+            height: 120px;
+            border-radius: 4px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -470,48 +422,43 @@ function addSidePanelStyles() {
             background: var(--color-gray-100);
         }
 
-        /* ============================================
-           ANIMAZIONE HIGHLIGHT
-           ============================================ */
-
         @keyframes side-panel-pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
         }
 
         .side-panel-highlight-pulse {
             animation: side-panel-pulse 1.5s ease-in-out infinite !important;
         }
 
-        /* ============================================
-           MEDIA QUERY - TABLET
-           ============================================ */
-
-        @media (max-width: 1024px) {
+        /* MEDIA QUERY - DESKTOP GRANDE */
+        @media (max-width: 1400px) {
             .side-panel {
-                width: 320px;
-                right: -340px;
+                width: 300px;
+                right: -320px;
+                max-width: 35%;
             }
-
             .panel-minimap-wrapper {
-                height: 120px;
+                height: 100px;
             }
         }
 
-        /* ============================================
-           MEDIA QUERY - MOBILE
-           ============================================ */
+        @media (max-width: 1024px) {
+            .side-panel {
+                width: 280px;
+                right: -300px;
+                max-width: 30%;
+            }
+            .side-panel-header {
+                min-height: 44px;
+                padding: 10px;
+            }
+            .panel-minimap-wrapper {
+                height: 90px;
+            }
+        }
 
+        /* MEDIA QUERY - TABLET */
         @media (max-width: 768px) {
             .side-panel {
                 position: fixed;
@@ -519,19 +466,10 @@ function addSidePanelStyles() {
                 right: -100%;
                 top: 0;
                 bottom: 0;
+                max-width: none;
             }
-
             .side-panel.open {
                 right: 0;
-            }
-
-            .side-panel-header {
-                padding: 16px;
-                min-height: 56px;
-            }
-
-            .side-panel-title {
-                font-size: 1.1rem;
             }
         }
     `;
@@ -540,79 +478,14 @@ function addSidePanelStyles() {
     console.log('Side Panel CSS aggiunto');
 }
 
-
-// ✅ NUOVO: Funzione per evidenziare marker nella mappa
-function highlightMarkerOnMap(patto) {
-    if (!window.map || !window.markersLayer) return;
-    
-    // Rimuovi l'evidenziazione precedente
-    if (highlightedMarker) {
-        window.map.removeLayer(highlightedMarker);
-        highlightedMarker = null;
-    }
-    
-    if (!patto || !patto.lat || !patto.lng) return;
-    
-    // Crea un marker pulsante piÃ¹ grande
-    highlightedMarker = L.circleMarker([patto.lat, patto.lng], {
-        radius: 15,
-        fillColor: '#3b82f6',
-        color: '#ffffff',
-        weight: 4,
-        opacity: 1,
-        fillOpacity: 0.7,
-        className: 'highlighted-marker-pulse'
-    }).addTo(window.map);
-    
-    // Centra la mappa sul marker
-    window.map.setView([patto.lat, patto.lng], 16, {
-        animate: true,
-        duration: 0.5
-    });
-    
-    // Aggiungi animazione CSS per il pulse
-    addPulseAnimation();
-}
-
-// ✅ NUOVO: Animazione pulse per marker evidenziato
-function addPulseAnimation() {
-    if (document.getElementById('markerPulseAnimation')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'markerPulseAnimation';
-    style.textContent = `
-        @keyframes marker-pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .highlighted-marker-pulse {
-            animation: marker-pulse 1.5s ease-in-out infinite;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// Apri panel
 function openSidePanel(pattoId) {
-    console.log('📷 Apertura panel per patto:', pattoId);
-
+    console.log('Apertura panel per patto:', pattoId);
     createSidePanelHTML();
     addSidePanelStyles();
 
     if (!window.allData || !Array.isArray(window.allData) || window.allData.length === 0) {
-        console.error('❌ Nessun dato disponibile. Dati:', window.allData);
-        alert('I dati non sono ancora stati caricati. Attendi qualche secondo e riprova.');
+        console.error('Nessun dato disponibile');
+        alert('I dati non sono ancora stati caricati. Attendi e riprova.');
         return;
     }
 
@@ -620,9 +493,7 @@ function openSidePanel(pattoId) {
     const patto = window.allData.find(p => p[idKey] == pattoId);
 
     if (!patto) {
-        console.error('❌ Patto non trovato con ID:', pattoId);
-        console.log('🔍 IDs disponibili:', window.allData.map(p => p[idKey]));
-        alert('Patto non trovato.');
+        console.error('Patto non trovato');
         return;
     }
 
@@ -637,23 +508,15 @@ function openSidePanel(pattoId) {
         setTimeout(() => lucide.createIcons(), 100);
     }
 
-    console.log('✅ Panel aperto con successo');
-	
-	    // Sincronizza con mappa principale
     setTimeout(() => {
         const patto = window.allData[currentPanelIndex];
-        if (patto) {
-            syncMapWithSidePanel(patto);
-        }
+        if (patto) syncMapWithSidePanel(patto);
     }, 300);
 }
 
-// Funzione corretta per popolare il contenuto del side panel
 function populateSidePanelContent(patto) {
-    // ✅ CORREZIONE: Definisci findDataKeys qui se non disponibile globalmente
-    const findDataKeysLocal = function() {
+    const findDataKeys = () => {
         if (!patto) return {};
-        
         return {
             titolo: Object.keys(patto).find(k => k.toLowerCase().includes('titolo') && k.toLowerCase().includes('proposta')),
             proponente: Object.keys(patto).find(k => k.toLowerCase().includes('proponente')),
@@ -668,35 +531,27 @@ function populateSidePanelContent(patto) {
             geouri: Object.keys(patto).find(k => k.toLowerCase().includes('geouri')),
             foto: Object.keys(patto).find(k => k.toLowerCase().includes('foto')),
             pdf: Object.keys(patto).find(k => k.toLowerCase().includes('scarica') && k.toLowerCase().includes('patto')),
-            ambiti: Object.keys(patto).find(k => k.toLowerCase().includes('ambiti')), // NUOVO
+            ambiti: Object.keys(patto).find(k => k.toLowerCase().includes('ambiti')),
             id: Object.keys(patto).find(k => k.toLowerCase() === 'id')
         };
     };
 
-    const keys = findDataKeysLocal();
+    const keys = findDataKeys();
 
-    // Titolo
-    const titleEl = document.getElementById('sidePanelTitle');
-    if (titleEl) titleEl.textContent = patto[keys.titolo] || 'Patto senza titolo';
+    document.getElementById('sidePanelTitle').textContent = patto[keys.titolo] || 'Patto senza titolo';
 
-    // Dettagli
     const details = document.getElementById('panelDetails');
-    if (details) {
-        details.innerHTML = `
-            <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
-            <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
-            <p><strong>Ambiti di Azione:</strong> ${patto[keys.ambiti] || 'N/A'}</p>
-            <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
-            <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
-            <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
-            <p><strong>Indirizzo:</strong> ${patto[keys.indirizzo] || 'N/A'}</p>
-        `;
-    }
+    details.innerHTML = `
+        <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
+        <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
+        <p><strong>Ambiti:</strong> ${patto[keys.ambiti] || 'N/A'}</p>
+        <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
+        <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
+        <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
+        <p><strong>Indirizzo:</strong> ${patto[keys.indirizzo] || 'N/A'}</p>
+    `;
 
-    // Stato con colore
-    const status = document.getElementById('panelStatus');
     const statoText = patto[keys.stato] || 'Non specificato';
-    
     const statusColors = {
         'Istruttoria in corso': '#ffdb4d',
         'Respinta': '#ff6b6b',
@@ -705,113 +560,88 @@ function populateSidePanelContent(patto) {
         'In attesa di integrazione': '#b3e6ff',
         'Archiviata': '#94a3b8'
     };
-    
-    const statusColor = statusColors[statoText] || '#6b7280';
 
-    if (status) {
-        let statusHTML = `
-            <div class="status-badge" style="background-color: ${statusColor};">
-                ${statoText}
-            </div>
+    const status = document.getElementById('panelStatus');
+    let statusHTML = `<div class="status-badge" style="background-color: ${statusColors[statoText] || '#6b7280'};">${statoText}</div>`;
+
+    if (statoText === 'Patto stipulato' && keys.pdf && patto[keys.pdf]) {
+        const pattoId = patto[keys.id] || 'XX';
+        statusHTML += `
+            <a href="${patto[keys.pdf].trim()}" download target="_blank" rel="noopener" class="download-pdf-btn">
+                <i data-lucide="download"></i>
+                <span>Patto n° ${pattoId}</span>
+            </a>
         `;
-
-        if (statoText === 'Patto stipulato' && keys.pdf && patto[keys.pdf] && patto[keys.pdf].trim() !== '') {
-            const pattoId = patto[keys.id] || 'XX';
-            statusHTML += `
-                <a href="${patto[keys.pdf].trim()}" 
-                   download
-                   target="_blank"
-                   rel="noopener"
-                   class="download-pdf-btn"
-                   title="Scarica il Patto di Collaborazione">
-                    <i data-lucide="download"></i>
-                    <span>Patto n° ${pattoId}</span>
-                </a>
-            `;
-        }
-
-        status.innerHTML = statusHTML;
     }
+    status.innerHTML = statusHTML;
 
-    // Note
     const notesContainer = document.getElementById('panelNotesContainer');
-    const notesEl = document.getElementById('panelNotes');
-    if (keys.nota && patto[keys.nota] && notesContainer && notesEl) {
+    if (keys.nota && patto[keys.nota]) {
         notesContainer.classList.remove('hidden');
-        notesEl.textContent = patto[keys.nota];
-    } else if (notesContainer) {
+        document.getElementById('panelNotes').textContent = patto[keys.nota];
+    } else {
         notesContainer.classList.add('hidden');
     }
 
-    // Link
     const links = document.getElementById('panelLinks');
-    if (links) {
-        links.innerHTML = '';
-
-        if (keys.googlemaps && patto[keys.googlemaps]) {
-            const link = document.createElement('a');
-            link.href = patto[keys.googlemaps].trim();
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.className = 'panel-link-btn';
-            link.innerHTML = '<i data-lucide="map" style="width: 16px; height: 16px;"></i> <span>Google Maps</span>';
-            links.appendChild(link);
-        }
-
-        if (keys.geouri && patto[keys.geouri]) {
-            const link = document.createElement('a');
-            link.href = patto[keys.geouri];
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.className = 'panel-link-btn';
-            link.innerHTML = '<i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> <span>Navigatore</span>';
-            links.appendChild(link);
-        }
+    links.innerHTML = '';
+    if (keys.googlemaps && patto[keys.googlemaps]) {
+        const link = document.createElement('a');
+        link.href = patto[keys.googlemaps];
+        link.target = '_blank';
+        link.className = 'panel-link-btn';
+        link.innerHTML = '<i data-lucide="map"></i> <span>Google Maps</span>';
+        links.appendChild(link);
     }
 
-    // Foto
     const photoContainer = document.getElementById('panelPhotoContainer');
-    const photoEl = document.getElementById('panelPhoto');
-    if (keys.foto && patto[keys.foto] && patto[keys.foto].trim() !== '' && photoContainer && photoEl) {
+    if (keys.foto && patto[keys.foto]) {
         photoContainer.classList.remove('hidden');
-        photoEl.src = patto[keys.foto].trim();
-        photoEl.alt = patto[keys.titolo] || 'Foto';
-    } else if (photoContainer) {
+        document.getElementById('panelPhoto').src = patto[keys.foto];
+    } else {
         photoContainer.classList.add('hidden');
     }
 
-    // Evidenzia marker nella mappa
     highlightMarkerOnMap(patto);
-
-    // Sincronizzazione con mappa principale
-    if (window.syncSidePanelWithMap && typeof window.syncSidePanelWithMap === 'function') {
-        setTimeout(() => {
-            window.syncSidePanelWithMap(patto);
-        }, 50);
-    }
-
-    // Minimap
     setTimeout(() => initializeSidePanelMiniMap(patto), 300);
-
     updateSidePanelCounter();
 
-    // Ricrea icone Lucide
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        setTimeout(() => lucide.createIcons(), 100);
+    if (typeof lucide !== 'undefined') setTimeout(() => lucide.createIcons(), 100);
+}
+
+function highlightMarkerOnMap(patto) {
+    if (!window.map || !patto.lat || !patto.lng) return;
+    if (!window.map._container) return; // Verifica che la mappa sia inizializzata
+    
+    try {
+        if (highlightedMarker) {
+            try {
+                window.map.removeLayer(highlightedMarker);
+            } catch (e) {}
+        }
+        
+        highlightedMarker = L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
+            radius: 15,
+            fillColor: '#3b82f6',
+            color: '#ffffff',
+            weight: 4,
+            opacity: 1,
+            fillOpacity: 0.7,
+            className: 'highlighted-marker-pulse'
+        }).addTo(window.map);
+
+        window.map.setView([parseFloat(patto.lat), parseFloat(patto.lng)], 16, { 
+            animate: true, 
+            duration: 0.5 
+        });
+    } catch (error) {
+        console.warn('Errore highlight marker:', error);
     }
 }
 
-
-
-
-
-
-// Minimap
 function initializeSidePanelMiniMap(patto) {
     if (panelMiniMap) {
-        try {
-            panelMiniMap.remove();
-        } catch (e) {}
+        try { panelMiniMap.remove(); } catch (e) {}
         panelMiniMap = null;
     }
 
@@ -819,7 +649,6 @@ function initializeSidePanelMiniMap(patto) {
     if (!container || !patto.lat || !patto.lng) return;
 
     container.innerHTML = '';
-    container.style.height = '250px';
 
     try {
         panelMiniMap = L.map(container, {
@@ -850,27 +679,14 @@ function initializeSidePanelMiniMap(patto) {
     }
 }
 
-// ✅ CORREZIONE: Chiudi panel e rimuovi evidenziazione
 function closeSidePanel() {
-    // Rimuovi highlight dalla mappa
-    if (window.currentPattoHighlight && window.map && typeof window.map.removeLayer === 'function') {
-        try {
-            window.map.removeLayer(window.currentPattoHighlight);
-            window.currentPattoHighlight = null;
-            console.log('✓ Highlight rimosso');
-        } catch (e) {}
-    }
-    
     const panel = document.getElementById('pattoSidePanel');
     if (panel) {
         panel.classList.remove('open');
         if (panelMiniMap) {
-            try {
-                panelMiniMap.remove();
-            } catch (e) {}
+            try { panelMiniMap.remove(); } catch (e) {}
             panelMiniMap = null;
         }
-        
         if (highlightedMarker && window.map) {
             window.map.removeLayer(highlightedMarker);
             highlightedMarker = null;
@@ -878,158 +694,38 @@ function closeSidePanel() {
     }
 }
 
-// Setup listener
 function setupSidePanelListeners() {
     const closeBtn = document.getElementById('closeSidePanel');
-    const overlay = document.getElementById('sidePanelOverlay');
+    if (closeBtn) closeBtn.addEventListener('click', closeSidePanel);
+
     const prevBtn = document.getElementById('sidePanelPrevious');
     const nextBtn = document.getElementById('sidePanelNext');
-
-    if (closeBtn) closeBtn.addEventListener('click', closeSidePanel);
-    if (overlay) overlay.addEventListener('click', closeSidePanel);
-
     if (prevBtn) prevBtn.addEventListener('click', () => navigateSidePanel(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => navigateSidePanel(1));
 
     document.addEventListener('keydown', (e) => {
         const panel = document.getElementById('pattoSidePanel');
         if (!panel || !panel.classList.contains('open')) return;
-
         if (e.key === 'Escape') closeSidePanel();
         if (e.key === 'ArrowUp') navigateSidePanel(-1);
         if (e.key === 'ArrowDown') navigateSidePanel(1);
     });
 }
 
-
-// ✅ CORREZIONE: Naviga con evidenziazione
 function navigateSidePanel(direction) {
     const newIndex = currentPanelIndex + direction;
     if (newIndex >= 0 && newIndex < window.allData.length) {
         currentPanelIndex = newIndex;
         const patto = window.allData[currentPanelIndex];
-        
-        console.log('📋 Navigazione Side Panel:', direction > 0 ? 'NEXT' : 'PREV');
-        
         populateSidePanelContent(patto);
-        
-        // SINCRONIZZAZIONE CON MAPPA
-        setTimeout(() => {
-            syncMapWithSidePanel(patto);
-        }, 100);
-        
         const content = document.querySelector('.side-panel-content');
         if (content) content.scrollTop = 0;
-
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            lucide.createIcons();
-        }
-        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         updateSidePanelCounter();
     }
 }
 
-// ==========================================
-// SINCRONIZZAZIONE MAPPA CON SIDE PANEL
-// ==========================================
-
-function syncMapWithSidePanel(patto) {
-    if (!patto || !patto.lat || !patto.lng) {
-        console.warn('Sync: Dati patto incompleti');
-        return;
-    }
-    
-    if (!window.map || typeof window.map.setView !== 'function') {
-        console.warn('Sync: Mappa non disponibile');
-        return;
-    }
-    
-    console.log('🔄 Sincronizzazione mappa:', patto.id);
-    
-    try {
-        // 1. Chiudi popup
-        try {
-            window.map.closePopup();
-        } catch (e) {}
-        
-        // 2. Rimuovi highlight precedente
-        if (window.currentPattoHighlight && window.map && typeof window.map.removeLayer === 'function') {
-            try {
-                window.map.removeLayer(window.currentPattoHighlight);
-            } catch (e) {}
-        }
-        
-        // 3. Crea nuovo highlight
-        if (window.markersLayer) {
-            window.currentPattoHighlight = L.circleMarker(
-                [parseFloat(patto.lat), parseFloat(patto.lng)],
-                {
-                    radius: 20,
-                    fillColor: '#3b82f6',
-                    color: '#ffffff',
-                    weight: 4,
-                    opacity: 1,
-                    fillOpacity: 0.7,
-                    className: 'side-panel-highlight-pulse',
-                    interactive: false
-                }
-            ).addTo(window.map);
-            
-            console.log('✓ Marker highlight creato');
-        }
-        
-        // 4. ZOOM con delay
-        setTimeout(() => {
-            try {
-                const lat = parseFloat(patto.lat);
-                const lng = parseFloat(patto.lng);
-                
-                console.log(`📍 Zoom a: ${lat}, ${lng}`);
-                
-                if (typeof window.map.flyTo === 'function') {
-                    window.map.flyTo([lat, lng], 17, {
-                        duration: 1.0,
-                        easeLinearity: 0.25
-                    });
-                    console.log('✓ Zoom flyTo eseguito');
-                } else {
-                    window.map.setView([lat, lng], 17, {
-                        animate: true,
-                        duration: 1000
-                    });
-                    console.log('✓ Zoom setView eseguito');
-                }
-            } catch (error) {
-                console.error('Errore durante zoom:', error);
-            }
-        }, 50);
-        
-    } catch (error) {
-        console.error('Errore sincronizzazione:', error);
-    }
-}
-
-// Aggiorna counter
-function navigateSidePanel(direction) {
-    const newIndex = currentPanelIndex + direction;
-    if (newIndex >= 0 && newIndex < window.allData.length) {
-        currentPanelIndex = newIndex;
-        const patto = window.allData[currentPanelIndex];
-        populateSidePanelContent(patto);
-        
-        // NUOVO: Sincronizzazione mappa
-        if (window.syncSidePanelWithMap && typeof window.syncSidePanelWithMap === 'function') {
-            window.syncSidePanelWithMap(patto);
-        }
-        
-        const content = document.querySelector('.side-panel-content');
-        if (content) content.scrollTop = 0;
-
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            lucide.createIcons();
-        }
-    }
-}function updateSidePanelCounter() {
+function updateSidePanelCounter() {
     const counter = document.getElementById('sidePanelCounter');
     const prevBtn = document.getElementById('sidePanelPrevious');
     const nextBtn = document.getElementById('sidePanelNext');
@@ -1039,31 +735,23 @@ function navigateSidePanel(direction) {
     if (nextBtn) nextBtn.disabled = currentPanelIndex === window.allData.length - 1;
 }
 
-// Sostituisci showPattoDetails
+function syncMapWithSidePanel(patto) {
+    if (!patto || !patto.lat || !patto.lng || !window.map) return;
+    
+    try {
+        if (!window.map._container) return; // Verifica che la mappa sia inizializzata
+        
+        window.map.setView([parseFloat(patto.lat), parseFloat(patto.lng)], 17, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 0.25
+        });
+    } catch (error) {
+        console.warn('Errore sincronizzazione mappa:', error);
+    }
+}
+
 window.showPattoDetails = openSidePanel;
-
-// Carica preferiti
 loadPanelFavorites();
-
-
-// Esponi funzioni globali per sincronizzazione con mappa
-window.highlightMarkerOnMapFromSidePanel = highlightMarkerOnMap;
-window.getCurrentSidePanelPatto = function() {
-    if (window.allData && currentPanelIndex >= 0 && currentPanelIndex < window.allData.length) {
-        return window.allData[currentPanelIndex];
-    }
-    return null;
-};
-
-// Aggancia il close panel per pulire la mappa
-const originalCloseSidePanel = closeSidePanel;
-closeSidePanel = function() {
-    // Rimuovi evidenziazione dalla mappa
-    if (window.removeMainMapHighlight && typeof window.removeMainMapHighlight === 'function') {
-        window.removeMainMapHighlight();
-    }
-    // Chiama originale
-    originalCloseSidePanel();
-};
 
 console.log('Side Panel caricato correttamente');
