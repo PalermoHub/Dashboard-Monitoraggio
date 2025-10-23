@@ -28,8 +28,8 @@ let uniqueValuesCache = {};
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
-    [38.0500, 13.2500], // Sud-Ovest (include area metropolitana)
-    [38.3000, 13.4200]  // Nord-Est (include Sferracavallo e Bagheria)
+    [37.8000, 12.9000], // Sud-Ovest (più lontano)
+    [38.5000, 13.7000]  // Nord-Est (più lontano)
 ];
 
 // Colori per stato di avanzamento (originali)
