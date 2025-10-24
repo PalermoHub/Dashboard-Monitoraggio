@@ -441,7 +441,7 @@
     }
 
     .footer-social-link {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         width: 40px;
@@ -453,8 +453,18 @@
         transition: all 0.2s ease;
         text-decoration: none;
         flex-shrink: 0;
+        padding: 0;
+        line-height: 40px; /* Uguale all'altezza del box */
+        text-align: center;
     }
 
+    .footer-social-link i {
+        font-size: 18px;
+        line-height: 1;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
     .footer-social-link:hover {
         background: var(--color-accent);
         color: var(--color-white);
