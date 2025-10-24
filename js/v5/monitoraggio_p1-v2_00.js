@@ -1,6 +1,27 @@
 // ==========================================
-// DASHBOARD MONITORAGGIO PATTI - VERSIONE COMPLETA CON GRAFICI MODERNI
+// DASHBOARD - FONT AWESOME VERSION
 // ==========================================
+
+console.log('📦 Dashboard init (Font Awesome)...');
+
+// Font Awesome non ha bisogno di initializazzione - funziona automaticamente
+// Le icone vengono caricate dal CSS
+
+// Dummy function per compatibilità (non fa nulla)
+function safeCreateIcons() {
+    // Font Awesome non ha bisogno di questo
+    return true;
+}
+
+// Export globale
+window.safeCreateIcons = safeCreateIcons;
+
+console.log('✅ Dashboard ready (Font Awesome icons)');
+
+// ==========================================
+// RESTO DEL FILE CONTINUA NORMALMENTE
+// ==========================================
+
 
 // Variabili globali
 let map;
@@ -46,27 +67,23 @@ const statusColors = {
 // ==========================================
 // FUNZIONE GLOBALE: CHIUDI POPUP E APRI PANNELLO
 // ==========================================
+
 function closeMapPopupAndOpenPanel(pattoId) {
-    console.log('🔄 Chiusura popup e apertura pannello per patto:', pattoId);
+    console.log('🔄 Apertura side panel per patto:', pattoId);
     
     try {
-        // Chiudi il popup della mappa
         if (map && typeof map.closePopup === 'function') {
             map.closePopup();
-            console.log('✅ Popup mappa chiuso');
         }
         
-        // Aspetta un momento e poi apri il pannello
+        // ✅ Usa direttamente openSidePanel, non showPattoDetails
         setTimeout(() => {
-            if (typeof window.showPattoDetails === 'function') {
-                window.showPattoDetails(pattoId);
-                console.log('✅ Pannello aperto per patto:', pattoId);
-            } else {
-                console.error('❌ Funzione showPattoDetails non trovata');
+            if (typeof openSidePanel === 'function') {
+                openSidePanel(pattoId);
             }
         }, 100);
     } catch (error) {
-        console.error('❌ Errore nella chiusura popup:', error);
+        console.error('Errore:', error);
     }
 }
 
@@ -395,8 +412,14 @@ function resetFiltersFromPopup() {
     updateStatistics();
     updateChart();
     updateTable();
-    
     hideFiltersPopup();
+    
+    // ✅ NUOVO: Reset anche il side panel ai dati completi
+    if (document.getElementById('pattoSidePanel')?.classList.contains('open')) {
+        sidePanelData = window.allData;
+        currentSidePanelIndex = 0;
+        updateSidePanelCounter();
+    }
 }
 
 function setupFiltersPopupEventListeners() {
@@ -637,19 +660,20 @@ function updateLayerButtons(activeLayer) {
 // ==========================================
 // INIZIALIZZAZIONE PRINCIPALE
 // ==========================================
-
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM caricato, inizializzazione...');
     
     addModernChartStyles();
     
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        lucide.createIcons();
-    }
+    // ✅ MIGLIORATO: Inizializzazione Lucide con retry
+    setTimeout(() => {
+        if (typeof window.initializeLucideIcons === 'function') {
+            window.initializeLucideIcons();
+        }
+    }, 500);
     
     initializeMap();
     
-    // ✅ ATTENDI il caricamento dei dati
     try {
         await loadData();
         console.log('✅ Dati caricati con successo:', window.allData.length, 'elementi');
@@ -670,6 +694,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.log('Ricerca intelligente integrata inizializzata');
         }
     }, 1500);
+    
+    // ✅ NUOVO: Ricarica icone dopo 2 secondi per sicurezza
+    setTimeout(() => {
+        console.log('🔄 Ricaricamento icone post-inizializzazione');
+        if (typeof window.initializeLucideIcons === 'function') {
+            window.initializeLucideIcons();
+        }
+    }, 2000);
 });
 
 
@@ -1034,7 +1066,7 @@ function applyFilters() {
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value?.trim() || '',
-        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '', // NUOVO
+        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '',
         titolo: document.getElementById('filterTitolo')?.value?.toLowerCase()?.trim() || '',
         proponente: proponenteFilter.trim()
     };
@@ -1046,7 +1078,7 @@ function applyFilters() {
         const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
         const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
-        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti')); // NUOVO
+        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti'));
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
@@ -1054,16 +1086,18 @@ function applyFilters() {
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
-        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti); // NUOVO
+        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti);
         const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
         const proponenteMatch = !filters.proponente || (item[proponenteKey] && item[proponenteKey].trim() === filters.proponente);
         
-        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch; // INCLUDI ambitiMatch
+        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch;
     });
     
     console.log(`Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    // ✅ AGGIUNGI filterAmbiti nella lista
+    // ✅ AGGIORNA window.filteredData per side-panel.js
+    window.filteredData = filteredData;
+    
     ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1075,17 +1109,118 @@ function applyFilters() {
     if (titoloField) {
         updateFilterAppearance(titoloField, titoloField.value);
     }
+    // ✅ QUESTE DUE RIGHE SONO CRITICHE
+    window.filteredData = filteredData;  // Assegna a window
+    window.allData = allData;            // Assegna a window anche allData
+	
+	console.log('🔄 Assegnando window.filteredData:', filteredData.length);
+    window.filteredData = filteredData;
     
     updateMap();
     updateStatistics();
     updateChart();
     updateTable();
     updateFiltersPopup();
+    
+    // ✅ Sincronizza side panel
+    if (typeof syncSidePanelWithFilters === 'function') {
+        console.log('🔄 Chiamata syncSidePanelWithFilters');
+        syncSidePanelWithFilters();
+    } else {
+        console.warn('⚠️ syncSidePanelWithFilters non è una funzione');
+    }
 }
 
-// ==========================================
-// AGGIORNAMENTO MAPPA
-// ==========================================
+
+/**
+ * Sincronizza il side panel quando i filtri cambiano
+ */
+function syncSidePanelWithFilters() {
+    console.log('🔄 syncSidePanelWithFilters() chiamata');
+    
+    // ✅ Controlli di sicurezza
+    if (typeof window === 'undefined') {
+        console.error('❌ window non disponibile');
+        return;
+    }
+    
+    const panel = document.getElementById('pattoSidePanel');
+    
+    if (!panel) {
+        console.warn('⚠️ Side panel non trovato nel DOM');
+        return;
+    }
+    
+    const isOpen = panel.classList.contains('open');
+    console.log(`📊 Panel aperto: ${isOpen}`);
+    console.log(`📊 filteredData length: ${window.filteredData?.length || 0}`);
+    console.log(`📊 allData length: ${window.allData?.length || 0}`);
+    
+    if (!isOpen) {
+        console.log('⚠️ Panel non aperto, sincronizzazione rinviata');
+        return;
+    }
+    
+    // ✅ Controllo dati filtrati
+    if (!window.filteredData || window.filteredData.length === 0) {
+        console.log('❌ Nessun dato filtrato');
+        
+        // Chiudi il panel se nessun dato filtrato
+        if (typeof window.closeSidePanel === 'function') {
+            console.log('🔒 Chiusura side panel');
+            window.closeSidePanel();
+        }
+        return;
+    }
+    
+    // ✅ Aggiorna sidePanelData con i dati filtrati
+    if (!window.sidePanelData) {
+        console.log('ℹ️ window.sidePanelData creata');
+        window.sidePanelData = {};
+    }
+    
+    console.log(`✅ Aggiornamento sidePanelData: ${window.filteredData.length} elementi`);
+    window.sidePanelData = window.filteredData;
+    
+    // ✅ Trova il patto corrente nel nuovo dataset filtrato
+    const idKey = window.allData && window.allData[0] 
+        ? Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id')
+        : 'id';
+    
+    const currentPattoId = window.currentHighlightedPattoId || window.lastOpenedPattoId;
+    console.log(`🔍 Ricerca patto ID: ${currentPattoId}, usando chiave: ${idKey}`);
+    
+    const currentIndex = window.filteredData.findIndex(p => p[idKey] == currentPattoId);
+    
+    if (currentIndex >= 0) {
+        console.log(`✅ Patto trovato all'indice ${currentIndex}`);
+        window.currentSidePanelIndex = currentIndex;
+    } else {
+        console.log('⚠️ Patto non trovato nei risultati filtrati');
+        window.currentSidePanelIndex = 0;
+        
+        if (window.filteredData.length > 0) {
+            console.log('📄 Caricamento primo patto filtrato');
+            
+            if (typeof window.populateSidePanelContent === 'function') {
+                window.populateSidePanelContent(window.filteredData[0]);
+            } else {
+                console.error('❌ populateSidePanelContent non disponibile');
+            }
+        }
+    }
+    
+    // ✅ Aggiorna counter
+    if (typeof window.updateSidePanelCounter === 'function') {
+        window.updateSidePanelCounter();
+        console.log(`✅ Counter aggiornato`);
+    } else {
+        console.warn('⚠️ updateSidePanelCounter non disponibile');
+    }
+    
+    console.log(`✅ Sincronizzazione completata: ${window.currentSidePanelIndex + 1}/${window.sidePanelData.length}`);
+}
+
 
 
 // ==========================================
@@ -1179,22 +1314,19 @@ function updateMap() {
         // ==========================================
         // GESTIONE APERTURA POPUP
         // ==========================================
-        marker.on('popupopen', function() {
-            console.log('✨ Popup aperto per patto:', patto[idKey]);
-            
-            // Ricrea le icone Lucide quando il popup è aperto
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                setTimeout(() => {
-                    try {
-                        lucide.createIcons();
-                        console.log('🎨 Icone Lucide ricreate');
-                    } catch (e) {
-                        console.warn('⚠️ Errore ricreazione icone:', e);
-                    }
-                }, 50);
-            }
-        });
-        
+marker.on('popupopen', function() {
+    console.log('✨ Popup aperto per patto:', patto[idKey]);
+    
+    // ✅ MIGLIORATO: Ricarica icone nel popup
+    setTimeout(() => {
+        const popup = document.querySelector('.leaflet-popup-content');
+        if (popup && typeof window.initializeLucideIcons === 'function') {
+            window.initializeLucideIcons();
+            console.log('🎨 Icone Lucide ricreate nel popup');
+        }
+    }, 150);
+});
+
         // ==========================================
         // GESTIONE CHIUSURA POPUP
         // ==========================================
@@ -1249,39 +1381,7 @@ function centerMapOnFilteredData() {
     map.fitBounds(bounds, { padding: [15, 15] });
 }
 
-// Funzione per evidenziare un patto sulla mappa principale
-window.highlightPattoMarkerOnMap = function(patto) {
-    if (!map || !patto || !patto.lat || !patto.lng) return false;
-    
-    try {
-        // Rimuovi highlight precedente se esiste
-        if (window.currentPattoHighlight) {
-            try {
-                map.removeLayer(window.currentPattoHighlight);
-            } catch (e) {}
-        }
-        
-        // Crea nuovo highlight
-        window.currentPattoHighlight = L.circleMarker(
-            [parseFloat(patto.lat), parseFloat(patto.lng)],
-            {
-                radius: 20,
-                fillColor: '#3b82f6',
-                color: '#ffffff',
-                weight: 4,
-                opacity: 1,
-                fillOpacity: 0.7,
-                className: 'side-panel-highlight-pulse',
-                interactive: false
-            }
-        ).addTo(map);
-        
-        return true;
-    } catch (error) {
-        console.error('Errore evidenziazione marker:', error);
-        return false;
-    }
-};
+
 
 // Funzione per rimuovere highlight
 window.removePattoHighlight = function() {
@@ -1801,31 +1901,7 @@ function addModernChartStyles() {
 }
     `;
     document.head.appendChild(style);
-	
-	// Stile per highlight del side panel sulla mappa principale
-    const sidePanelHighlightStyle = document.createElement('style');
-    sidePanelHighlightStyle.id = 'sidePanelHighlightStyle';
-    sidePanelHighlightStyle.textContent = `
-        @keyframes side-panel-pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .side-panel-highlight-pulse {
-            animation: side-panel-pulse 2s ease-in-out infinite !important;
-        }
-    `;
-    document.head.appendChild(sidePanelHighlightStyle);
+		
 }
 
 // ==========================================
@@ -1994,20 +2070,17 @@ function updateTable() {
             tableBody.appendChild(row);
         });
 
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            lucide.createIcons();
-        }
+     safeCreateIconsWithRetry();
     }
 }
 
-//function showPattoDetails(pattoId) {
-    // ... il vecchio codice del modal ...
- //   const modal = document.getElementById('pattoModal');
-//    if (modal) {
-//       modal.classList.remove('hidden');
- //       modal.classList.add('flex');
-//    }
-// }
+function showPattoDetails(pattoId) {
+    console.log('showPattoDetails richiamata, aprendo side panel');
+    // Richiama il side panel invece del modal
+    if (typeof openSidePanel === 'function') {
+        openSidePanel(pattoId);
+    }
+}
 
 // ==========================================
 // AUTOCOMPLETAMENTO
@@ -2674,23 +2747,22 @@ function initializeFullscreenModal() {
         return;
     }
     
-    // Apri modal
-    openBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Apertura modal fullscreen...');
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        // Aggiorna statistiche nel tab About
-        setTimeout(updateAboutStats, 500);
-        
-        // Ricrea le icone Lucide
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            setTimeout(() => {
-                lucide.createIcons();
-            }, 100);
+// Apri modal
+openBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    console.log('Apertura modal fullscreen...');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    setTimeout(updateAboutStats, 500);
+    
+    // ✅ MIGLIORATO: Ricarica icone nel modal
+    setTimeout(() => {
+        if (typeof window.initializeLucideIcons === 'function') {
+            window.initializeLucideIcons();
         }
-    });
+    }, 200);
+});
     
     // Chiudi modal
     closeBtn.addEventListener('click', function() {
