@@ -1182,17 +1182,6 @@ function updateMap() {
         marker.on('popupopen', function() {
             console.log('✨ Popup aperto per patto:', patto[idKey]);
             
-            // Ricrea le icone Lucide quando il popup è aperto
-          //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-          //      setTimeout(() => {
-          //          try {
-           //             lucide.createIcons();
-           //             console.log('🎨 Icone Lucide ricreate');
-            //        } catch (e) {
-            //            console.warn('⚠️ Errore ricreazione icone:', e);
-            //        }
-             //   }, 50);
-          //  }
         });
         
         // ==========================================
@@ -2684,12 +2673,6 @@ function initializeFullscreenModal() {
         // Aggiorna statistiche nel tab About
         setTimeout(updateAboutStats, 500);
         
-        // Ricrea le icone Lucide
-       // if (typeof lucide !== 'undefined' && lucide.createIcons) {
-       //     setTimeout(() => {
-         //       lucide.createIcons();
-        //    }, 100);
-        //}
     });
     
     // Chiudi modal
@@ -2749,14 +2732,7 @@ function initializeFullscreenModal() {
                     modalBody.scrollTop = 0;
                 }
             }
-            
-            // Ricrea le icone Lucide per il nuovo contenuto
-          //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-          //      setTimeout(() => {
-          //          lucide.createIcons();
-          //      }, 100);
-          //  }
-        
+                   
 		});
     });
     

@@ -465,6 +465,25 @@ body {
     transform: translateY(-1px);
 }
 
+/* Override totale Tailwind per icone */
+[data-lucide] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+}
+
+[class*="fa-"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+}
+
 /* Chart Section */
 .chart-section {
     padding-top: var(--space-4);
