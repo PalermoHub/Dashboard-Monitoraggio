@@ -439,11 +439,11 @@ function initializeFiltersPopup() {
     addCloseButtonToFiltersPopup();
     setupFiltersPopupEventListeners();
     
-  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-  //      setTimeout(() => {
-  //          lucide.createIcons();
-  //      }, 100);
-  //  }
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        setTimeout(() => {
+            lucide.createIcons();
+        }, 100);
+    }
     
     console.log('Popup filtri inizializzato');
 }
@@ -643,9 +643,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     addModernChartStyles();
     
-  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-   //     lucide.createIcons();
-  //  }
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+    }
     
     initializeMap();
     
@@ -1183,16 +1183,16 @@ function updateMap() {
             console.log('✨ Popup aperto per patto:', patto[idKey]);
             
             // Ricrea le icone Lucide quando il popup è aperto
-          //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-          //      setTimeout(() => {
-          //          try {
-           //             lucide.createIcons();
-           //             console.log('🎨 Icone Lucide ricreate');
-            //        } catch (e) {
-            //            console.warn('⚠️ Errore ricreazione icone:', e);
-            //        }
-             //   }, 50);
-          //  }
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                setTimeout(() => {
+                    try {
+                        lucide.createIcons();
+                        console.log('🎨 Icone Lucide ricreate');
+                    } catch (e) {
+                        console.warn('⚠️ Errore ricreazione icone:', e);
+                    }
+                }, 50);
+            }
         });
         
         // ==========================================
@@ -1994,9 +1994,9 @@ function updateTable() {
             tableBody.appendChild(row);
         });
 
-     //   if (typeof lucide !== 'undefined' && lucide.createIcons) {
-      //      lucide.createIcons();
-       // }
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
     }
 }
 
@@ -2685,11 +2685,11 @@ function initializeFullscreenModal() {
         setTimeout(updateAboutStats, 500);
         
         // Ricrea le icone Lucide
-       // if (typeof lucide !== 'undefined' && lucide.createIcons) {
-       //     setTimeout(() => {
-         //       lucide.createIcons();
-        //    }, 100);
-        //}
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
     });
     
     // Chiudi modal
@@ -2751,13 +2751,12 @@ function initializeFullscreenModal() {
             }
             
             // Ricrea le icone Lucide per il nuovo contenuto
-          //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-          //      setTimeout(() => {
-          //          lucide.createIcons();
-          //      }, 100);
-          //  }
-        
-		});
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                setTimeout(() => {
+                    lucide.createIcons();
+                }, 100);
+            }
+        });
     });
     
     // Back to Top functionality
