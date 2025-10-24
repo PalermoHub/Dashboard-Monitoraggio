@@ -1,4 +1,4 @@
-// Side Panel Flottante - VERSIONE CORETTA CON SINCRONIZZAZIONE MAPPA CORRETTA
+// Side Panel Flottante - VERSIONE DEBUG COMPLETA
 // File: js/v5/side-panel.js
 
 console.log('🚀 Side Panel: Inizio caricamento');
@@ -8,48 +8,103 @@ let panelFavorites = [];
 let highlightedMarker = null;
 let sidePanelData = null;
 
-// 🔥 VARIABILI CRITICHE - GESTIONE DELL'INDICE
-let currentSidePanelIndex = 0;  // Indice nel dataset ATTUALE (filtrato o completo)
-let lastOpenedPattoId = null;   // Traccia l'ultimo patto aperto
+let currentSidePanelIndex = 0;
+let lastOpenedPattoId = null;
 
 // ==========================================
-// VARIABILI GLOBALI - GARANTITE
+// VARIABILI GLOBALI
 // ==========================================
 
-// Se non sono già definite, crea le variabili globali
 if (typeof window.allData === 'undefined') {
     window.allData = [];
-    console.log('✅ window.allData inizializzata');
 }
 
 if (typeof window.filteredData === 'undefined') {
     window.filteredData = [];
-    console.log('✅ window.filteredData inizializzata');
 }
 
 if (typeof window.sidePanelData === 'undefined') {
     window.sidePanelData = null;
-    console.log('✅ window.sidePanelData inizializzata');
 }
 
 if (typeof window.currentSidePanelIndex === 'undefined') {
     window.currentSidePanelIndex = 0;
-    console.log('✅ window.currentSidePanelIndex inizializzato');
 }
 
 if (typeof window.lastOpenedPattoId === 'undefined') {
     window.lastOpenedPattoId = null;
-    console.log('✅ window.lastOpenedPattoId inizializzato');
 }
 
 if (typeof window.currentHighlightedPattoId === 'undefined') {
     window.currentHighlightedPattoId = null;
-    console.log('✅ window.currentHighlightedPattoId inizializzato');
+}
+
+// ==========================================
+// 🟢 DEBUG HELPER FUNCTIONS
+// ==========================================
+
+function debugLog(title, data) {
+    console.log(`%c${title}`, 'color: #3B82F6; font-weight: bold; font-size: 12px;', data);
+}
+
+function debugError(title, data) {
+    console.error(`%c${title}`, 'color: #EF4444; font-weight: bold; font-size: 12px;', data);
+}
+
+// ==========================================
+// 🟢 FUNZIONE HELPER: DETERMINA PERCORSO BASE
+// ==========================================
+
+// ==========================================
+// 🟢 FUNZIONE HELPER: PERCORSO IMMAGINE
+// ==========================================
+
+function getImagePath(imageName) {
+    // ✅ PERCORSO SEMPLICE: L'immagine è nella stessa cartella dello script
+    // js/v5/side-panel.js -> js/v5/mirino.png
+    const relativePath = imageName;
+    
+    debugLog('📂 Percorso immagine', {
+        imageName,
+        relativePath,
+        location: 'mirino.png'
+    });
+    
+    return relativePath;
+}
+
+// ==========================================
+// 🟢 FUNZIONE PER VERIFICARE DISPONIBILITÀ IMMAGINE
+// ==========================================
+
+function checkImageAvailability(imagePath) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+            debugError('⏱️ Timeout caricamento immagine', imagePath);
+            resolve(false);
+        }, 5000);
+        
+        img.onload = () => {
+            clearTimeout(timeout);
+            debugLog('✅ Immagine disponibile', imagePath);
+            resolve(true);
+        };
+        
+        img.onerror = () => {
+            clearTimeout(timeout);
+            debugError('❌ Immagine non trovata', imagePath);
+            resolve(false);
+        };
+        
+        img.src = imagePath;
+    });
 }
 
 // ==========================================
 // FUNZIONE PER VERIFICARE SE LA MAPPA È PRONTA
 // ==========================================
+
 function isMapReady() {
     return window.map && 
            window.map._container &&
@@ -60,14 +115,15 @@ function isMapReady() {
 // ==========================================
 // FUNZIONE GLOBALE PER CHIUDERE POPUP MAPPA
 // ==========================================
+
 window.closeMapPopups = function() {
-    console.log('📄 Chiusura popup mappa globale...');
+    debugLog('📄 Chiusura popup mappa globale', null);
     if (window.map && typeof window.map.closePopup === 'function') {
         try {
             window.map.closePopup();
-            console.log('✅ Popup mappa chiuso');
+            debugLog('✅ Popup mappa chiuso', null);
         } catch (e) {
-            console.warn('⚠️ Errore chiusura popup:', e);
+            debugError('⚠️ Errore chiusura popup', e);
         }
     }
 };
@@ -86,7 +142,7 @@ function savePanelFavorites() {
 
 function createSidePanelHTML() {
     if (document.getElementById('pattoSidePanel')) {
-        console.log('⚠️ Side Panel HTML esiste già');
+        debugLog('⚠️ Side Panel HTML esiste già', null);
         return;
     }
 
@@ -167,10 +223,10 @@ function createSidePanelHTML() {
     const mapContainer = document.querySelector('.map-container');
     if (mapContainer) {
         mapContainer.insertAdjacentHTML('beforeend', html);
-        console.log('✅ Side Panel HTML creato dentro map-container');
+        debugLog('✅ Side Panel HTML creato', 'dentro map-container');
     } else {
         document.body.insertAdjacentHTML('beforeend', html);
-        console.log('⚠️ Side Panel HTML creato nel body');
+        debugError('⚠️ map-container non trovato', 'Side Panel HTML creato nel body');
     }
 }
 
@@ -505,28 +561,26 @@ function addSidePanelStyles() {
     `;
 
     document.head.appendChild(styles);
-    console.log('✅ Side Panel CSS aggiunto');
+    debugLog('✅ Side Panel CSS aggiunto', null);
 }
 
 // ==========================================
-// FUNZIONE PRINCIPALE: APRI SIDE PANEL
+// 🟢 FUNZIONE PRINCIPALE: APRI SIDE PANEL
 // ==========================================
 
-
 function openSidePanel(pattoId) {
-    console.log('🔓 OPEN PANEL:', pattoId);
+    debugLog('📖 OPEN PANEL', pattoId);
     
     createSidePanelHTML();
     addSidePanelStyles();
 
     if (!window.allData || window.allData.length === 0) {
-        console.error('❌ Nessun dato');
+        debugError('❌ Nessun dato in window.allData', null);
         return;
     }
 
     const idKey = Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id');
     
-    // ✅ LOGICA SEMPLICE: Se filteredData esiste e ha elementi, usali
     let searchIn = window.allData;
     let source = 'allData';
     
@@ -535,22 +589,28 @@ function openSidePanel(pattoId) {
         source = 'filteredData';
     }
     
-    console.log(`🔍 Cercando in ${source} (${searchIn.length} elementi)`);
+    debugLog(`🔍 Cercando in ${source}`, {
+        elementi: searchIn.length,
+        pattoId
+    });
     
     const patto = searchIn.find(p => p[idKey] == pattoId);
 
     if (!patto) {
-        console.error('❌ Patto non trovato');
+        debugError('❌ Patto non trovato', pattoId);
         return;
     }
 
-    // ✅ CRITICO: Assegna sidePanelData dal dataset corretto
     sidePanelData = searchIn;
     currentSidePanelIndex = sidePanelData.indexOf(patto);
     lastOpenedPattoId = pattoId;
 
-    console.log(`✅ sidePanelData = ${source} (${sidePanelData.length} elementi)`);
-    console.log(`📍 Indice: ${currentSidePanelIndex}/${sidePanelData.length}`);
+    debugLog('✅ Patto trovato', {
+        source,
+        indice: currentSidePanelIndex,
+        totale: sidePanelData.length,
+        titolo: patto[Object.keys(patto).find(k => k.toLowerCase().includes('titolo'))]
+    });
 
     window.closeMapPopups?.();
     populateSidePanelContent(patto);
@@ -567,10 +627,8 @@ function openSidePanel(pattoId) {
         syncMapWithSidePanel(patto);
     }
     
-    // ✅ AGGIORNA COUNTER
     updateSidePanelCounter();
 }
-
 
 function populateSidePanelContent(patto) {
     const findDataKeys = () => {
@@ -660,54 +718,114 @@ function populateSidePanelContent(patto) {
         photoContainer.classList.add('hidden');
     }
 
-    highlightMarkerOnMap(patto);
+    // 🟢 HIGHLIGHT MARKER SULLA MAPPA PRINCIPALE
+    highlightSidePanelMarker(patto);
+    
     setTimeout(() => initializeSidePanelMiniMap(patto), 300);
     updateSidePanelCounter();
 
     if (typeof lucide !== 'undefined') setTimeout(() => lucide.createIcons(), 100);
 }
 
-function highlightMarkerOnMap(patto) {
-    console.log('🎯 Evidenziamento marker per patto:', patto.id);
-    
-    if (!isMapReady()) {
-        console.warn('⚠️ Mappa non pronta, nuovo tentativo tra 500ms');
-        setTimeout(() => highlightMarkerOnMap(patto), 500);
-        return;
-    }
+// ==========================================
+// ðŸŸ¢ FUNZIONE HIGHLIGHT MARKER - VERSIONE CORRETTA
+// ==========================================
+
+async function highlightSidePanelMarker(patto) {
+    debugLog('ðŸŽ¯ highlightSidePanelMarker CHIAMATA', {
+        id: patto?.id,
+        lat: patto?.lat,
+        lng: patto?.lng,
+        mapReady: isMapReady()
+    });
     
     if (!patto.lat || !patto.lng) {
-        console.warn('⚠️ Coordinate non disponibili');
+        debugError('âŒ Coordinate mancanti', { lat: patto?.lat, lng: patto?.lng });
+        return;
+    }
+
+    if (!window.map) {
+        debugError('âŒ Mappa non disponibile', null);
         return;
     }
     
     try {
-        if (highlightedMarker) {
+        // Rimuovi marker precedente
+        if (window.currentHighlightMarker && window.map) {
             try {
-                window.map.removeLayer(highlightedMarker);
-                console.log('✅ Marker precedente rimosso');
-            } catch (e) {
-                console.warn('⚠️ Errore rimozione marker precedente:', e);
-            }
+                window.map.removeLayer(window.currentHighlightMarker);
+                debugLog('âœ… Marker precedente rimosso', null);
+            } catch (e) {}
         }
         
-        highlightedMarker = L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
-            radius: 15,
-            fillColor: '#3b82f6',
-            color: '#ffffff',
-            weight: 4,
-            opacity: 1,
-            fillOpacity: 0.7,
-            className: 'highlighted-marker-pulse'
+        const lat = parseFloat(patto.lat);
+        const lng = parseFloat(patto.lng);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            debugError('âŒ Coordinate invalide', { lat, lng });
+            return;
+        }
+        
+        debugLog('ðŸŽ¯ Coordinate valide', { lat, lng });
+        
+        // âœ… CREA L'ICONA CON EMOJI (AFFIDABILE E SEMPLICE)
+        const icon = L.divIcon({
+            className: 'viewfinder-fallback',
+            html: `
+<div style="
+    /*background: white;*/
+    border: 3px solid #a09090;
+    border-radius: 4px;
+    width: 34px; 
+    height: 34px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0 rgba(59, 130, 246, 0.7);
+    animation: pulseMarker 2s infinite;
+">
+<!-- Linea verticale superiore -->
+    <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
+    
+    <!-- Linea orizzontale sinistra -->
+    <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    
+    <!-- Linea orizzontale destra -->
+    <div style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    
+    <!-- Linea verticale inferiore -->
+    <div style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
+    
+    <!-- Punto centrale -->
+    <div style="width: 5px; height:5px; background:#a09090; border-radius: 50%;"></div>
+</div>
+            `,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
+        });
+        
+        // âœ… AGGIUNGI IL MARKER ALLA MAPPA
+        window.currentHighlightMarker = L.marker([lat, lng], {
+            icon: icon,
+            zIndexOffset: 1000
         }).addTo(window.map);
-
-        console.log('✅ Marker evidenziato alle coordinate:', patto.lat, patto.lng);
+        
+        debugLog('âœ… Marker aggiunto alla mappa', {
+            lat,
+            lng,
+            tipo: 'EMOJI'
+        });
+        
     } catch (error) {
-        console.error('❌ Errore highlight marker:', error);
+        debugError('âŒ Errore highlightSidePanelMarker', error);
     }
 }
 
+
 function initializeSidePanelMiniMap(patto) {
+    debugLog('🗺️ Inizializzazione minimap', { lat: patto?.lat, lng: patto?.lng });
+    
     if (panelMiniMap) {
         try { 
             panelMiniMap.remove(); 
@@ -716,7 +834,10 @@ function initializeSidePanelMiniMap(patto) {
     }
 
     const container = document.getElementById('panelMiniMap');
-    if (!container || !patto.lat || !patto.lng) return;
+    if (!container || !patto.lat || !patto.lng) {
+        debugError('❌ Container o coordinate mancanti', null);
+        return;
+    }
 
     container.innerHTML = '';
 
@@ -744,17 +865,19 @@ function initializeSidePanelMiniMap(patto) {
         }).addTo(panelMiniMap);
 
         setTimeout(() => panelMiniMap && panelMiniMap.invalidateSize(true), 100);
+        debugLog('✅ Minimap inizializzata', null);
     } catch (error) {
-        console.error('❌ Errore minimap:', error);
+        debugError('❌ Errore minimap', error);
     }
 }
 
 function closeSidePanel() {
-    console.log('🔙 Chiusura side panel');
+    debugLog('📖 Chiusura panel', null);
     
     const panel = document.getElementById('pattoSidePanel');
     if (panel) {
         panel.classList.remove('open');
+        
         if (panelMiniMap) {
             try { 
                 panelMiniMap.remove(); 
@@ -762,14 +885,13 @@ function closeSidePanel() {
             panelMiniMap = null;
         }
         
-        if (highlightedMarker && window.map) {
+        // Rimuovi marker viewfinder
+        if (window.currentHighlightMarker && window.map) {
             try {
-                window.map.removeLayer(highlightedMarker);
-                console.log('✅ Highlight marker rimosso alla chiusura');
-            } catch (e) {
-                console.warn('⚠️ Errore rimozione highlight:', e);
-            }
-            highlightedMarker = null;
+                window.map.removeLayer(window.currentHighlightMarker);
+                debugLog('✅ Marker rimosso', null);
+            } catch (e) {}
+            window.currentHighlightMarker = null;
         }
     }
 }
@@ -785,14 +907,14 @@ function setupSidePanelListeners() {
     
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-            console.log('🔼 Navigazione pannello: PRECEDENTE');
+            debugLog('🔼 Navigazione pannello: PRECEDENTE', null);
             navigateSidePanel(-1);
         });
     }
     
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            console.log('🔽 Navigazione pannello: SUCCESSIVO');
+            debugLog('🔽 Navigazione pannello: SUCCESSIVO', null);
             navigateSidePanel(1);
         });
     }
@@ -808,10 +930,13 @@ function setupSidePanelListeners() {
 }
 
 function navigateSidePanel(direction) {
-    console.log('🔄 NAVIGATE:', direction, 'sidePanelData.length:', sidePanelData?.length);
+    debugLog('📄 NAVIGATE', {
+        direction,
+        dataLength: sidePanelData?.length
+    });
 
     if (!sidePanelData || sidePanelData.length === 0) {
-        console.error('❌ Nessun dato');
+        debugError('❌ Nessun dato', null);
         return;
     }
 
@@ -821,7 +946,10 @@ function navigateSidePanel(direction) {
         currentSidePanelIndex = newIndex;
         const patto = sidePanelData[currentSidePanelIndex];
 
-        console.log(`📄 Patto ${currentSidePanelIndex + 1}/${sidePanelData.length}`);
+        debugLog(`📄 Navigazione a patto`, {
+            indice: currentSidePanelIndex + 1,
+            totale: sidePanelData.length
+        });
 
         window.closeMapPopups?.();
         populateSidePanelContent(patto);
@@ -849,8 +977,6 @@ function updateSidePanelCounter() {
     const total = sidePanelData?.length || 1;
     const current = currentSidePanelIndex || 0;
 
-    console.log(`📊 COUNTER: ${current + 1}/${total}`);
-
     if (counter) {
         counter.textContent = `${current + 1}/${total}`;
     }
@@ -865,25 +991,23 @@ function updateSidePanelCounter() {
 }
 
 function syncMapWithSidePanel(patto) {
-    console.log('🗺️ Sincronizzazione mappa con patto:', patto.id);
+    debugLog('🗺️ Sincronizzazione mappa', {
+        id: patto?.id,
+        lat: patto?.lat,
+        lng: patto?.lng
+    });
     
     if (!patto || !patto.lat || !patto.lng) {
-        console.warn('⚠️ Dati mancanti per sincronizzazione:', {
-            patto: !!patto,
-            lat: patto?.lat,
-            lng: patto?.lng
-        });
+        debugError('❌ Dati mancanti', null);
         return;
     }
     
     if (!isMapReady()) {
-        console.warn('⚠️ Mappa non pronta per sincronizzazione');
+        debugError('❌ Mappa non pronta', null);
         return;
     }
     
     try {
-        console.log('🎯 Zoom a livello 17, coordinate:', patto.lat, patto.lng);
-        
         window.map.setView(
             [parseFloat(patto.lat), parseFloat(patto.lng)], 
             17, 
@@ -894,10 +1018,36 @@ function syncMapWithSidePanel(patto) {
             }
         );
         
-        console.log('✅ Mappa sincronizzata');
+        debugLog('✅ Mappa sincronizzata', null);
     } catch (error) {
-        console.error('❌ Errore sincronizzazione mappa:', error);
+        debugError('❌ Errore sincronizzazione mappa', error);
     }
+}
+
+// ==========================================
+// AGGIUNTA ANIMAZIONE CSS PULSE
+// ==========================================
+
+function addPulseAnimation() {
+    if (document.getElementById('pulseAnimationStyle')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'pulseAnimationStyle';
+    style.textContent = `
+        @keyframes pulseMarker {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    debugLog('✅ Animazione pulse aggiunta', null);
 }
 
 // ==========================================
@@ -905,7 +1055,22 @@ function syncMapWithSidePanel(patto) {
 // ==========================================
 
 loadPanelFavorites();
+addPulseAnimation();
 
 window.showPattoDetails = openSidePanel;
 
-console.log('✅ Side Panel caricato correttamente');
+// 🟢 RENDI LE FUNZIONI GLOBALI PER DEBUG
+window.debugLog = debugLog;
+window.debugError = debugError;
+window.getBasePath = getBasePath;
+window.getImagePath = getImagePath;
+window.checkImageAvailability = checkImageAvailability;
+window.highlightMarkerOnMap = highlightMarkerOnMap;
+
+// 🟢 LOG FINALE
+debugLog('✅ Side Panel caricato correttamente', {
+    basePath: getBasePath(),
+    imagePath: getImagePath('mirino.png'),
+    mapReady: isMapReady(),
+    dataAvailable: window.allData?.length > 0
+});

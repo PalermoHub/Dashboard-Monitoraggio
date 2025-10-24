@@ -46,27 +46,23 @@ const statusColors = {
 // ==========================================
 // FUNZIONE GLOBALE: CHIUDI POPUP E APRI PANNELLO
 // ==========================================
+
 function closeMapPopupAndOpenPanel(pattoId) {
-    console.log('🔄 Chiusura popup e apertura pannello per patto:', pattoId);
+    console.log('🔄 Apertura side panel per patto:', pattoId);
     
     try {
-        // Chiudi il popup della mappa
         if (map && typeof map.closePopup === 'function') {
             map.closePopup();
-            console.log('✅ Popup mappa chiuso');
         }
         
-        // Aspetta un momento e poi apri il pannello
+        // ✅ Usa direttamente openSidePanel, non showPattoDetails
         setTimeout(() => {
-            if (typeof window.showPattoDetails === 'function') {
-                window.showPattoDetails(pattoId);
-                console.log('✅ Pannello aperto per patto:', pattoId);
-            } else {
-                console.error('❌ Funzione showPattoDetails non trovata');
+            if (typeof openSidePanel === 'function') {
+                openSidePanel(pattoId);
             }
         }, 100);
     } catch (error) {
-        console.error('❌ Errore nella chiusura popup:', error);
+        console.error('Errore:', error);
     }
 }
 
@@ -1358,39 +1354,7 @@ function centerMapOnFilteredData() {
     map.fitBounds(bounds, { padding: [15, 15] });
 }
 
-// Funzione per evidenziare un patto sulla mappa principale
-window.highlightPattoMarkerOnMap = function(patto) {
-    if (!map || !patto || !patto.lat || !patto.lng) return false;
-    
-    try {
-        // Rimuovi highlight precedente se esiste
-        if (window.currentPattoHighlight) {
-            try {
-                map.removeLayer(window.currentPattoHighlight);
-            } catch (e) {}
-        }
-        
-        // Crea nuovo highlight
-        window.currentPattoHighlight = L.circleMarker(
-            [parseFloat(patto.lat), parseFloat(patto.lng)],
-            {
-                radius: 20,
-                fillColor: '#3b82f6',
-                color: '#ffffff',
-                weight: 4,
-                opacity: 1,
-                fillOpacity: 0.7,
-                className: 'side-panel-highlight-pulse',
-                interactive: false
-            }
-        ).addTo(map);
-        
-        return true;
-    } catch (error) {
-        console.error('Errore evidenziazione marker:', error);
-        return false;
-    }
-};
+
 
 // Funzione per rimuovere highlight
 window.removePattoHighlight = function() {
@@ -1910,31 +1874,7 @@ function addModernChartStyles() {
 }
     `;
     document.head.appendChild(style);
-	
-	// Stile per highlight del side panel sulla mappa principale
-    const sidePanelHighlightStyle = document.createElement('style');
-    sidePanelHighlightStyle.id = 'sidePanelHighlightStyle';
-    sidePanelHighlightStyle.textContent = `
-        @keyframes side-panel-pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .side-panel-highlight-pulse {
-            animation: side-panel-pulse 2s ease-in-out infinite !important;
-        }
-    `;
-    document.head.appendChild(sidePanelHighlightStyle);
+		
 }
 
 // ==========================================
@@ -2109,14 +2049,13 @@ function updateTable() {
     }
 }
 
-//function showPattoDetails(pattoId) {
-    // ... il vecchio codice del modal ...
- //   const modal = document.getElementById('pattoModal');
-//    if (modal) {
-//       modal.classList.remove('hidden');
- //       modal.classList.add('flex');
-//    }
-// }
+function showPattoDetails(pattoId) {
+    console.log('showPattoDetails richiamata, aprendo side panel');
+    // Richiama il side panel invece del modal
+    if (typeof openSidePanel === 'function') {
+        openSidePanel(pattoId);
+    }
+}
 
 // ==========================================
 // AUTOCOMPLETAMENTO
