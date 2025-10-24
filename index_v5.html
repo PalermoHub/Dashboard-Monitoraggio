@@ -16,8 +16,9 @@
 	<link rel="stylesheet" href="css/v5/patti_pa_general.css"> 
 	<link rel="stylesheet" href="css/v5/patti_pa_media.css"> 
 	<link rel="stylesheet" href="css/v5/patti_pa_footer.css">
-	<link rel="stylesheet" href="css/v5/patti_pa_footer_media.css">	
+	<link rel="stylesheet" href="css/v5/patti_pa_footer_media.css">
 	<link rel="stylesheet" href="css/v5/reg_att.css"> 
+
  <!--	   -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -441,47 +442,48 @@
             <section class="map-container" 
                      role="application" 
                      aria-label="Mappa interattiva dei patti di collaborazione">
-                     
-                <div id="map" class="map-area">
-                    <!-- Map Controls -->
-                    <div class="map-controls">
-                        <!-- Layer Toggle -->
-                        <div class="relative">
-                            <button id="layerToggle" 
-                                    class="map-control"
-                                    aria-label="Cambia tipo di mappa"
-                                    aria-expanded="false"
-                                    aria-haspopup="true">
-                                <i data-lucide="layers" class="h-5 w-5" aria-hidden="true"></i>
-                            </button>
-                            
-                            <div id="layerMenu" 
-                                 class="layer-menu hidden"
-                                 role="menu"
-                                 aria-label="Opzioni layer mappa">
-                                <button id="mapStandard" 
-                                        class="layer-option active"
-                                        role="menuitem">
-                                    Standard
-                                </button>
-                                <button id="mapSatellite" 
-                                        class="layer-option"
-                                        role="menuitem">
-                                    Satellite
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Center Button -->
-                        <button id="centerPalermo" 
-                                class="map-control"
-                                title="Centra la mappa su Palermo"
-                                aria-label="Centra la mappa sul centro di Palermo">
-                            <i data-lucide="home" class="h-5 w-5" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
+                   
+				   
+<div id="map" class="map-area">
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <!-- Layer Toggle -->
+        <div class="relative">
+            <button id="layerToggle" 
+                    class="map-control"
+                    aria-label="Cambia tipo di mappa"
+                    aria-expanded="false"
+                    aria-haspopup="true">
+                <i data-lucide="layers" class="h-5 w-5" aria-hidden="true"></i>
+            </button>
+            
+            <div id="layerMenu" 
+                 class="layer-menu hidden"
+                 role="menu"
+                 aria-label="Opzioni layer mappa">
+                <button id="mapStandard" 
+                        class="layer-option active"
+                        role="menuitem">
+                    Standard
+                </button>
+                <button id="mapSatellite" 
+                        class="layer-option"
+                        role="menuitem">
+                    Satellite
+                </button>
+            </div>
+        </div>
+        
+        <!-- Center Button -->
+        <button id="centerPalermo" 
+                class="map-control"
+                title="Centra la mappa su Palermo"
+                aria-label="Centra la mappa sul centro di Palermo">
+            <i data-lucide="home" class="h-5 w-5" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+		   </section>
 
             <!-- STATISTICS AND LEGEND -->
             <div class="stats-container">
@@ -2493,7 +2495,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
     <!-- JavaScript -->
-	<script src="js/v5/monitoraggio_p1-v2.js"></script>
+	<script src="js/v5/monitoraggio_p1-v5.js"></script>
 	<script src="js/v5/side-panel.js"></script>
 	<script src="js/v5/map-controls.js"></script>
     <script src="js/v5/smart-search-v2.js"></script>

@@ -574,7 +574,7 @@ body {
 /* Map Controls */
 .map-controls {
     position: absolute;
-    top: 80px; /* Sotto i controlli zoom di Leaflet */
+    top: 80px; 
     left: var(--space-2);
     z-index: var(--z-fixed);
     display: flex;
