@@ -1,16 +1,14 @@
-// Side Panel Flottante - VERSIONE CORETTA CON SINCRONIZZAZIONE MAPPA CORRETTA
+// Side Panel Flottante - VERSIONE CORRETTA CON GESTIONE MAPPA MIGLIORATA
 // File: js/v5/side-panel.js
 
 console.log('🚀 Side Panel: Inizio caricamento');
 
 let panelMiniMap = null;
+let currentPanelIndex = 0;
 let panelFavorites = [];
 let highlightedMarker = null;
 let sidePanelData = null;
-
-// 🔥 VARIABILI CRITICHE - GESTIONE DELL'INDICE
-let currentSidePanelIndex = 0;  // Indice nel dataset ATTUALE (filtrato o completo)
-let lastOpenedPattoId = null;   // Traccia l'ultimo patto aperto
+let currentSidePanelIndex = 0;
 
 // ==========================================
 // FUNZIONE PER VERIFICARE SE LA MAPPA È PRONTA
@@ -129,6 +127,7 @@ function createSidePanelHTML() {
         </div>
     `;
 
+    // Inserisci il pannello DENTRO .map-container
     const mapContainer = document.querySelector('.map-container');
     if (mapContainer) {
         mapContainer.insertAdjacentHTML('beforeend', html);
@@ -243,6 +242,10 @@ function addSidePanelStyles() {
         .side-panel-content::-webkit-scrollbar-thumb {
             background: var(--color-gray-400);
             border-radius: 3px;
+        }
+
+        .side-panel-content::-webkit-scrollbar-thumb:hover {
+            background: var(--color-gray-500);
         }
 
         .side-panel-footer {
@@ -449,11 +452,34 @@ function addSidePanelStyles() {
             background: var(--color-gray-100);
         }
 
+        @keyframes highlighted-marker-pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3); 
+                opacity: 0.7;
+            }
+        }
+
+        .highlighted-marker-pulse {
+            animation: highlighted-marker-pulse 1.5s ease-in-out infinite !important;
+        }
+
         @media (max-width: 1400px) {
             .side-panel {
                 width: 300px;
                 right: -320px;
                 max-width: 35%;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .side-panel {
+                width: 280px;
+                right: -300px;
+                max-width: 30%;
             }
         }
 
@@ -466,6 +492,9 @@ function addSidePanelStyles() {
                 bottom: 0;
                 max-width: none;
             }
+            .side-panel.open {
+                right: 0;
+            }
         }
     `;
 
@@ -473,9 +502,7 @@ function addSidePanelStyles() {
     console.log('✅ Side Panel CSS aggiunto');
 }
 
-// ==========================================
-// FUNZIONE PRINCIPALE: APRI SIDE PANEL
-// ==========================================
+
 function openSidePanel(pattoId) {
     console.log('📂 Apertura panel per patto ID:', pattoId);
     
@@ -488,40 +515,18 @@ function openSidePanel(pattoId) {
         return;
     }
 
-    // 🔍 FIND THE PATTO IN FILTERED DATA FIRST, THEN IN ALL DATA
     const idKey = Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id');
-    
-    // Controlla prima nei dati filtrati (se disponibili)
-    let patto = null;
-    let dataSource = 'all';
-    
-    if (window.filteredData && Array.isArray(window.filteredData)) {
-        patto = window.filteredData.find(p => p[idKey] == pattoId);
-        if (patto) {
-            sidePanelData = window.filteredData;
-            dataSource = 'filtered';
-        }
-    }
-    
-    // Se non trovato nei filtrati, cerca in tutti
-    if (!patto) {
-        patto = window.allData.find(p => p[idKey] == pattoId);
-        sidePanelData = window.allData;
-        dataSource = 'all';
-    }
+    const patto = window.allData.find(p => p[idKey] == pattoId);
 
     if (!patto) {
         console.error('❌ Patto non trovato:', pattoId);
         return;
     }
 
-    // 🔥 FIND INDEX IN CURRENT DATA SOURCE
-    currentSidePanelIndex = sidePanelData.indexOf(patto);
-    lastOpenedPattoId = pattoId;
-    
-    console.log(`✅ Patto trovato nel dataset ${dataSource} all'indice ${currentSidePanelIndex}`);
+    currentPanelIndex = window.allData.indexOf(patto);
     
     window.closeMapPopups();
+    
     populateSidePanelContent(patto);
     setupSidePanelListeners();
 
@@ -532,13 +537,20 @@ function openSidePanel(pattoId) {
         setTimeout(() => lucide.createIcons(), 100);
     }
 
-    // Sincronizza mappa
-    if (isMapReady()) {
-        syncMapWithSidePanel(patto);
-    } else {
-        setTimeout(() => {
-            if (isMapReady()) syncMapWithSidePanel(patto);
-        }, 500);
+    // Sincronizza mappa - tenta subito, poi riprova se necessario
+    const pattoToSync = window.allData[currentPanelIndex];
+    if (pattoToSync) {
+        if (isMapReady()) {
+            syncMapWithSidePanel(pattoToSync);
+        } else {
+            // Riprova progressivamente
+            setTimeout(() => {
+                if (isMapReady()) syncMapWithSidePanel(pattoToSync);
+                else setTimeout(() => {
+                    if (isMapReady()) syncMapWithSidePanel(pattoToSync);
+                }, 500);
+            }, 300);
+        }
     }
 }
 
@@ -638,8 +650,9 @@ function populateSidePanelContent(patto) {
 }
 
 function highlightMarkerOnMap(patto) {
-    console.log('🎯 Evidenziamento marker per patto:', patto.id);
+    console.log('Evidenziamento marker per patto:', patto);
     
+    // Attendi che la mappa sia pronta
     if (!isMapReady()) {
         console.warn('⚠️ Mappa non pronta, nuovo tentativo tra 500ms');
         setTimeout(() => highlightMarkerOnMap(patto), 500);
@@ -652,15 +665,17 @@ function highlightMarkerOnMap(patto) {
     }
     
     try {
+        // Rimuovi highlight precedente
         if (highlightedMarker) {
             try {
                 window.map.removeLayer(highlightedMarker);
-                console.log('✅ Marker precedente rimosso');
+                console.log('Marker precedente rimosso');
             } catch (e) {
                 console.warn('⚠️ Errore rimozione marker precedente:', e);
             }
         }
         
+        // Crea nuovo highlight con animazione pulse
         highlightedMarker = L.circleMarker([parseFloat(patto.lat), parseFloat(patto.lng)], {
             radius: 15,
             fillColor: '#3b82f6',
@@ -671,7 +686,7 @@ function highlightMarkerOnMap(patto) {
             className: 'highlighted-marker-pulse'
         }).addTo(window.map);
 
-        console.log('✅ Marker evidenziato alle coordinate:', patto.lat, patto.lng);
+        console.log('Marker evidenziato alle coordinate:', patto.lat, patto.lng);
     } catch (error) {
         console.error('❌ Errore highlight marker:', error);
     }
@@ -720,7 +735,7 @@ function initializeSidePanelMiniMap(patto) {
 }
 
 function closeSidePanel() {
-    console.log('🔙 Chiusura side panel');
+    console.log('Chiusura side panel');
     
     const panel = document.getElementById('pattoSidePanel');
     if (panel) {
@@ -732,10 +747,11 @@ function closeSidePanel() {
             panelMiniMap = null;
         }
         
+        // Rimuovi highlight del marker quando chiudi il pannello
         if (highlightedMarker && window.map) {
             try {
                 window.map.removeLayer(highlightedMarker);
-                console.log('✅ Highlight marker rimosso alla chiusura');
+                console.log('Highlight marker rimosso alla chiusura');
             } catch (e) {
                 console.warn('⚠️ Errore rimozione highlight:', e);
             }
@@ -748,6 +764,7 @@ function setupSidePanelListeners() {
     const closeBtn = document.getElementById('closeSidePanel');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeSidePanel);
+        console.log('Listener close panel configurato');
     }
 
     const prevBtn = document.getElementById('sidePanelPrevious');
@@ -755,41 +772,53 @@ function setupSidePanelListeners() {
     
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-            console.log('🔼 Navigazione pannello: PRECEDENTE');
+            console.log('Navigazione pannello: PRECEDENTE');
             navigateSidePanel(-1);
         });
     }
     
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            console.log('🔽 Navigazione pannello: SUCCESSIVO');
+            console.log('Navigazione pannello: SUCCESSIVO');
             navigateSidePanel(1);
         });
     }
 
+    // Navigazione da tastiera
     document.addEventListener('keydown', (e) => {
         const panel = document.getElementById('pattoSidePanel');
         if (!panel || !panel.classList.contains('open')) return;
         
-        if (e.key === 'Escape') closeSidePanel();
-        if (e.key === 'ArrowUp') navigateSidePanel(-1);
-        if (e.key === 'ArrowDown') navigateSidePanel(1);
+        if (e.key === 'Escape') {
+            console.log('Tasto ESC - Chiusura pannello');
+            closeSidePanel();
+        }
+        if (e.key === 'ArrowUp') {
+            console.log('Freccia SU - Navigazione precedente');
+            navigateSidePanel(-1);
+        }
+        if (e.key === 'ArrowDown') {
+            console.log('Freccia GIÙ - Navigazione successivo');
+            navigateSidePanel(1);
+        }
     });
 }
 
-// 🔥 FUNZIONE CORRETTA DI NAVIGAZIONE
 function navigateSidePanel(direction) {
-    const newIndex = currentSidePanelIndex + direction;
+    const newIndex = currentPanelIndex + direction;
     
-    console.log(`🔄 Navigazione: indice attuale ${currentSidePanelIndex}, nuovo indice ${newIndex}`);
+    console.log(`Navigazione: indice attuale ${currentPanelIndex}, nuovo indice ${newIndex}`);
     
-    if (newIndex >= 0 && newIndex < sidePanelData.length) {
-        currentSidePanelIndex = newIndex;
-        const patto = sidePanelData[currentSidePanelIndex];
+    if (newIndex >= 0 && newIndex < window.allData.length) {
+        currentPanelIndex = newIndex;
+        const patto = window.allData[currentPanelIndex];
         
-        console.log('📝 Caricamento patto:', patto.id);
+        console.log('Caricamento patto:', patto);
         
+        // Chiudi i popup della mappa prima di navigare
         window.closeMapPopups();
+        
+        // Popola il pannello con i nuovi dati
         populateSidePanelContent(patto);
         
         const content = document.querySelector('.side-panel-content');
@@ -799,6 +828,7 @@ function navigateSidePanel(direction) {
         
         updateSidePanelCounter();
         
+        // Sincronizza la mappa con il nuovo patto
         setTimeout(() => {
             console.log('🗺️ Sincronizzazione mappa con nuovo patto');
             if (isMapReady()) {
@@ -816,20 +846,20 @@ function updateSidePanelCounter() {
     const nextBtn = document.getElementById('sidePanelNext');
 
     if (counter) {
-        counter.textContent = `${currentSidePanelIndex + 1}/${sidePanelData.length}`;
+        counter.textContent = `${currentPanelIndex + 1}/${window.allData.length}`;
     }
     
     if (prevBtn) {
-        prevBtn.disabled = currentSidePanelIndex === 0;
+        prevBtn.disabled = currentPanelIndex === 0;
     }
     
     if (nextBtn) {
-        nextBtn.disabled = currentSidePanelIndex === sidePanelData.length - 1;
+        nextBtn.disabled = currentPanelIndex === window.allData.length - 1;
     }
 }
 
 function syncMapWithSidePanel(patto) {
-    console.log('🗺️ Sincronizzazione mappa con patto:', patto.id);
+    console.log('🗺️ Sincronizzazione mappa con patto:', patto);
     
     if (!patto || !patto.lat || !patto.lng) {
         console.warn('⚠️ Dati mancanti per sincronizzazione:', {
@@ -840,12 +870,14 @@ function syncMapWithSidePanel(patto) {
         return;
     }
     
+    // Verifica che la mappa sia pronta
     if (!isMapReady()) {
         console.warn('⚠️ Mappa non pronta per sincronizzazione');
         return;
     }
     
     try {
+        // Zoom e centra la mappa sulle coordinate del patto
         console.log('🎯 Zoom a livello 17, coordinate:', patto.lat, patto.lng);
         
         window.map.setView(
@@ -870,6 +902,138 @@ function syncMapWithSidePanel(patto) {
 
 loadPanelFavorites();
 
+// Esporta la funzione globale
 window.showPattoDetails = openSidePanel;
 
 console.log('✅ Side Panel caricato correttamente');
+
+// ==========================================
+// SOLUZIONE DIRETTA - AGGIUNGI ALLA FINE DI side-panel.js
+// ==========================================
+
+console.log('\n🔄 CARICAMENTO SYNC DIRETTO...\n');
+
+// Salva la funzione originale
+const originalPopulateSidePanelContent = window.populateSidePanelContent;
+
+// Sovrascrivi la funzione
+window.populateSidePanelContent = function(patto) {
+    console.log('📍 SYNC: populateSidePanelContent chiamata per patto:', patto?.id);
+    
+    // Chiama la funzione originale
+    originalPopulateSidePanelContent.call(this, patto);
+    
+    // SUBITO DOPO, sincronizza la mappa
+    console.log('🎯 SYNC: Sincronizzazione mappa...');
+    syncMapWithPatto(patto);
+};
+
+// Nuova funzione di sincronizzazione
+function syncMapWithPatto(patto) {
+    if (!patto || !patto.lat || !patto.lng) {
+        console.warn('⚠️ SYNC: Dati patto invalidi');
+        return;
+    }
+    
+    if (!window.map) {
+        console.warn('⚠️ SYNC: Mappa non trovata');
+        return;
+    }
+    
+    try {
+        const lat = parseFloat(patto.lat);
+        const lng = parseFloat(patto.lng);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            console.warn('⚠️ SYNC: Coordinate non valide:', lat, lng);
+            return;
+        }
+        
+        console.log('✅ SYNC: Centering mappa su:', lat, lng);
+        
+        // Centra la mappa
+        window.map.setView([lat, lng], 17, {
+            animate: true,
+            duration: 1
+        });
+        
+        // Rimuovi highlight vecchio
+// Rimuovi highlight vecchio
+if (window._syncHighlight) {
+    try {
+        map.removeLayer(window._syncHighlight);
+        window._syncHighlight = null;  // ← AGGIUNGI QUESTA RIGA
+        console.log('✅ Highlight vecchio rimosso');
+    } catch (e) {
+        console.warn('⚠️ Errore rimozione:', e);
+    }
+}
+
+// Crea nuovo highlight
+if (typeof L !== 'undefined') {
+            const statoKey = Object.keys(patto).find(k => k.toLowerCase().includes('stato'));
+            const stato = patto[statoKey] || '';
+            
+            const colori = {
+                'Istruttoria in corso': '#ffdb4d',
+                'Respinta': '#ff6b6b',
+                'Patto stipulato': '#8fd67d',
+                'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
+                'In attesa di integrazione': '#b3e6ff',
+                'Archiviata': '#94a3b8'
+            };
+            
+            const colore = colori[stato] || '#3B82F6';
+            
+            window._syncHighlight = L.circleMarker([lat, lng], {
+                radius: 18,
+                fillColor: colore,
+                color: '#ffffff',
+                weight: 4,
+                opacity: 1,
+                fillOpacity: 0.85
+            }).addTo(window.map);
+            
+            console.log('✅ SYNC: Marker evidenziato');
+        }
+        
+    } catch (error) {
+        console.error('❌ SYNC: Errore:', error);
+    }
+}
+
+// Sovrascrivi anche navigateSidePanel per re-sincronizzare
+const originalNavigateSidePanel = window.navigateSidePanel;
+
+window.navigateSidePanel = function(direction) {
+    originalNavigateSidePanel.call(this, direction);
+    
+    setTimeout(() => {
+        if (window.allData && typeof currentSidePanelIndex !== 'undefined') {
+            const patto = window.allData[currentSidePanelIndex];
+            if (patto) {
+                console.log('🔄 SYNC: Re-sync dopo navigazione');
+                syncMapWithPatto(patto);
+            }
+        }
+    }, 300);
+};
+
+// Sovrascrivi closeSidePanel per cleanup
+const originalCloseSidePanel = window.closeSidePanel;
+
+window.closeSidePanel = function() {
+    originalCloseSidePanel.call(this);
+    
+    setTimeout(() => {
+        if (window._syncHighlight && window.map) {
+            try {
+                window.map.removeLayer(window._syncHighlight);
+                window._syncHighlight = null;
+                console.log('✅ SYNC: Highlight rimosso');
+            } catch (e) {}
+        }
+    }, 200);
+};
+
+console.log('✅ SYNC DIRETTO CARICATO - Pronto!\n');

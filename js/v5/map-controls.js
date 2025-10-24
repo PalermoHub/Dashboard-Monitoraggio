@@ -332,6 +332,8 @@ function initializeMapFixed() {
             scrollWheelZoom: true,
             touchZoom: true
         }).setView(PALERMO_CENTER, 12);
+		
+		window.map = map;  // ← AGGIUNGI QUESTA RIGA
         
         // Aggiungi layer di base standard
         const baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {

@@ -686,19 +686,20 @@ function initializeMap() {
             map.remove();
         }
         
-        map = L.map('map', {
-            maxBounds: PALERMO_BOUNDS,
-            maxZoom: 18,
-            minZoom: 11,
-            zoomControl: true,
-            preferCanvas: true,
-            closePopupOnClick: false,
-            doubleClickZoom: true,
-            dragging: true,
-            keyboard: true,
-            scrollWheelZoom: true,
-            touchZoom: true
-        }).setView(PALERMO_CENTER, 12);
+map = L.map('map', {
+    maxBounds: PALERMO_BOUNDS,
+    maxZoom: 18,
+    minZoom: 11,
+    zoomControl: true,
+    preferCanvas: true,
+    closePopupOnClick: false,
+    doubleClickZoom: true,
+    dragging: true,
+    keyboard: true,
+    scrollWheelZoom: true,
+    touchZoom: true
+}).setView(PALERMO_CENTER, 12);
+
         
         const baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
             attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. Data © <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> - Rielaborazione di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano</a> - 2025',
@@ -2869,3 +2870,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 console.log('Dashboard Monitoraggio Patti - Versione Completa con Grafici Moderni caricata');
+
