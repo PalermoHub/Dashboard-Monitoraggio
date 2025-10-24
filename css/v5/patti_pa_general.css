@@ -2373,22 +2373,34 @@ body {
     border: 2px solid white;
 }
 
+
+
+
 .leaflet-popup-content-wrapper {
     background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0; /* Rimuove padding wrapper */
 }
 
 .leaflet-popup-content {
-    margin: 13px 19px;
+    margin: 3px 4px !important;  /* Riducevo da 13px 19px */
+    padding: 4px 0;               /* Aggiunge controllo extra */
     line-height: 1.4;
     color: #334155;
+    font-size: 0.875rem;
+    max-width: 280px;             /* Limita larghezza */
+}
+
+.leaflet-popup-content p {
+    margin: 4px 0 !important;     /* Riduci spazi tra righe */
+    padding: 2px 0;
 }
 
 .leaflet-popup-close-button {
     position: absolute;
-    top: 2px;
-    right: 4px;
+    top: -8px;
+    right: -8px;
     padding: 4px 4px 0 0;
     border: 0;
     background: transparent;
@@ -2397,11 +2409,20 @@ body {
     color: #999;
     opacity: 0.8;
     cursor: pointer;
+    width: 24px;
+    height: 24px;
 }
 
 .leaflet-popup-close-button:hover {
     color: #333;
     opacity: 1;
+}
+
+/* Stilizza il bottone "Vedi dettagli" */
+.leaflet-popup-content .btn-popup {
+    margin: 8px 0 0 0 !important;
+    padding: 8px 16px !important;
+    font-size: 0.875rem !important;
 }
 
 #map .leaflet-control-attribution {

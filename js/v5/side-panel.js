@@ -788,10 +788,10 @@ async function highlightSidePanelMarker(patto) {
             className: 'viewfinder-fallback',
             html: `
 <div style="
-    border: 3px solid #a09090;
+    border: 2px solid #a09090;
     border-radius: 4px;
-    width: 34px; 
-    height: 34px; 
+    width: 30px; 
+    height: 30px; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -800,23 +800,23 @@ async function highlightSidePanelMarker(patto) {
     animation: pulseMarker 2s infinite;
 ">
 <!-- Linea verticale superiore -->
-    <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
+    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
     
     <!-- Linea orizzontale sinistra -->
-    <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    <div style="position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
     
     <!-- Linea orizzontale destra -->
-    <div style="position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    <div style="position: absolute; right: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
     
     <!-- Linea verticale inferiore -->
-    <div style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
+    <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
     
-    <!-- Punto centrale -->
-    <div style="width: 5px; height:5px; background:#a09090; border-radius: 50%;"></div>
+    <!-- Punto centrale
+    <div style="width: 5px; height:5px; background:#a09090; border-radius: 50%;"></div> -->
 </div>
             `,
-            iconSize: [34, 34],
-            iconAnchor: [17, 17]
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
         });
         
         // 🔭 AGGIUNGI IL MARKER ALLA MAPPA

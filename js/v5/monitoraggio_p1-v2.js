@@ -1739,7 +1739,7 @@ function addModernChartStyles() {
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: .92rem;
         }
         
         .chart-selector-enhanced select {
