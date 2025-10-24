@@ -1,6 +1,5 @@
 // Side Panel Flottante - VERSIONE DEBUG COMPLETA
 // File: js/v5/side-panel.js
-// Icons: Font Awesome
 
 console.log('🚀 Side Panel: Inizio caricamento');
 
@@ -153,14 +152,14 @@ function createSidePanelHTML() {
                 <img src="img/patti.png" alt="Logo Patti" class="side-panel-logo" title="Patti di Collaborazione">
                 <h2 id="sidePanelTitle" class="side-panel-title">Dettagli Patto</h2>
                 <button id="closeSidePanel" class="side-panel-close" title="Chiudi">
-                    <i class="fas fa-times"></i>
+                    <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
             </div>
 
             <div class="side-panel-content">
                 <div class="panel-section">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-info-circle"></i>
+                        <i data-lucide="info" class="h-4 w-4"></i>
                         Informazioni Generali
                     </h3>
                     <div id="panelDetails" class="panel-details"></div>
@@ -168,7 +167,7 @@ function createSidePanelHTML() {
 
                 <div class="panel-section">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-pulse"></i>
+                        <i data-lucide="activity" class="h-4 w-4"></i>
                         Stato
                     </h3>
                     <div id="panelStatus" class="panel-status"></div>
@@ -176,7 +175,7 @@ function createSidePanelHTML() {
 
                 <div id="panelNotesContainer" class="panel-section hidden">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-file-alt"></i>
+                        <i data-lucide="file-text" class="h-4 w-4"></i>
                         Note
                     </h3>
                     <p id="panelNotes" class="panel-notes"></p>
@@ -184,7 +183,7 @@ function createSidePanelHTML() {
 
                 <div class="panel-section">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-link"></i>
+                        <i data-lucide="external-link" class="h-4 w-4"></i>
                         Collegamenti
                     </h3>
                     <div id="panelLinks" class="panel-links"></div>
@@ -192,7 +191,7 @@ function createSidePanelHTML() {
 
                 <div id="panelPhotoContainer" class="panel-section hidden">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-image"></i>
+                        <i data-lucide="image" class="h-4 w-4"></i>
                         Foto
                     </h3>
                     <img id="panelPhoto" alt="Foto patto" class="panel-photo">
@@ -200,7 +199,7 @@ function createSidePanelHTML() {
 
                 <div class="panel-section">
                     <h3 class="panel-section-title">
-                        <i class="fas fa-map-marker-alt"></i>
+                        <i data-lucide="map-pin" class="h-4 w-4"></i>
                         Posizione
                     </h3>
                     <div id="panelMiniMapWrapper" class="panel-minimap-wrapper">
@@ -211,11 +210,11 @@ function createSidePanelHTML() {
 
             <div class="side-panel-footer">
                 <button id="sidePanelPrevious" class="panel-nav-btn" title="Precedente">
-                    <i class="fas fa-chevron-up"></i>
+                    <i data-lucide="chevron-up" class="h-4 w-4"></i>
                 </button>
                 <span id="sidePanelCounter" class="panel-counter">1/1</span>
                 <button id="sidePanelNext" class="panel-nav-btn" title="Successivo">
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down" class="h-4 w-4"></i>
                 </button>
             </div>
         </div>
@@ -316,10 +315,6 @@ function addSidePanelStyles() {
             transform: rotate(90deg);
         }
 
-        .side-panel-close i {
-            font-size: 16px;
-        }
-
         .side-panel-content {
             flex: 1;
             overflow-y: auto;
@@ -344,7 +339,7 @@ function addSidePanelStyles() {
         .side-panel-footer {
             padding: 10px;
             border-top: 1px solid var(--border-color);
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            background:linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -367,10 +362,6 @@ function addSidePanelStyles() {
             transition: all 0.3s ease;
             padding: 0;
             min-width: 28px;
-        }
-
-        .panel-nav-btn i {
-            font-size: 14px;
         }
 
         .panel-nav-btn:hover:not(:disabled) {
@@ -417,10 +408,6 @@ function addSidePanelStyles() {
             gap: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .panel-section-title i {
-            font-size: 12px;
         }
 
         .panel-details {
@@ -478,10 +465,6 @@ function addSidePanelStyles() {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
 
-        .download-pdf-btn i {
-            font-size: 12px;
-        }
-
         .download-pdf-btn:hover {
             background: var(--color-success);
             transform: translateY(-1px);
@@ -519,10 +502,6 @@ function addSidePanelStyles() {
             font-size: 0.8rem;
             transition: all 0.3s ease;
             cursor: pointer;
-        }
-
-        .panel-link-btn i {
-            font-size: 14px;
         }
 
         .panel-link-btn:hover {
@@ -640,6 +619,10 @@ function openSidePanel(pattoId) {
     const panel = document.getElementById('pattoSidePanel');
     panel.classList.add('open');
 
+  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+  //      setTimeout(() => lucide.createIcons(), 100);
+  //  }
+
     if (window.map) {
         syncMapWithSidePanel(patto);
     }
@@ -701,7 +684,7 @@ function populateSidePanelContent(patto) {
         const pattoId = patto[keys.id] || 'XX';
         statusHTML += `
             <a href="${patto[keys.pdf].trim()}" download target="_blank" rel="noopener" class="download-pdf-btn">
-                <i class="fas fa-download"></i>
+                <i data-lucide="download"></i>
                 <span>Patto nº ${pattoId}</span>
             </a>
         `;
@@ -723,7 +706,7 @@ function populateSidePanelContent(patto) {
         link.href = patto[keys.googlemaps];
         link.target = '_blank';
         link.className = 'panel-link-btn';
-        link.innerHTML = '<i class="fas fa-map"></i> <span>Google Maps</span>';
+        link.innerHTML = '<i data-lucide="map"></i> <span>Google Maps</span>';
         links.appendChild(link);
     }
 
@@ -740,14 +723,16 @@ function populateSidePanelContent(patto) {
     
     setTimeout(() => initializeSidePanelMiniMap(patto), 300);
     updateSidePanelCounter();
+
+    //if (typeof lucide !== 'undefined') setTimeout(() => lucide.createIcons(), 100);
 }
 
 // ==========================================
-// 🟢 FUNZIONE HIGHLIGHT MARKER - VERSIONE CORRETTA
+// ðŸŸ¢ FUNZIONE HIGHLIGHT MARKER - VERSIONE CORRETTA
 // ==========================================
 
 async function highlightSidePanelMarker(patto) {
-    debugLog('🟯 highlightSidePanelMarker CHIAMATA', {
+    debugLog('ðŸŽ¯ highlightSidePanelMarker CHIAMATA', {
         id: patto?.id,
         lat: patto?.lat,
         lng: patto?.lng,
@@ -755,12 +740,12 @@ async function highlightSidePanelMarker(patto) {
     });
     
     if (!patto.lat || !patto.lng) {
-        debugError('❌ Coordinate mancanti', { lat: patto?.lat, lng: patto?.lng });
+        debugError('âŒ Coordinate mancanti', { lat: patto?.lat, lng: patto?.lng });
         return;
     }
 
     if (!window.map) {
-        debugError('❌ Mappa non disponibile', null);
+        debugError('âŒ Mappa non disponibile', null);
         return;
     }
     
@@ -769,7 +754,7 @@ async function highlightSidePanelMarker(patto) {
         if (window.currentHighlightMarker && window.map) {
             try {
                 window.map.removeLayer(window.currentHighlightMarker);
-                debugLog('🔭 Marker precedente rimosso', null);
+                debugLog('âœ… Marker precedente rimosso', null);
             } catch (e) {}
         }
         
@@ -777,17 +762,18 @@ async function highlightSidePanelMarker(patto) {
         const lng = parseFloat(patto.lng);
         
         if (isNaN(lat) || isNaN(lng)) {
-            debugError('❌ Coordinate invalide', { lat, lng });
+            debugError('âŒ Coordinate invalide', { lat, lng });
             return;
         }
         
-        debugLog('🟯 Coordinate valide', { lat, lng });
+        debugLog('ðŸŽ¯ Coordinate valide', { lat, lng });
         
-        // 🔭 CREA L'ICONA CON EMOJI (AFFIDABILE E SEMPLICE)
+        // âœ… CREA L'ICONA CON EMOJI (AFFIDABILE E SEMPLICE)
         const icon = L.divIcon({
             className: 'viewfinder-fallback',
             html: `
 <div style="
+    /*background: white;*/
     border: 3px solid #a09090;
     border-radius: 4px;
     width: 34px; 
@@ -819,20 +805,20 @@ async function highlightSidePanelMarker(patto) {
             iconAnchor: [17, 17]
         });
         
-        // 🔭 AGGIUNGI IL MARKER ALLA MAPPA
+        // âœ… AGGIUNGI IL MARKER ALLA MAPPA
         window.currentHighlightMarker = L.marker([lat, lng], {
             icon: icon,
             zIndexOffset: 1000
         }).addTo(window.map);
         
-        debugLog('🔭 Marker aggiunto alla mappa', {
+        debugLog('âœ… Marker aggiunto alla mappa', {
             lat,
             lng,
             tipo: 'EMOJI'
         });
         
     } catch (error) {
-        debugError('❌ Errore highlightSidePanelMarker', error);
+        debugError('âŒ Errore highlightSidePanelMarker', error);
     }
 }
 
@@ -921,14 +907,14 @@ function setupSidePanelListeners() {
     
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-            debugLog('📼 Navigazione pannello: PRECEDENTE', null);
+            debugLog('🔼 Navigazione pannello: PRECEDENTE', null);
             navigateSidePanel(-1);
         });
     }
     
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            debugLog('📽 Navigazione pannello: SUCCESSIVO', null);
+            debugLog('🔽 Navigazione pannello: SUCCESSIVO', null);
             navigateSidePanel(1);
         });
     }
@@ -970,6 +956,8 @@ function navigateSidePanel(direction) {
 
         const content = document.querySelector('.side-panel-content');
         if (content) content.scrollTop = 0;
+
+    //    if (typeof lucide !== 'undefined') lucide.createIcons();
         
         updateSidePanelCounter();
 
@@ -1074,11 +1062,14 @@ window.showPattoDetails = openSidePanel;
 // 🟢 RENDI LE FUNZIONI GLOBALI PER DEBUG
 window.debugLog = debugLog;
 window.debugError = debugError;
+window.getBasePath = getBasePath;
 window.getImagePath = getImagePath;
 window.checkImageAvailability = checkImageAvailability;
+window.highlightMarkerOnMap = highlightMarkerOnMap;
 
 // 🟢 LOG FINALE
 debugLog('✅ Side Panel caricato correttamente', {
+    basePath: getBasePath(),
     imagePath: getImagePath('mirino.png'),
     mapReady: isMapReady(),
     dataAvailable: window.allData?.length > 0
