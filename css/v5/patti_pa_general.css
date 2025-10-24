@@ -813,11 +813,26 @@ body {
     border-radius: var(--border-radius-sm);
     transition: var(--transition);
     color: var(--color-gray-500);
+    display: inline-flex; /* Cambia da flex predefinito */
+    align-items: center;
+    justify-content: center;
+    width: 44px;  /* Dimensione fissa */
+    height: 44px; /* Dimensione fissa */
+    line-height: 1;
 }
 
 .modal-close:hover {
     background: var(--color-gray-200);
     color: var(--color-gray-700);
+}
+
+/* Centratura icone dentro modal-close */
+.modal-close svg,
+.modal-close i {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
 }
 
 .modal-body {
@@ -1509,19 +1524,31 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: var(--color-white);
     border-radius: var(--border-radius-sm);
-    padding: var(--space-2);
+    padding: 0; /* Rimuovi padding variabile */
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex; /* Importante: inline-flex */
     align-items: center;
     justify-content: center;
     min-width: 44px;
     min-height: 44px;
+    width: 44px;  /* Dimensione fissa */
+    height: 44px; /* Dimensione fissa */
+    line-height: 1;
 }
 
 .modal-fullscreen-close:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: scale(1.05) rotate(90deg);
+}
+
+/* Centratura icone dentro modal-fullscreen-close 
+.modal-fullscreen-close svg,*/
+.modal-fullscreen-close i {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
 }
 
 /* Tab Navigation */
