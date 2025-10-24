@@ -52,7 +52,7 @@ window.createHighlightMarkerSafe = function(patto, animate = true) {
         
         // Crea un marker con icona personalizzata (mirino)
         const mirinoIcon = L.icon({
-            iconUrl: 'img/mirino.png',
+            iconUrl: 'img/viewfinder_01.png',
             iconSize: [32, 32],      // Dimensione più piccola del circle marker
             iconAnchor: [16, 16],    // Centro l'icona
             className: animate ? 'mirino-pulse' : 'mirino'
