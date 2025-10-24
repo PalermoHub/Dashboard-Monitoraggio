@@ -339,7 +339,7 @@ function addSidePanelStyles() {
         .side-panel-footer {
             padding: 10px;
             border-top: 1px solid var(--border-color);
-            background: var(--color-gray-50);
+            background:linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -377,7 +377,7 @@ function addSidePanelStyles() {
 
         .panel-counter {
             font-size: 0.75rem;
-            color: var(--color-gray-600);
+            color: #ffffff;
             font-weight: 600;
             min-width: 50px;
             text-align: center;
