@@ -13,6 +13,41 @@ let currentSidePanelIndex = 0;  // Indice nel dataset ATTUALE (filtrato o comple
 let lastOpenedPattoId = null;   // Traccia l'ultimo patto aperto
 
 // ==========================================
+// VARIABILI GLOBALI - GARANTITE
+// ==========================================
+
+// Se non sono già definite, crea le variabili globali
+if (typeof window.allData === 'undefined') {
+    window.allData = [];
+    console.log('✅ window.allData inizializzata');
+}
+
+if (typeof window.filteredData === 'undefined') {
+    window.filteredData = [];
+    console.log('✅ window.filteredData inizializzata');
+}
+
+if (typeof window.sidePanelData === 'undefined') {
+    window.sidePanelData = null;
+    console.log('✅ window.sidePanelData inizializzata');
+}
+
+if (typeof window.currentSidePanelIndex === 'undefined') {
+    window.currentSidePanelIndex = 0;
+    console.log('✅ window.currentSidePanelIndex inizializzato');
+}
+
+if (typeof window.lastOpenedPattoId === 'undefined') {
+    window.lastOpenedPattoId = null;
+    console.log('✅ window.lastOpenedPattoId inizializzato');
+}
+
+if (typeof window.currentHighlightedPattoId === 'undefined') {
+    window.currentHighlightedPattoId = null;
+    console.log('✅ window.currentHighlightedPattoId inizializzato');
+}
+
+// ==========================================
 // FUNZIONE PER VERIFICARE SE LA MAPPA È PRONTA
 // ==========================================
 function isMapReady() {
@@ -476,52 +511,48 @@ function addSidePanelStyles() {
 // ==========================================
 // FUNZIONE PRINCIPALE: APRI SIDE PANEL
 // ==========================================
+
+
 function openSidePanel(pattoId) {
-    console.log('📂 Apertura panel per patto ID:', pattoId);
+    console.log('🔓 OPEN PANEL:', pattoId);
     
     createSidePanelHTML();
     addSidePanelStyles();
 
-    if (!window.allData || !Array.isArray(window.allData) || window.allData.length === 0) {
-        console.error('❌ Nessun dato disponibile');
-        alert('I dati non sono ancora stati caricati. Attendi e riprova.');
+    if (!window.allData || window.allData.length === 0) {
+        console.error('❌ Nessun dato');
         return;
     }
 
-    // 🔍 FIND THE PATTO IN FILTERED DATA FIRST, THEN IN ALL DATA
     const idKey = Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id');
     
-    // Controlla prima nei dati filtrati (se disponibili)
-    let patto = null;
-    let dataSource = 'all';
+    // ✅ LOGICA SEMPLICE: Se filteredData esiste e ha elementi, usali
+    let searchIn = window.allData;
+    let source = 'allData';
     
-    if (window.filteredData && Array.isArray(window.filteredData)) {
-        patto = window.filteredData.find(p => p[idKey] == pattoId);
-        if (patto) {
-            sidePanelData = window.filteredData;
-            dataSource = 'filtered';
-        }
+    if (window.filteredData && window.filteredData.length > 0) {
+        searchIn = window.filteredData;
+        source = 'filteredData';
     }
     
-    // Se non trovato nei filtrati, cerca in tutti
-    if (!patto) {
-        patto = window.allData.find(p => p[idKey] == pattoId);
-        sidePanelData = window.allData;
-        dataSource = 'all';
-    }
+    console.log(`🔍 Cercando in ${source} (${searchIn.length} elementi)`);
+    
+    const patto = searchIn.find(p => p[idKey] == pattoId);
 
     if (!patto) {
-        console.error('❌ Patto non trovato:', pattoId);
+        console.error('❌ Patto non trovato');
         return;
     }
 
-    // 🔥 FIND INDEX IN CURRENT DATA SOURCE
+    // ✅ CRITICO: Assegna sidePanelData dal dataset corretto
+    sidePanelData = searchIn;
     currentSidePanelIndex = sidePanelData.indexOf(patto);
     lastOpenedPattoId = pattoId;
-    
-    console.log(`✅ Patto trovato nel dataset ${dataSource} all'indice ${currentSidePanelIndex}`);
-    
-    window.closeMapPopups();
+
+    console.log(`✅ sidePanelData = ${source} (${sidePanelData.length} elementi)`);
+    console.log(`📍 Indice: ${currentSidePanelIndex}/${sidePanelData.length}`);
+
+    window.closeMapPopups?.();
     populateSidePanelContent(patto);
     setupSidePanelListeners();
 
@@ -532,15 +563,14 @@ function openSidePanel(pattoId) {
         setTimeout(() => lucide.createIcons(), 100);
     }
 
-    // Sincronizza mappa
-    if (isMapReady()) {
+    if (window.map) {
         syncMapWithSidePanel(patto);
-    } else {
-        setTimeout(() => {
-            if (isMapReady()) syncMapWithSidePanel(patto);
-        }, 500);
     }
+    
+    // ✅ AGGIORNA COUNTER
+    updateSidePanelCounter();
 }
+
 
 function populateSidePanelContent(patto) {
     const findDataKeys = () => {
@@ -777,36 +807,37 @@ function setupSidePanelListeners() {
     });
 }
 
-// 🔥 FUNZIONE CORRETTA DI NAVIGAZIONE
 function navigateSidePanel(direction) {
+    console.log('🔄 NAVIGATE:', direction, 'sidePanelData.length:', sidePanelData?.length);
+
+    if (!sidePanelData || sidePanelData.length === 0) {
+        console.error('❌ Nessun dato');
+        return;
+    }
+
     const newIndex = currentSidePanelIndex + direction;
-    
-    console.log(`🔄 Navigazione: indice attuale ${currentSidePanelIndex}, nuovo indice ${newIndex}`);
-    
+
     if (newIndex >= 0 && newIndex < sidePanelData.length) {
         currentSidePanelIndex = newIndex;
         const patto = sidePanelData[currentSidePanelIndex];
-        
-        console.log('📝 Caricamento patto:', patto.id);
-        
-        window.closeMapPopups();
+
+        console.log(`📄 Patto ${currentSidePanelIndex + 1}/${sidePanelData.length}`);
+
+        window.closeMapPopups?.();
         populateSidePanelContent(patto);
-        
+
         const content = document.querySelector('.side-panel-content');
         if (content) content.scrollTop = 0;
-        
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
         
         updateSidePanelCounter();
-        
+
         setTimeout(() => {
-            console.log('🗺️ Sincronizzazione mappa con nuovo patto');
-            if (isMapReady()) {
+            if (window.map) {
                 syncMapWithSidePanel(patto);
             }
         }, 300);
-    } else {
-        console.warn('⚠️ Indice fuori range:', newIndex);
     }
 }
 
@@ -815,16 +846,21 @@ function updateSidePanelCounter() {
     const prevBtn = document.getElementById('sidePanelPrevious');
     const nextBtn = document.getElementById('sidePanelNext');
 
+    const total = sidePanelData?.length || 1;
+    const current = currentSidePanelIndex || 0;
+
+    console.log(`📊 COUNTER: ${current + 1}/${total}`);
+
     if (counter) {
-        counter.textContent = `${currentSidePanelIndex + 1}/${sidePanelData.length}`;
+        counter.textContent = `${current + 1}/${total}`;
     }
     
     if (prevBtn) {
-        prevBtn.disabled = currentSidePanelIndex === 0;
+        prevBtn.disabled = current === 0;
     }
     
     if (nextBtn) {
-        nextBtn.disabled = currentSidePanelIndex === sidePanelData.length - 1;
+        nextBtn.disabled = current === (total - 1);
     }
 }
 

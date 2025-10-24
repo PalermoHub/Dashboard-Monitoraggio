@@ -395,8 +395,14 @@ function resetFiltersFromPopup() {
     updateStatistics();
     updateChart();
     updateTable();
-    
     hideFiltersPopup();
+    
+    // ✅ NUOVO: Reset anche il side panel ai dati completi
+    if (document.getElementById('pattoSidePanel')?.classList.contains('open')) {
+        sidePanelData = window.allData;
+        currentSidePanelIndex = 0;
+        updateSidePanelCounter();
+    }
 }
 
 function setupFiltersPopupEventListeners() {
@@ -1034,7 +1040,7 @@ function applyFilters() {
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value?.trim() || '',
-        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '', // NUOVO
+        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '',
         titolo: document.getElementById('filterTitolo')?.value?.toLowerCase()?.trim() || '',
         proponente: proponenteFilter.trim()
     };
@@ -1046,7 +1052,7 @@ function applyFilters() {
         const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
         const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
-        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti')); // NUOVO
+        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti'));
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
@@ -1054,16 +1060,18 @@ function applyFilters() {
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
-        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti); // NUOVO
+        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti);
         const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
         const proponenteMatch = !filters.proponente || (item[proponenteKey] && item[proponenteKey].trim() === filters.proponente);
         
-        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch; // INCLUDI ambitiMatch
+        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch;
     });
     
     console.log(`Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    // ✅ AGGIUNGI filterAmbiti nella lista
+    // ✅ AGGIORNA window.filteredData per side-panel.js
+    window.filteredData = filteredData;
+    
     ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1075,17 +1083,118 @@ function applyFilters() {
     if (titoloField) {
         updateFilterAppearance(titoloField, titoloField.value);
     }
+    // ✅ QUESTE DUE RIGHE SONO CRITICHE
+    window.filteredData = filteredData;  // Assegna a window
+    window.allData = allData;            // Assegna a window anche allData
+	
+	console.log('🔄 Assegnando window.filteredData:', filteredData.length);
+    window.filteredData = filteredData;
     
     updateMap();
     updateStatistics();
     updateChart();
     updateTable();
     updateFiltersPopup();
+    
+    // ✅ Sincronizza side panel
+    if (typeof syncSidePanelWithFilters === 'function') {
+        console.log('🔄 Chiamata syncSidePanelWithFilters');
+        syncSidePanelWithFilters();
+    } else {
+        console.warn('⚠️ syncSidePanelWithFilters non è una funzione');
+    }
 }
 
-// ==========================================
-// AGGIORNAMENTO MAPPA
-// ==========================================
+
+/**
+ * Sincronizza il side panel quando i filtri cambiano
+ */
+function syncSidePanelWithFilters() {
+    console.log('🔄 syncSidePanelWithFilters() chiamata');
+    
+    // ✅ Controlli di sicurezza
+    if (typeof window === 'undefined') {
+        console.error('❌ window non disponibile');
+        return;
+    }
+    
+    const panel = document.getElementById('pattoSidePanel');
+    
+    if (!panel) {
+        console.warn('⚠️ Side panel non trovato nel DOM');
+        return;
+    }
+    
+    const isOpen = panel.classList.contains('open');
+    console.log(`📊 Panel aperto: ${isOpen}`);
+    console.log(`📊 filteredData length: ${window.filteredData?.length || 0}`);
+    console.log(`📊 allData length: ${window.allData?.length || 0}`);
+    
+    if (!isOpen) {
+        console.log('⚠️ Panel non aperto, sincronizzazione rinviata');
+        return;
+    }
+    
+    // ✅ Controllo dati filtrati
+    if (!window.filteredData || window.filteredData.length === 0) {
+        console.log('❌ Nessun dato filtrato');
+        
+        // Chiudi il panel se nessun dato filtrato
+        if (typeof window.closeSidePanel === 'function') {
+            console.log('🔒 Chiusura side panel');
+            window.closeSidePanel();
+        }
+        return;
+    }
+    
+    // ✅ Aggiorna sidePanelData con i dati filtrati
+    if (!window.sidePanelData) {
+        console.log('ℹ️ window.sidePanelData creata');
+        window.sidePanelData = {};
+    }
+    
+    console.log(`✅ Aggiornamento sidePanelData: ${window.filteredData.length} elementi`);
+    window.sidePanelData = window.filteredData;
+    
+    // ✅ Trova il patto corrente nel nuovo dataset filtrato
+    const idKey = window.allData && window.allData[0] 
+        ? Object.keys(window.allData[0]).find(k => k.toLowerCase() === 'id')
+        : 'id';
+    
+    const currentPattoId = window.currentHighlightedPattoId || window.lastOpenedPattoId;
+    console.log(`🔍 Ricerca patto ID: ${currentPattoId}, usando chiave: ${idKey}`);
+    
+    const currentIndex = window.filteredData.findIndex(p => p[idKey] == currentPattoId);
+    
+    if (currentIndex >= 0) {
+        console.log(`✅ Patto trovato all'indice ${currentIndex}`);
+        window.currentSidePanelIndex = currentIndex;
+    } else {
+        console.log('⚠️ Patto non trovato nei risultati filtrati');
+        window.currentSidePanelIndex = 0;
+        
+        if (window.filteredData.length > 0) {
+            console.log('📄 Caricamento primo patto filtrato');
+            
+            if (typeof window.populateSidePanelContent === 'function') {
+                window.populateSidePanelContent(window.filteredData[0]);
+            } else {
+                console.error('❌ populateSidePanelContent non disponibile');
+            }
+        }
+    }
+    
+    // ✅ Aggiorna counter
+    if (typeof window.updateSidePanelCounter === 'function') {
+        window.updateSidePanelCounter();
+        console.log(`✅ Counter aggiornato`);
+    } else {
+        console.warn('⚠️ updateSidePanelCounter non disponibile');
+    }
+    
+    console.log(`✅ Sincronizzazione completata: ${window.currentSidePanelIndex + 1}/${window.sidePanelData.length}`);
+}
+
 
 
 // ==========================================

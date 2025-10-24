@@ -636,13 +636,23 @@ function applyFiltersUnified() {
     
     console.log(`🔍 Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    updateAllViewsUnified();
+        updateAllViewsUnified();
+    
+    // ✅ NUOVO: Sincronizza side panel
+    if (typeof syncSidePanelWithFilters === 'function') {
+        setTimeout(() => {
+            syncSidePanelWithFilters();
+        }, 100);
+    }
 }
 
 /**
  * Aggiorna tutte le viste in modo unificato
  */
 function updateAllViewsUnified() {
+	
+	window.filteredData = filteredData;
+	
     if (typeof updateMap === 'function') updateMap();
     if (typeof updateStatistics === 'function') updateStatistics();
     if (typeof updateChart === 'function') updateChart();
