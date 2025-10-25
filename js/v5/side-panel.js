@@ -677,7 +677,7 @@ function populateSidePanelContent(patto) {
     details.innerHTML = `
         <p><strong>Proponente:</strong> ${patto[keys.proponente] || 'N/A'}</p>
         <p><strong>Rappresentante:</strong> ${patto[keys.rappresentante] || 'N/A'}</p>
-        <p><strong>Ambiti:</strong> ${patto[keys.ambiti] || 'N/A'}</p>
+        <p><strong>Ambito:</strong> ${patto[keys.ambiti] || 'N/A'}</p>
         <p><strong>UPL:</strong> ${patto[keys.upl] || 'N/A'}</p>
         <p><strong>Quartiere:</strong> ${patto[keys.quartiere] || 'N/A'}</p>
         <p><strong>Circoscrizione:</strong> ${patto[keys.circoscrizione] || 'N/A'}</p>
