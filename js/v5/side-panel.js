@@ -743,7 +743,8 @@ function populateSidePanelContent(patto) {
 }
 
 // ==========================================
-// 🟢 FUNZIONE HIGHLIGHT MARKER - VERSIONE CORRETTA
+// 🎯 FUNZIONE HIGHLIGHT MARKER - VERSIONE CON COLORE DINAMICO
+// Sostituisci la funzione highlightSidePanelMarker esistente in side-panel.js
 // ==========================================
 
 async function highlightSidePanelMarker(patto) {
@@ -783,12 +784,23 @@ async function highlightSidePanelMarker(patto) {
         
         debugLog('🟯 Coordinate valide', { lat, lng });
         
-        // 🔭 CREA L'ICONA CON EMOJI (AFFIDABILE E SEMPLICE)
+        // 🎨 DETERMINA IL COLORE IN BASE AL LAYER ATTIVO
+        let viewfinderColor = '#a09090'; // Default grigio
+        
+        // Controlla quale layer è attivo
+        if (window.mapLayerSwitcher && window.mapLayerSwitcher.currentLayerType === 'satellite') {
+            viewfinderColor = '#ff9900'; // Arancione per satellite
+            debugLog('🛰️ Layer satellite attivo - usando colore arancione', null);
+        } else {
+            debugLog('🗺️ Layer standard attivo - usando colore grigio', null);
+        }
+        
+        // 🔭 CREA L'ICONA MIRINO CON IL COLORE CORRETTO
         const icon = L.divIcon({
             className: 'viewfinder-fallback',
             html: `
 <div style="
-    border: 2px solid #a09090;
+    border: 2px solid ${viewfinderColor};
     border-radius: 4px;
     width: 30px; 
     height: 30px; 
@@ -799,20 +811,17 @@ async function highlightSidePanelMarker(patto) {
     box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0 rgba(59, 130, 246, 0.7);
     animation: pulseMarker 2s infinite;
 ">
-<!-- Linea verticale superiore -->
-    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
+    <!-- Linea verticale superiore -->
+    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: ${viewfinderColor};"></div>
     
     <!-- Linea orizzontale sinistra -->
-    <div style="position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    <div style="position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: ${viewfinderColor};"></div>
     
     <!-- Linea orizzontale destra -->
-    <div style="position: absolute; right: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: #a09090;"></div>
+    <div style="position: absolute; right: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: ${viewfinderColor};"></div>
     
     <!-- Linea verticale inferiore -->
-    <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #a09090;"></div>
-    
-    <!-- Punto centrale
-    <div style="width: 5px; height:5px; background:#a09090; border-radius: 50%;"></div> -->
+    <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: ${viewfinderColor};"></div>
 </div>
             `,
             iconSize: [30, 30],
@@ -828,14 +837,14 @@ async function highlightSidePanelMarker(patto) {
         debugLog('🔭 Marker aggiunto alla mappa', {
             lat,
             lng,
-            tipo: 'EMOJI'
+            colore: viewfinderColor,
+            tipo: viewfinderColor === '#ff9900' ? 'SATELLITE' : 'STANDARD'
         });
         
     } catch (error) {
         debugError('❌ Errore highlightSidePanelMarker', error);
     }
 }
-
 
 function initializeSidePanelMiniMap(patto) {
     debugLog('🗺️ Inizializzazione minimap', { lat: patto?.lat, lng: patto?.lng });

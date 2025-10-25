@@ -216,6 +216,9 @@ class MapLayerSwitcher {
             this.currentLayerType = layerType;
 
             this.updateUI();
+            
+            // 🎯 AGGIORNA COLORE MIRINO IN BASE AL LAYER
+            this.updateViewfinderColor(layerType);
 
             setTimeout(() => {
                 if (this.map && typeof this.map.invalidateSize === 'function') {
@@ -239,6 +242,70 @@ class MapLayerSwitcher {
             console.error('❌ Errore cambio layer:', error);
             this.showNotification('Errore nel cambio mappa', 'error');
             return false;
+        }
+    }
+    
+    /**
+     * Aggiorna il colore del mirino in base al layer attivo
+     */
+    updateViewfinderColor(layerType) {
+        if (!window.currentHighlightMarker) {
+            console.log('ℹ️ Nessun mirino attivo da aggiornare');
+            return;
+        }
+        
+        try {
+            // Colori in base al layer
+            const colors = {
+                standard: '#a09090',  // Grigio per layer standard
+                satellite: '#ff9900'  // Arancione per satellite
+            };
+            
+            const color = colors[layerType] || colors.standard;
+            
+            // Ottieni il marker esistente
+            const marker = window.currentHighlightMarker;
+            
+            // Aggiorna l'HTML dell'icona con il nuovo colore
+            const newIcon = L.divIcon({
+                className: 'viewfinder-fallback',
+                html: `
+<div style="
+    border: 2px solid ${color};
+    border-radius: 4px;
+    width: 30px; 
+    height: 30px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0 rgba(59, 130, 246, 0.7);
+    animation: pulseMarker 2s infinite;
+">
+    <!-- Linea verticale superiore -->
+    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: ${color};"></div>
+    
+    <!-- Linea orizzontale sinistra -->
+    <div style="position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: ${color};"></div>
+    
+    <!-- Linea orizzontale destra -->
+    <div style="position: absolute; right: -10px; top: 50%; transform: translateY(-50%); width: 16px; height:2px; background: ${color};"></div>
+    
+    <!-- Linea verticale inferiore -->
+    <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: ${color};"></div>
+</div>
+                `,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            
+            // Aggiorna l'icona del marker
+            marker.setIcon(newIcon);
+            
+            console.log(`🎨 Mirino aggiornato con colore: ${color} per layer ${layerType}`);
+            
+        } catch (error) {
+            console.error('❌ Errore aggiornamento colore mirino:', error);
         }
     }
 
