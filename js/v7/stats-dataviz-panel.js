@@ -888,3 +888,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 debugStatsLog('✅ Script caricato e funzioni globali registrate', null);
+
