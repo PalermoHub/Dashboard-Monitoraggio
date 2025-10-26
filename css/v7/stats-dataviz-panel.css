@@ -1,0 +1,745 @@
+/* ================================================
+   STATS & DATAVIZ PANEL - CSS COMPLETO E CORRETTO
+   ================================================
+   Versione integrale con tutte le correzioni
+   Sostituisci completamente il file css/v7/stats-dataviz-panel.css
+*/
+
+/* ==========================================
+   VARIABILI CSS
+   ========================================== */
+
+:root {
+    --stats-panel-width: 320px;
+    --stats-panel-header-height: 60px;
+    --stats-panel-tabs-height: 44px;
+    --stats-transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================
+   PANEL PRINCIPALE
+   ========================================== */
+
+.stats-dataviz-panel {
+    position: absolute;
+    right: -340px;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 40%;
+    background: #ffffff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    transition: right var(--stats-transition);
+    border-left: 1px solid #e2e8f0;
+    overflow: hidden;
+    max-height: 100vh;
+    contain: layout style paint;
+}
+
+.stats-dataviz-panel.open {
+    right: 0;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.stats-panel-header {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    flex-shrink: 0;
+    min-height: var(--stats-panel-header-height);
+    gap: 8px;
+}
+
+.stats-panel-logo {
+    height: 32px;
+    width: 32px;
+    margin-right: 8px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.stats-panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stats-panel-close {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 4px;
+}
+
+.stats-panel-close:hover {
+    color: #334155;
+    background: #f1f5f9;
+    transform: scale(1.1);
+}
+
+.stats-panel-close i {
+    display: block;
+    margin: 0;
+}
+
+/* ==========================================
+   TAB NAVIGATION
+   ========================================== */
+
+.stats-panel-tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    flex-shrink: 0;
+    min-height: var(--stats-panel-tabs-height);
+}
+
+.stats-tab-btn {
+    flex: 1;
+    padding: 8px 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-family: inherit;
+}
+
+.stats-tab-btn i {
+    font-size: 12px;
+}
+
+.stats-tab-btn:hover {
+    background: rgba(59, 130, 246, 0.05);
+    color: #3b82f6;
+}
+
+.stats-tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+/* ==========================================
+   TAB CONTENT
+   ========================================== */
+
+.stats-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 0;
+}
+
+/* Scroll customizzato */
+.stats-panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.stats-panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.stats-panel-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.stats-panel-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================
+   TAB CONTENT - ITEMS
+   ========================================== */
+
+.stats-tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    padding: 16px;
+    animation: none;
+}
+
+.stats-tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ==========================================
+   STATISTICHE - STYLING CORRETTO
+   ========================================== */
+
+#statsContainerClone {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.stats-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.stats-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.section-title i {
+    font-size: 12px;
+    color: #3b82f6;
+}
+
+/* ==========================================
+   STATS GRID
+   ========================================== */
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.stat-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: block;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    display: block;
+    margin: 0;
+}
+
+/* ==========================================
+   LEGENDA - STYLING CORRETTO
+   ========================================== */
+
+#statsContainerClone + .legend-card,
+.legend-card {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.legend-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.legend-items {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.legend-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 9px !important;
+    color: #334155;
+    padding: 4px !important;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+    background: #f1f5f9;
+}
+
+.legend-color {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 2px !important;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-text {
+    flex: 1;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* ==========================================
+   CHART SECTION - STYLING CORRETTO
+   ========================================== */
+
+#chartSectionClone {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    display: block !important;
+}
+
+#statusChartClone {
+    width: 100% !important;
+    height: 250px !important;
+    max-height: 100%;
+    max-width: none !important;
+}
+
+.chart-header {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.chart-title-enhanced {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0;
+}
+
+.chart-title-enhanced i {
+    font-size: 12px;
+    color: #3b82f6;
+}
+
+.chart-selector-enhanced {
+    width: 100%;
+}
+
+.chart-selector-enhanced select {
+    width: 100%;
+    padding: 6px;
+    font-size: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.chart-selector-enhanced select:hover {
+    border-color: #cbd5e1;
+}
+
+.chart-selector-enhanced select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ==========================================
+   NASCONDI CONTENITORI ORIGINALI
+   ========================================== */
+
+.dashboard-main > .stats-container {
+    display: none !important;
+}
+
+.dashboard-main > .chart-section {
+    display: none !important;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1400px) {
+    .stats-dataviz-panel {
+        width: 300px;
+        right: -320px;
+        max-width: 35%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .legend-items {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+
+    #statusChartClone {
+        height: 200px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-dataviz-panel {
+        position: fixed;
+        width: 100%;
+        right: -100%;
+        top: 0;
+        bottom: 0;
+        max-width: none;
+    }
+
+    .stats-panel-tabs {
+        flex-direction: column;
+    }
+
+    .stats-tab-btn {
+        justify-content: flex-start;
+        padding: 8px 12px;
+        border-bottom: none;
+        border-right: 3px solid transparent;
+    }
+
+    .stats-tab-btn.active {
+        border-right-color: #3b82f6;
+        border-bottom-color: transparent;
+    }
+
+    .stats-panel-content {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .legend-items {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-container {
+        height: 180px;
+    }
+
+    #statusChartClone {
+        height: 180px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-panel-title {
+        font-size: 12px;
+    }
+
+    .section-title {
+        font-size: 10px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 9px;
+    }
+
+    .chart-container {
+        height: 150px;
+    }
+
+    #statusChartClone {
+        height: 150px !important;
+    }
+}
+
+/* ==========================================
+   ANIMAZIONI
+   ========================================== */
+
+@keyframes slideInRight {
+    from {
+        right: -340px;
+        opacity: 0;
+    }
+    to {
+        right: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.stats-tab-content.active {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ==========================================
+   GRAFICI ORIZZONTALI INTERATTIVI
+   ========================================== */
+
+#chartStato,
+#chartProponente,
+#chartAmbiti {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    width: 100%;
+    background: white;
+}
+
+#dataviz-tab {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 0 !important;
+}
+
+#dataviz-tab.active {
+    display: block !important;
+}
+
+#dataviz-tab canvas {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* ================================================
+   BLOCCO TOTALE GRAFICI NEL TAB 1 - CSS AGGRESSIVO
+   ================================================ */
+
+/* 🚫 NASCONDI COMPLETAMENTE I GRAFICI NEL TAB 1 */
+#legenda-tab #chartStato,
+#legenda-tab #chartProponente,
+#legenda-tab #chartAmbiti {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    pointer-events: none !important;
+    z-index: -9999 !important;
+}
+
+/* 🚫 NASCONDI CANVAS NEL TAB 1 */
+#legenda-tab canvas {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+}
+
+/* 🚫 NASCONDI I TITOLI (h4) DEI GRAFICI NEL TAB 1 */
+#legenda-tab div[style*="margin-bottom: 2rem"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+#legenda-tab h4 {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* 🚫 NASCONDI QUALSIASI DIV CON ID CHART NEL TAB 1 */
+#legenda-tab div[id*="chart"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* 🚫 NASCONDI I PADDING/MARGIN EXTRA DEL TAB 1 */
+#legenda-tab div[style*="padding: 16px"] {
+    padding: 0 !important;
+}
+
+/* ================================================
+   MOSTRA GRAFICI NEL TAB 2 - ASSICURA VISIBILITÀ
+   ================================================ */
+
+#dataviz-tab #chartStato,
+#dataviz-tab #chartProponente,
+#dataviz-tab #chartAmbiti {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 300px !important;
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    margin-bottom: 2rem !important;
+    z-index: auto !important;
+}
+
+#dataviz-tab #chartProponente {
+    height: 350px !important;
+}
+
+#dataviz-tab #chartAmbiti {
+    height: 280px !important;
+}
+
+#dataviz-tab canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+}
+
+#dataviz-tab h4 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+}
+
+/* ================================================
+   MOSTRA STATISTICHE NEL TAB 1
+   ================================================ */
+
+#legenda-tab #statsContainerClone {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#legenda-tab .stats-card,
+#legenda-tab .legend-card {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ================================================
+   RIMUOVI SPAZI VUOTI
+   ================================================ */
+
+#legenda-tab > div > div[style*="padding: 16px"] {
+    all: initial !important;
+    display: contents !important;
+}

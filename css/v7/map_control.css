@@ -1,0 +1,194 @@
+/* ==========================================
+   MAP CONTROLS - POSIZIONAMENTO OTTIMIZZATO
+   Da aggiungere al CSS principale o come file separato
+   ========================================== */
+
+/* Container principale controlli custom */
+.map-controls {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    pointer-events: auto !important;
+}
+
+/* Pulsanti controllo */
+.map-control {
+    width: 40px !important;
+    height: 40px !important;
+    background: white !important;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease !important;
+    z-index: 998 !important;
+    pointer-events: auto !important;
+}
+
+.map-control:hover,
+.map-control.active {
+    background: #f8f9fa !important;
+    border-color: rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Container relativo per il menu */
+.map-controls .relative {
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+/* Menu layer dropdown */
+.layer-menu {
+    position: absolute !important;
+    top: 0 !important;
+    left: 48px !important;
+    background: white !important;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    min-width: 140px !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    animation: slideInLeft 0.2s ease !important;
+}
+
+.layer-menu.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Indicatore visivo menu */
+.layer-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+}
+
+/* Opzioni layer */
+.layer-option {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: none !important;
+    background: white !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    display: block !important;
+    color: #1f2937 !important;
+}
+
+.layer-option:last-child {
+    border-bottom: none !important;
+}
+
+.layer-option:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+.layer-option.active {
+    background: #3b82f6 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Animazioni */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Sposta controlli zoom Leaflet per evitare sovrapposizione */
+.leaflet-top.leaflet-left {
+    top: 60px !important;
+}
+
+.leaflet-control-zoom {
+    margin-left: 10px !important;
+    margin-top: 10px !important;
+}
+
+/* ==========================================
+   RESPONSIVE - MOBILE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .map-controls {
+        top: 70px !important;
+        left: 10px !important;
+        gap: 6px !important;
+    }
+    
+    .map-control {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    .layer-menu {
+        left: 42px !important;
+        min-width: 120px !important;
+        font-size: 13px !important;
+    }
+    
+    .layer-option {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+    }
+    
+    /* Controlli Leaflet mobile */
+    .leaflet-top.leaflet-left {
+        top: 140px !important;
+    }
+}
+
+/* ==========================================
+   TABLET
+   ========================================== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .map-controls {
+        top: 15px !important;
+    }
+    
+    .leaflet-top.leaflet-left {
+        top: 80px !important;
+    }
+}
+
+/* ==========================================
+   PRINT
+   ========================================== */
+
+@media print {
+    .map-controls {
+        display: none !important;
+    }
+}
