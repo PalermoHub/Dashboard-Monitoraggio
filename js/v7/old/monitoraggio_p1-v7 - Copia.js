@@ -71,7 +71,28 @@ function closeMapPopupAndOpenPanel(pattoId) {
 }
 
 
+// ==========================================
+// CONFIGURAZIONE GRAFICI MODERNI
+// ==========================================
 
+// Palette di colori moderna e intelligente per i grafici
+const modernChartColors = {
+    // Colori per stati (mantenendo la mappatura esistente ma con tonalità moderne)
+    status: {
+        'Istruttoria in corso': '#F59E0B',
+        'Respinta': '#EF4444', 
+        'Patto stipulato': '#10B981',
+        'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
+        'In attesa di integrazione': '#06B6D4',
+		'Archiviata': '#64748B'
+    },
+    // Palette per proponenti (colori dinamici)
+    proponenti: [
+        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+        '#14B8A6', '#F43F5E', '#64748B', '#22C55E', '#A855F7'
+    ]
+};
 
 // Funzione per generare colori intelligenti dinamici
 function generateIntelligentColors(count, baseHue = 200) {
@@ -800,6 +821,11 @@ function highlightPalermoCenter() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM caricato, inizializzazione...');
     
+    addModernChartStyles();
+    
+  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+   //     lucide.createIcons();
+  //  }
     
     initializeMap();
     
@@ -917,9 +943,9 @@ async function loadData() {
         setupAutocomplete();
         updateFilters();
         updateMap();
-		if (typeof window.updateStatsDisplay === 'function') {
-			window.updateStatsDisplay();
-		}
+        updateStatistics();
+        updateChart();
+        updateLegend();
         updateLastUpdate();
         updateTable();
         
@@ -1246,9 +1272,8 @@ function applyFilters() {
     
     // ✅ AGGIORNA TUTTI I COMPONENTI SINCRONI
     updateMap();
-    if (typeof window.updateStatsDatavizPanelContent === 'function') {
-        window.updateStatsDatavizPanelContent();
-    }
+    updateStatistics();
+    updateChart();
     updateTable();
     updateFiltersPopup();
     
@@ -1973,7 +1998,23 @@ function setupEventListeners() {
         successCount++;
         totalAttempts++;
     }
-		
+	
+    // === CHART TYPE SELECTOR ===
+    totalAttempts++;
+if (safeAddEventListener('chartTypeSelector', 'change', function() {
+    currentChartType = this.value;
+    
+    // ✅ RESET TRACKING quando cambio tipo di grafico
+    lastClickedChartValue = null;
+    lastClickedChartType = null;
+    
+    updateChart();
+    updateChartInterface();
+}, 'Selettore tipo grafico')) {
+    successCount++;
+}
+    
+	
 	
 // === FILTRI CON LOGICA CASCATA ===
 const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];

@@ -10,17 +10,17 @@ window.allData = [];
 window.filteredData = [];
 let allData = window.allData;
 let filteredData = window.filteredData;
-//let chart;
+let chart;
 let currentMapLayer = 'standard';
 let autocompleteData = [];
 let currentSuggestionIndex = -1;
 
 // VARIABILI PER GRAFICI MULTIPLI
-//let currentChartType = 'stato'; // 'stato' o 'proponente'
+let currentChartType = 'stato'; // 'stato' o 'proponente'
 let proponenteFilter = ''; // Filtro nascosto per proponente
 
-//let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
-//let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
+let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
+let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
 
 let allDataMonitoraggio = [];
 let uniqueValuesCache = {};
@@ -71,7 +71,28 @@ function closeMapPopupAndOpenPanel(pattoId) {
 }
 
 
+// ==========================================
+// CONFIGURAZIONE GRAFICI MODERNI
+// ==========================================
 
+// Palette di colori moderna e intelligente per i grafici
+const modernChartColors = {
+    // Colori per stati (mantenendo la mappatura esistente ma con tonalità moderne)
+    status: {
+        'Istruttoria in corso': '#F59E0B',
+        'Respinta': '#EF4444', 
+        'Patto stipulato': '#10B981',
+        'Proroga e/o Monitoraggio e valutazione dei risultati': '#8B5CF6',
+        'In attesa di integrazione': '#06B6D4',
+		'Archiviata': '#64748B'
+    },
+    // Palette per proponenti (colori dinamici)
+    proponenti: [
+        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+        '#14B8A6', '#F43F5E', '#64748B', '#22C55E', '#A855F7'
+    ]
+};
 
 // Funzione per generare colori intelligenti dinamici
 function generateIntelligentColors(count, baseHue = 200) {
@@ -800,6 +821,11 @@ function highlightPalermoCenter() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM caricato, inizializzazione...');
     
+    addModernChartStyles();
+    
+  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+   //     lucide.createIcons();
+  //  }
     
     initializeMap();
     
@@ -917,9 +943,9 @@ async function loadData() {
         setupAutocomplete();
         updateFilters();
         updateMap();
-		if (typeof window.updateStatsDisplay === 'function') {
-			window.updateStatsDisplay();
-		}
+        updateStatistics();
+        updateChart();
+        updateLegend();
         updateLastUpdate();
         updateTable();
         
@@ -1246,9 +1272,8 @@ function applyFilters() {
     
     // ✅ AGGIORNA TUTTI I COMPONENTI SINCRONI
     updateMap();
-    if (typeof window.updateStatsDatavizPanelContent === 'function') {
-        window.updateStatsDatavizPanelContent();
-    }
+    updateStatistics();
+    updateChart();
     updateTable();
     updateFiltersPopup();
     
@@ -1475,10 +1500,370 @@ window.removePattoHighlight = function() {
     return false;
 };
 
+// ==========================================
+// STATISTICHE E GRAFICI MODERNI
+// ==========================================
+
+function updateStatistics() {
+    const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+    
+    const total = filteredData.length;
+    const stipulati = filteredData.filter(p => p[statoKey] === 'Patto stipulato').length;
+    const istruttoria = filteredData.filter(p => p[statoKey] === 'Istruttoria in corso').length;
+    const attesaIntegrazione = filteredData.filter(p => p[statoKey] === 'In attesa di integrazione').length;
+    const monitoraggio = filteredData.filter(p => p[statoKey] === 'Proroga e/o Monitoraggio e valutazione dei risultati').length;
+    const respinti = filteredData.filter(p => p[statoKey] === 'Respinta').length;
+    const archiviati = filteredData.filter(p => p[statoKey] === 'Archiviata').length; // NUOVO
+    
+    updateCounterWithAnimation('totalPatti', total);
+    updateCounterWithAnimation('pattiStipulati', stipulati);
+    updateCounterWithAnimation('pattiIstruttoria', istruttoria);
+    updateCounterWithAnimation('pattiAttesaIntegrazione', attesaIntegrazione);
+    updateCounterWithAnimation('pattiMonitoraggio', monitoraggio);
+    updateCounterWithAnimation('pattiRespinti', respinti);
+    updateCounterWithAnimation('pattiArchiviati', archiviati); // NUOVO
+}
 
 
+function updateCounterWithAnimation(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const currentValue = parseInt(element.textContent) || 0;
+    if (currentValue === newValue) return;
+    
+    const steps = 5;
+    const stepValue = (newValue - currentValue) / steps;
+    let currentStep = 0;
+    
+    const interval = setInterval(() => {
+        currentStep++;
+        const displayValue = Math.round(currentValue + (stepValue * currentStep));
+        element.textContent = displayValue;
+        
+        if (currentStep >= steps) {
+            element.textContent = newValue;
+            clearInterval(interval);
+        }
+    }, 20);
+}
 
+function updateChartInterface() {
+    const titleElement = document.getElementById('chartTitle');
+    const helpElement = document.getElementById('chartHelp');
+    const statsElement = document.getElementById('chartStats');
+    
+    if (titleElement) {
+        if (currentChartType === 'stato') {
+            titleElement.textContent = 'Richieste per stato di avanzamento';
+        } else {
+            titleElement.textContent = 'Richieste per proponente';
+        }
+    }
+    
+    if (statsElement) {
+        const totalVisible = filteredData.length;
+        const totalOverall = allData.length;
+        statsElement.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
+    }
+}
 
+function updateChart() {
+    if (currentChartType === 'stato') {
+        updateStatusChart();
+    } else {
+        updateProponenteChart();
+    }
+    updateChartInterface();
+    
+	}
+
+// Funzione principale migliorata per creare grafici
+function createModernChart(labels, data, colors, type, fullLabels = null) {
+    if (chart) {
+        chart.destroy();
+    }
+    
+    const ctx = document.getElementById('statusChart');
+    if (!ctx) {
+        console.warn('Canvas statusChart non trovato');
+        return;
+    }
+
+    // Prepara colori intelligenti
+    let chartColors;
+    if (type === 'stato') {
+        chartColors = labels.map(label => {
+            // Cerca corrispondenza nei colori stato
+            const matchingStatus = Object.keys(modernChartColors.status).find(status => {
+                return status.includes(label) || label.includes(status.split(' ')[0]);
+            });
+            return matchingStatus ? modernChartColors.status[matchingStatus] : modernChartColors.status['Istruttoria in corso'];
+        });
+    } else {
+        chartColors = generateIntelligentColors(data.length, 220);
+    }
+
+    // Colori hover più brillanti
+    const hoverColors = chartColors.map(color => getBrighterColor(color));
+
+    chart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: type === 'stato' ? 'Numero di patti' : 'Numero di richieste',
+                data: data,
+                backgroundColor: chartColors,
+                borderColor: chartColors.map(color => color),
+                borderWidth: 2,
+               borderRadius: {
+				topLeft: 4,      // Curvatura ridotta in alto a sinistra
+				topRight: 4,     // Curvatura ridotta in alto a destra  
+				bottomLeft: 0,  // Bordi curvi in basso a sinistra
+				bottomRight: 0  // Bordi curvi in basso a destra
+			},
+                borderSkipped: false,
+                hoverBackgroundColor: hoverColors,
+                hoverBorderColor: hoverColors,
+                hoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            layout: {
+                padding: {
+                    top: 20,
+                    bottom: 5,
+                    left: 0,
+                    right: 0
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: modernTooltipConfig
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                  ticks: {
+    maxRotation: 70,  // FISSO a 90 gradi per entrambi i grafici
+        minRotation: 70,  // AGGIUNGI questa linea per forzare sempre 90 gradi
+    font: {
+       size: 9, 
+        family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+        weight: '500'
+    },
+                        color: '#64748B',
+                        callback: function(value, index) {
+                            const label = this.getLabelForValue(value);
+                            if (type === 'proponente' && label.length > 20) {
+                                return label.substring(0, 18) + '...';
+                            }
+                            return label;
+                        }
+                    },
+                    border: {
+                        display: false
+                    }
+                },
+y: {
+    display: false,          // Nasconde l'intero asse
+    grid: {
+        display: false,      // Nasconde le linee della griglia
+        drawBorder: false,   // Nasconde il bordo principale
+        drawOnChartArea: false,  // Nasconde le linee nell'area del grafico
+        drawTicks: false     // Nasconde i segni di spunta
+    },
+    ticks: {
+        display: false       // Nasconde le etichette
+    },
+    border: {
+        display: false,      // Nasconde il bordo dell'asse
+        width: 0             // Forza larghezza 0
+    },
+    beginAtZero: true
+}
+            },
+			onClick: (event, elements) => {
+    if (elements.length > 0) {
+        const index = elements[0].index;
+        const clickedValue = fullLabels ? fullLabels[index] : labels[index];
+        
+        // 🔄 TOGGLE LOGIC: Se clicco sulla stessa barra, resetto tutto
+        if (lastClickedChartValue === clickedValue && lastClickedChartType === type) {
+            console.log('🔄 Secondo click sulla stessa barra - RESET');
+            
+            // Reset variabili di tracking
+            lastClickedChartValue = null;
+            lastClickedChartType = null;
+            
+            // Reset tutti i filtri
+            const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
+            filterIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = '';
+                    updateFilterAppearance(element, '');
+                }
+            });
+            
+            // Reset filtro proponente nascosto
+            proponenteFilter = '';
+            
+            // Nascondi suggestions autocomplete
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            if (suggestions) {
+                suggestions.classList.add('hidden');
+            }
+            
+            // Reset dati
+            filteredData = [...allData];
+            
+            // Aggiorna tutto
+            updateFilters();
+            updateMap();
+            updateStatistics();
+            updateChart();
+            updateTable();
+            hideFiltersPopup();
+            
+            // Notifica all'utente
+            showNotification('Filtri resettati', 'info');
+            
+            return; // ⚠️ IMPORTANTE: Esci dalla funzione
+        }
+        
+        // 🎯 PRIMO CLICK: Applica il filtro normalmente
+        console.log('🎯 Primo click sulla barra - FILTRO:', clickedValue);
+        
+        // Salva il valore cliccato
+        lastClickedChartValue = clickedValue;
+        lastClickedChartType = type;
+        
+        if (type === 'stato') {
+            const statusSelect = document.getElementById('filterStato');
+            if (statusSelect) {
+                // Trova la corrispondenza esatta
+                const statusKey = Object.keys(statusColors).find(key => 
+                    key.includes(clickedValue) || clickedValue.includes(key)
+                );
+                statusSelect.value = statusKey || clickedValue;
+                applyFilters();
+            }
+        } else {
+            applyProponenteFilter(clickedValue);
+        }
+    }
+},
+			
+			
+            onHover: (event, elements) => {
+                const canvas = event.native.target;
+                canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+                
+                // Effetto hover migliorato
+                if (elements.length > 0) {
+                    canvas.style.filter = 'brightness(1.05)';
+                } else {
+                    canvas.style.filter = 'brightness(1)';
+                }
+            }
+        },
+        plugins: [smartDataLabelsPlugin]
+    });
+
+    // Aggiunge animazione di entrata
+    chart.update('active');
+
+    return chart;
+}
+
+function updateStatusChart() {
+    const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+    const statusCounts = {};
+    
+    filteredData.forEach(item => {
+        const status = item[statoKey] || 'Non specificato';
+        if (status && 
+            status.toString().trim() !== '' && 
+            status.toString().trim().toLowerCase() !== 'undefined' &&
+            status.toString().trim().toLowerCase() !== 'null' &&
+            status.toString().trim() !== 'N/A') {
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+        }
+    });
+    
+    const validStatusCounts = {};
+    Object.entries(statusCounts).forEach(([key, value]) => {
+        if (key && key.trim() && key.trim().toLowerCase() !== 'undefined') {
+            validStatusCounts[key.trim()] = value;
+        }
+    });
+    
+    const labels = Object.keys(validStatusCounts).map(label => {
+        if (label === 'Proroga e/o Monitoraggio e valutazione dei risultati') {
+            return 'Proroga e/o Monitoraggio';
+        }
+        return label;
+    });
+    const data = Object.values(validStatusCounts);
+    const fullLabels = Object.keys(validStatusCounts); // Labels originali per il click
+    
+    createModernChart(labels, data, null, 'stato', fullLabels);
+}
+
+function updateProponenteChart() {
+    const proponenteKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('proponente'));
+    const proponenteCounts = {};
+    
+    filteredData.forEach(item => {
+        const proponente = item[proponenteKey] || 'Non specificato';
+        if (proponente && 
+            proponente.toString().trim() !== '' && 
+            proponente.toString().trim().toLowerCase() !== 'undefined' &&
+            proponente.toString().trim().toLowerCase() !== 'null' &&
+            proponente.toString().trim() !== 'N/A') {
+            const normalizedProponente = proponente.toString().trim();
+            proponenteCounts[normalizedProponente] = (proponenteCounts[normalizedProponente] || 0) + 1;
+        }
+    });
+    
+    const sortedProponenti = Object.entries(proponenteCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 15);
+    
+    const labels = sortedProponenti.map(([label]) => {
+        return label.length > 25 ? label.substring(0, 22) + '...' : label;
+    });
+    const data = sortedProponenti.map(([,count]) => count);
+    const fullLabels = sortedProponenti.map(([fullLabel]) => fullLabel);
+    
+    createModernChart(labels, data, null, 'proponente', fullLabels);
+}
+
+// Sostituisce la funzione createChart esistente
+function createChart(labels, data, colors, type, fullLabels = null) {
+    return createModernChart(labels, data, colors, type, fullLabels);
+}
+
+function applyProponenteFilter(selectedProponente) {
+    proponenteFilter = selectedProponente;
+    applyFilters();
+}
 
 // CSS aggiuntivo per migliorare l'aspetto del grafico
 function addModernChartStyles() {
@@ -1973,7 +2358,23 @@ function setupEventListeners() {
         successCount++;
         totalAttempts++;
     }
-		
+	
+    // === CHART TYPE SELECTOR ===
+    totalAttempts++;
+if (safeAddEventListener('chartTypeSelector', 'change', function() {
+    currentChartType = this.value;
+    
+    // ✅ RESET TRACKING quando cambio tipo di grafico
+    lastClickedChartValue = null;
+    lastClickedChartType = null;
+    
+    updateChart();
+    updateChartInterface();
+}, 'Selettore tipo grafico')) {
+    successCount++;
+}
+    
+	
 	
 // === FILTRI CON LOGICA CASCATA ===
 const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
@@ -2288,6 +2689,22 @@ function updateFilterGroupState(group, formElement) {
     }
 }
 
+function updateLegend() {
+    const legend = document.getElementById('legend');
+    if (!legend) return;
+    
+    legend.innerHTML = '';
+    
+    Object.entries(statusColors).forEach(([status, color]) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center space-x-1';
+        div.innerHTML = `
+            <div class="w-3 h-3 rounded-full border border-white shadow-sm" style="background-color: ${color}"></div>
+            <span class="text-xs text-gray-600">${status}</span>
+        `;
+        legend.appendChild(div);
+    });
+}
 
 // Funzione per chiudere popup dalla mappa - esposta globalmente
 window.closeMainMapPopup = function() {
@@ -2578,11 +2995,41 @@ function initializePulseEffect() {
     console.log('Effetto pulse configurato con successo');
 }
 
+
+
 // Inizializza il pulse quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', function() {
     // Aspetta che la pagina sia completamente caricata
     setTimeout(initializePulseEffect, 500);
 });
+
+
+
+// Funzione per aggiornare le statistiche nel tab About
+function updateAboutStats() {
+    const totalElement = document.getElementById('aboutStatTotal');
+    if (totalElement && typeof filteredData !== 'undefined') {
+        animateCounter(totalElement, filteredData.length);
+    }
+}
+
+// Funzione helper per animare i contatori
+function animateCounter(element, targetValue) {
+    const duration = 1000;
+    const steps = 30;
+    const increment = targetValue / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= targetValue) {
+            element.textContent = targetValue;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, duration / steps);
+}
 
 // Inizializza quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', function() {

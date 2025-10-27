@@ -1043,11 +1043,11 @@ body {
 /* ==================== */
 /* ACCESSIBILITY        */
 /* ==================== */
-
+/*
 *:focus {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-}
+	display !important;}*/
 
 @media (prefers-reduced-motion: reduce) {
     *,
