@@ -347,62 +347,96 @@ function closeFiltersPopupOnly() {
     hideFiltersPopup();
 }
 
-
+// ==========================================
+// RESET FILTRI DAL POPUP - VERSIONE CORRETTA
+// ==========================================
 function resetFiltersFromPopup() {
     console.log('🔄 Reset filtri dal popup');
     
-    // ✅ INCLUDI filterAmbiti nel reset
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti', 'filterTitolo'];
+    // ✅ STEP 1: Reset tutti i filtri select/input
+    const filterIds = [
+        'filterStato', 
+        'filterUpl', 
+        'filterQuartiere', 
+        'filterCircoscrizione', 
+        'filterAmbiti', 
+        'filterTitolo'
+    ];
     
     filterIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             element.value = '';
-            updateFilterAppearance(element, '');
+            if (typeof updateFilterAppearance === 'function') {
+                updateFilterAppearance(element, '');
+            }
         }
     });
     
+    // ✅ STEP 2: Nascondi suggestions autocomplete
     const suggestions = document.getElementById('autocompleteSuggestions');
     if (suggestions) {
         suggestions.classList.add('hidden');
     }
     
-    // ✅ RESET COMPLETO VARIABILI
+    // ✅ STEP 3: Reset variabili globali
     proponenteFilter = '';
     window.proponenteFilter = '';
-    lastClickedChartValue = null;
-    lastClickedChartType = null;
     
-    // ✅ RIPRISTINA filteredData COMPLETAMENTE
+    // ✅ STEP 4: Reset Smart Search
+    if (typeof clearSmartSearchCompletely === 'function') {
+        clearSmartSearchCompletely();
+    }
+    
+    // ✅ STEP 5: Ripristina filteredData = allData
+    if (!allData || allData.length === 0) {
+        console.error('❌ allData non disponibile');
+        return;
+    }
+    
     filteredData = [...allData];
     window.filteredData = [...allData];
     
-    console.log('✅ Reset completato:', {
+    console.log('✅ Dati ripristinati:', {
         filteredLength: filteredData.length,
-        allLength: allData.length,
-        proponenteFilter: proponenteFilter
+        allLength: allData.length
     });
     
-    // ✅ AGGIORNA TUTTI I COMPONENTI
-    updateFilters();
-    updateMap();
-    updateStatistics();
-    updateChart();
-    updateTable();
-    
-    hideFiltersPopup();
-    
-    // ✅ FORCE UPDATE STATISTICHE PANEL - CHIAMATA DIRETTA
-    console.log('🔄 Force reset statistiche panel');
-    
-    if (typeof window.updateStatsDisplay === 'function') {
-        window.updateStatsDisplay();
-        console.log('✅ Statistiche panel resettate');
-    } else {
-        console.warn('⚠️ updateStatsDisplay non disponibile');
+    // ✅ STEP 6: Aggiorna tutti i componenti UI
+    try {
+        if (typeof updateFilters === 'function') updateFilters();
+        if (typeof updateMap === 'function') updateMap();
+        if (typeof updateStatistics === 'function') updateStatistics();
+        if (typeof updateChart === 'function') updateChart();
+        if (typeof updateTable === 'function') updateTable();
+        if (typeof hideFiltersPopup === 'function') hideFiltersPopup();
+        
+        console.log('✅ Componenti UI aggiornati');
+    } catch (error) {
+        console.error('❌ Errore aggiornamento componenti:', error);
     }
     
-    // ✅ PULIZIA E RIGENERAZIONE GRAFICI
+    // ✅ STEP 7: ⭐ RESET STATISTICHE PANEL - CHIAMATA CENTRALIZZATA
+    setTimeout(() => {
+        console.log('🔄 Reset statistiche panel (da popup)');
+        
+        // Usa la funzione helper centralizzata se disponibile
+        if (typeof window.resetStatsPanelToDefault === 'function') {
+            const success = window.resetStatsPanelToDefault();
+            if (success) {
+                console.log('✅ Stats panel resettato via helper');
+            } else {
+                console.warn('⚠️ Helper fallito, tentativo fallback');
+                fallbackStatsReset();
+            }
+        } else {
+            console.warn('⚠️ Helper non disponibile, fallback diretto');
+            fallbackStatsReset();
+        }
+        
+    }, 150);
+    
+    // ✅ STEP 8: Reset grafici DataViz se tab attivo
     setTimeout(() => {
         const datavizTab = document.getElementById('dataviz-tab');
         if (datavizTab && datavizTab.classList.contains('active')) {
@@ -416,18 +450,28 @@ function resetFiltersFromPopup() {
                 }
             }, 100);
         }
-    }, 150);
+    }, 200);
 }
 
 
 // ==========================================
-// SETUP PULSANTE RESET GLOBALE - VERSIONE COMPLETA E CORRETTA
+// FALLBACK STATS RESET - FUNZIONE DI EMERGENZA
 // ==========================================
-/**
- * Configura il pulsante di reset globale dei filtri
- * Gestisce il reset completo di tutti i filtri, variabili globali, 
- * componenti UI e statistiche del panel
- */
+function fallbackStatsReset() {
+    console.log('🆘 Fallback stats reset attivo');
+    
+    if (typeof window.updateStatsDisplay === 'function') {
+        window.updateStatsDisplay();
+        console.log('✅ Stats update via fallback completato');
+    } else {
+        console.error('❌ Nessun metodo di reset disponibile');
+    }
+}
+
+
+// ==========================================
+// SETUP PULSANTE RESET GLOBALE - VERSIONE CORRETTA E UNIFICATA
+// ==========================================
 function setupGlobalResetButton() {
     console.log('🔧 Configurazione pulsante reset globale...');
     
@@ -439,188 +483,17 @@ function setupGlobalResetButton() {
     }
     
     // ✅ RIMUOVI VECCHI LISTENER clonando il pulsante
-    // Questo previene listener duplicati
     const newClearBtn = clearFiltersBtn.cloneNode(true);
     clearFiltersBtn.parentNode.replaceChild(newClearBtn, clearFiltersBtn);
     
-    // ✅ AGGIUNGI NUOVO LISTENER
+    // ✅ AGGIUNGI NUOVO LISTENER UNIFICATO
     newClearBtn.addEventListener('click', function() {
-        console.log('🔄 Reset globale filtri richiesto');
-        console.log('📊 Stato prima del reset:', {
-            filteredData: window.filteredData?.length || 0,
-            allData: window.allData?.length || 0,
-            proponenteFilter: proponenteFilter
-        });
+        console.log('🔄 Reset globale richiesto');
         
-        // ==========================================
-        // STEP 1: Reset tutti i filtri select/input
-        // ==========================================
-        const filterIds = [
-            'filterStato', 
-            'filterUpl', 
-            'filterQuartiere', 
-            'filterCircoscrizione', 
-            'filterAmbiti', 
-            'filterTitolo'
-        ];
+        // ⭐ USA LA STESSA FUNZIONE DEL POPUP PER CONSISTENZA
+        resetFiltersFromPopup();
         
-        filterIds.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.value = '';
-                if (typeof updateFilterAppearance === 'function') {
-                    updateFilterAppearance(element, '');
-                }
-            } else {
-                console.warn(`⚠️ Elemento ${id} non trovato`);
-            }
-        });
-        
-        console.log('✅ Filtri select/input resettati');
-        
-        // ==========================================
-        // STEP 2: Nascondi suggestions autocomplete
-        // ==========================================
-        const suggestions = document.getElementById('autocompleteSuggestions');
-        if (suggestions) {
-            suggestions.classList.add('hidden');
-        }
-        
-        // ==========================================
-        // STEP 3: Reset variabili globali
-        // ==========================================
-        proponenteFilter = '';
-        window.proponenteFilter = '';
-        lastClickedChartValue = null;
-        lastClickedChartType = null;
-        
-        console.log('✅ Variabili globali resettate');
-        
-        // ==========================================
-        // STEP 4: Ripristina filteredData = allData
-        // ==========================================
-        if (!allData || allData.length === 0) {
-            console.error('❌ allData non disponibile o vuoto');
-            return;
-        }
-        
-        filteredData = [...allData];
-        window.filteredData = [...allData];
-        
-        console.log('✅ filteredData ripristinato:', {
-            filteredLength: filteredData.length,
-            allLength: allData.length,
-            areEqual: filteredData.length === allData.length
-        });
-        
-        // ==========================================
-        // STEP 5: Aggiorna tutti i componenti UI
-        // ==========================================
-        try {
-            if (typeof updateFilters === 'function') {
-                updateFilters();
-            }
-            
-            if (typeof updateMap === 'function') {
-                updateMap();
-            }
-            
-            if (typeof updateStatistics === 'function') {
-                updateStatistics();
-            }
-            
-            if (typeof updateChart === 'function') {
-                updateChart();
-            }
-            
-            if (typeof updateTable === 'function') {
-                updateTable();
-            }
-            
-            if (typeof hideFiltersPopup === 'function') {
-                hideFiltersPopup();
-            }
-            
-            console.log('✅ Componenti UI aggiornati');
-            
-        } catch (error) {
-            console.error('❌ Errore aggiornamento componenti:', error);
-        }
-        
-        // ==========================================
-        // STEP 6: ⭐ RESET STATISTICHE PANEL
-        // ==========================================
-        setTimeout(() => {
-            console.log('🔄 Avvio reset statistiche panel (globale)');
-            
-            // Prova prima l'helper centralizzato
-            if (typeof window.resetStatsPanelToDefault === 'function') {
-                console.log('📊 Usando helper resetStatsPanelToDefault');
-                
-                const success = window.resetStatsPanelToDefault();
-                
-                if (success) {
-                    console.log('✅ Reset panel via helper completato (globale)');
-                } else {
-                    console.warn('⚠️ Helper fallito, tentativo fallback');
-                    
-                    // Fallback su updateStatsDisplay
-                    if (typeof window.updateStatsDisplay === 'function') {
-                        window.updateStatsDisplay();
-                        console.log('✅ Reset panel via fallback completato');
-                    } else {
-                        console.error('❌ Nessun metodo di reset disponibile');
-                    }
-                }
-                
-            } else if (typeof window.updateStatsDisplay === 'function') {
-                console.log('⚠️ Helper non disponibile, uso fallback diretto');
-                window.updateStatsDisplay();
-                console.log('✅ Reset panel via fallback diretto completato');
-                
-            } else {
-                console.error('❌ Nessun metodo di reset statistiche disponibile');
-            }
-            
-        }, 150);
-        
-        // ==========================================
-        // STEP 7: Reset grafici se tab DataViz è attivo
-        // ==========================================
-        setTimeout(() => {
-            const datavizTab = document.getElementById('dataviz-tab');
-            
-            if (datavizTab && datavizTab.classList.contains('active')) {
-                console.log('🔄 Tab DataViz attivo, reset grafici');
-                
-                // Pulizia grafici esistenti
-                if (typeof window.cleanupCharts === 'function') {
-                    window.cleanupCharts();
-                    console.log('✅ Grafici puliti');
-                }
-                
-                // Ricreazione grafici dopo piccolo delay
-                setTimeout(() => {
-                    if (typeof window.createHorizontalCharts === 'function') {
-                        window.createHorizontalCharts();
-                        console.log('✅ Grafici ricreati');
-                    }
-                }, 100);
-                
-            } else {
-                console.log('ℹ️ Tab DataViz non attivo, skip reset grafici');
-            }
-            
-        }, 200);
-        
-        // ==========================================
-        // STEP 8: Notifica utente (opzionale)
-        // ==========================================
-        if (typeof showNotification === 'function') {
-            showNotification('Tutti i filtri sono stati resettati', 'success');
-        }
-        
-        console.log('✅ Reset globale completato con successo');
+        console.log('✅ Reset globale completato');
     });
     
     console.log('✅ Listener reset globale configurato correttamente');
@@ -2317,11 +2190,11 @@ function handleViewportResize() {
             }, 100);
         }
         
-        if (chart) {
-            setTimeout(() => {
-                chart.resize();
-            }, 100);
-        }
+     //  if (chart) {
+      //      setTimeout(() => {
+     //           chart.resize();
+      //      }, 100);
+      //  }
     });
 }
 

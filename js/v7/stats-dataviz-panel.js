@@ -673,14 +673,15 @@ function resetChartFilter() {
 
 function updateStatsDisplay() {
     try {
-        // ✅ FORZA REFRESH DEI DATI GLOBALI
+        // ⭐ FORZA REFRESH DEI DATI GLOBALI - PRIORITÀ A window.filteredData
         const allData = window.allData || [];
         const filteredData = window.filteredData || allData;
 
         console.log('📊 updateStatsDisplay:', {
             allDataLength: allData.length,
             filteredDataLength: filteredData.length,
-            areSame: allData.length === filteredData.length
+            areSame: allData.length === filteredData.length,
+            source: filteredData === allData ? 'RESET' : 'FILTRATO'
         });
 
         if (!allData || allData.length === 0) {
@@ -696,7 +697,7 @@ function updateStatsDisplay() {
             return;
         }
 
-        // ✅ CALCOLA STATISTICHE SUI DATI FILTRATI (O TUTTI SE RESET)
+        // ✅ CALCOLA STATISTICHE SUI DATI CORRETTI
         const total = filteredData.length;
         const stipulati = filteredData.filter(p => p[statoKey] === 'Patto stipulato').length;
         const istruttoria = filteredData.filter(p => p[statoKey] === 'Istruttoria in corso').length;
@@ -718,7 +719,7 @@ function updateStatsDisplay() {
 
         preventChartCreationInTab1();
 
-        console.log('✅ Statistiche aggiornate/resettate con successo');
+        console.log('✅ Statistiche aggiornate con successo');
 
     } catch (error) {
         debugStatsError('❌ Errore aggiornamento stats', error);
@@ -726,42 +727,56 @@ function updateStatsDisplay() {
 }
 
 // ==========================================
-// RESET STATISTICHE PANEL - FUNZIONE HELPER
+// RESET STATISTICHE PANEL - VERSIONE ROBUSTA
 // ==========================================
-/**
- * Funzione centralizzata per resettare le statistiche del panel
- * Gestisce sia il reset dei dati che l'aggiornamento del display
- */
 function resetStatsPanelToDefault() {
     console.log('🔄 Reset statistiche panel a valori default');
     
     try {
-        // ✅ FORZA RESET DI TUTTE LE VARIABILI GLOBALI
+        // ✅ VERIFICA DATI GLOBALI
         if (!window.allData || window.allData.length === 0) {
             console.error('❌ allData non disponibile');
             return false;
         }
         
-        // Ripristina filteredData uguale ad allData
+        // ✅ FORZA RESET filteredData
         window.filteredData = [...window.allData];
         
         console.log('📊 Dati resettati:', {
             allData: window.allData.length,
-            filteredData: window.filteredData.length
+            filteredData: window.filteredData.length,
+            areEqual: window.allData.length === window.filteredData.length
         });
         
-        // ✅ AGGIORNA DISPLAY
-        updateStatsDisplay();
+        // ✅ AGGIORNA DISPLAY CON DELAY PER STABILITÀ
+        setTimeout(() => {
+            if (typeof updateStatsDisplay === 'function') {
+                updateStatsDisplay();
+                console.log('✅ updateStatsDisplay chiamato');
+            } else {
+                console.error('❌ updateStatsDisplay non disponibile');
+                return false;
+            }
+        }, 50);
         
         // ✅ RESET GRAFICI SE TAB ATTIVO
-        const datavizTab = document.getElementById('dataviz-tab');
-        if (datavizTab && datavizTab.classList.contains('active')) {
-            console.log('🔄 Reset grafici DataViz');
-            cleanupCharts();
-            setTimeout(() => {
-                createHorizontalCharts();
-            }, 100);
-        }
+        setTimeout(() => {
+            const datavizTab = document.getElementById('dataviz-tab');
+            if (datavizTab && datavizTab.classList.contains('active')) {
+                console.log('🔄 Reset grafici DataViz');
+                
+                if (typeof cleanupCharts === 'function') {
+                    cleanupCharts();
+                }
+                
+                setTimeout(() => {
+                    if (typeof createHorizontalCharts === 'function') {
+                        createHorizontalCharts();
+                        console.log('✅ Grafici ricreati');
+                    }
+                }, 100);
+            }
+        }, 150);
         
         console.log('✅ Reset panel completato');
         return true;

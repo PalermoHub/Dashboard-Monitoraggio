@@ -130,37 +130,34 @@
            
             <div class="sidebar-content" id="filtersContent">
                 <!-- Filter Groups - Riorganizzati come card collassabili -->
-                
-                <!-- FILTRO PRINCIPALE - STATO -->
-                <div class="filter-card">
-                    <div class="filter-card-header active" onclick="toggleFilterCard('status-filters')">
-                        <div class="filter-card-title">
-                            <i data-lucide="activity" class="h-4 w-4" aria-hidden="true"></i>
-                            <span>Stato di Avanzamento</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: var(--space-2);">
-                            <div class="filter-badge" id="status-badge" style="display: none;">0</div>
-                            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="filter-card-content" id="status-filters">
-                        <div class="filter-card-body">
-                            <div class="filter-group">
-                                <label for="filterStato" class="filter-label">
-                                    Seleziona lo stato della richiesta
-                                </label>
-                                <select id="filterStato" 
-                                        class="filter-select" 
-                                        aria-describedby="stato-help">
-                                    <option value="">Tutti gli stati disponibili</option>
-                                </select>
-                                <div id="stato-help" class="sr-only">
-                                    Filtra le richieste in base al loro stato di avanzamento
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
+<!-- FILTRO PRINCIPALE - STATO -->
+<div class="filter-card">
+    <div class="filter-card-header active" onclick="toggleFilterCard('status-filters')">
+        <div class="filter-card-title">
+            <i data-lucide="activity" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Stato di Avanzamento</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <div class="filter-badge" id="status-badge" style="display: none;">0</div>
+            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
+        </div>
+    </div>
+    <!-- ⭐ NOTA: L'ID QUI DEVE CORRISPONDERE AL PARAMETRO DI toggleFilterCard -->
+    <div class="filter-card-content expanded" id="status-filters">
+        <div class="filter-card-body">
+            <div class="filter-group">
+                <label for="filterStato" class="filter-label">
+                    Seleziona lo stato della richiesta
+                </label>
+                <select id="filterStato" class="filter-select" aria-describedby="stato-help">
+                    <option value="">Tutti gli stati disponibili</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- FILTRO AMBITI DI AZIONE -->
 <div class="filter-card">
@@ -174,40 +171,38 @@
             <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
         </div>
     </div>
+    <!-- ⭐ ID CORRETTO -->
     <div class="filter-card-content" id="ambiti-filters">
         <div class="filter-card-body">
             <div class="filter-group">
                 <label for="filterAmbiti" class="filter-label">
                     Ambiti di Azione
                 </label>
-                <select id="filterAmbiti" 
-                        class="filter-select"
-                        aria-describedby="ambiti-help">
+                <select id="filterAmbiti" class="filter-select" aria-describedby="ambiti-help">
                     <option value="">Tutti gli ambiti</option>
                 </select>
-                <div id="ambiti-help" class="sr-only">
-                    Filtra per ambiti di azione dei patti
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-                <!-- FILTRI GEOGRAFICI -->
-                <div class="filter-card">
-                    <div class="filter-card-header" onclick="toggleFilterCard('geo-filters')">
-                        <div class="filter-card-title">
-                            <i data-lucide="map-pin" class="h-4 w-4" aria-hidden="true"></i>
-                            <span>Localizzazione</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: var(--space-2);">
-                            <div class="filter-badge" id="geo-badge" style="display: none;">0</div>
-                            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="filter-card-content" id="geo-filters">
-                        <div class="filter-card-body">
-                            <div class="geo-filters-grid">
+<!-- FILTRI GEOGRAFICI -->
+<div class="filter-card">
+    <div class="filter-card-header " onclick="toggleFilterCard('geo-filters')">
+        <div class="filter-card-title">
+            <i data-lucide="map-pin" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Localizzazione</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <div class="filter-badge" id="geo-badge" style="display: none;">0</div>
+            <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
+        </div>
+    </div>
+    <!-- ⭐ ID CORRETTO -->
+    <div class="filter-card-content" id="geo-filters">
+        <div class="filter-card-body">
+            <div class="geo-filters-grid">
+							
                                 <div class="filter-group">
                                     <label for="filterCircoscrizione" class="filter-label">
                                         Circoscrizione
@@ -254,7 +249,7 @@
                     </div>
                 </div>
 
-<!-- RICERCA INTELLIGENTE UNIFICATA -->
+<!-- RICERCA INTELLIGENTE -->
 <div class="filter-card">
     <div class="filter-card-header" onclick="toggleFilterCard('smart-search-filters')">
         <div class="filter-card-title">
@@ -266,9 +261,9 @@
             <i data-lucide="chevron-down" class="collapse-icon" aria-hidden="true"></i>
         </div>
     </div>
+    <!-- ⭐ ID CORRETTO E CLASSE EXPANDED PER MANTENERLA APERTA -->
     <div class="filter-card-content expanded" id="smart-search-filters">
         <div class="filter-card-body">
-            
             <!-- Campo di ricerca unificato -->
             <div class="smart-search-container">
                 <div class="smart-search-input-wrapper">
@@ -373,7 +368,11 @@
         </div>
     </div>
 </div>
-                <!-- AZIONI RAPIDE -->
+
+
+
+              
+  <!-- AZIONI RAPIDE -->
                 <div class="quick-actions-card">
                     <div class="action-buttons-header">
                         <div class="action-buttons-title">
@@ -2458,34 +2457,123 @@
 	 <!-- Funzione per gestire le card dei filtri -->
 	 <script>
 	 // Funzione per gestire l'apertura/chiusura delle card dei filtri
-	 function toggleFilterCard(cardId) {
-		 const cardContent = document.getElementById(cardId);
-		 const cardHeader = cardContent.previousElementSibling;
-		 const collapseIcon = cardHeader.querySelector('.collapse-icon');
-		 
-		 // Toggle della classe expanded
-		 cardContent.classList.toggle('expanded');
-		 collapseIcon.classList.toggle('rotated');
-		 
-		 // Aggiorna l'aria-expanded per accessibilità
-		 const isExpanded = cardContent.classList.contains('expanded');
-		 cardHeader.setAttribute('aria-expanded', isExpanded);
-	 }
 	 
-	 // Inizializza le card dei filtri al caricamento della pagina
-	 document.addEventListener('DOMContentLoaded', function() {
-		 // Inizializza tutte le card come collassate tranne la prima
-		 const filterCards = document.querySelectorAll('.filter-card-content');
-		 filterCards.forEach((card, index) => {
-			 if (index !== 0) {
-				 card.classList.remove('expanded');
-				 const collapseIcon = card.previousElementSibling.querySelector('.collapse-icon');
-				 if (collapseIcon) {
-					 collapseIcon.classList.remove('rotated');
-				 }
-			 }
-		 });
-	 });
+function toggleFilterCard(cardId) {
+    console.log('🔄 Toggle card:', cardId);
+    
+    // ✅ TROVA L'ELEMENTO CORRETTAMENTE
+    const cardContent = document.getElementById(cardId);
+    
+    if (!cardContent) {
+        console.error('❌ Elemento non trovato:', cardId);
+        console.log('📋 Elementi disponibili:', 
+            Array.from(document.querySelectorAll('[id]'))
+                .map(el => el.id)
+                .filter(id => id.includes('filter'))
+        );
+        return;
+    }
+    
+    // ✅ TROVA IL PARENT CARD HEADER
+    const cardHeader = cardContent.previousElementSibling;
+    if (!cardHeader) {
+        console.error('❌ Card header non trovato per:', cardId);
+        return;
+    }
+    
+    // ✅ TROVA L'ICONA DI COLLAPSE
+    const collapseIcon = cardHeader.querySelector('.collapse-icon');
+    
+    // ✅ TOGGLE EXPANDED
+    const isExpanded = cardContent.classList.contains('expanded');
+    
+    if (isExpanded) {
+        cardContent.classList.remove('expanded');
+        if (collapseIcon) {
+            collapseIcon.classList.remove('rotated');
+        }
+    } else {
+        cardContent.classList.add('expanded');
+        if (collapseIcon) {
+            collapseIcon.classList.add('rotated');
+        }
+    }
+    
+    // ✅ AGGIORNA ARIA-EXPANDED
+    cardHeader.setAttribute('aria-expanded', !isExpanded);
+    
+    console.log('✅ Card toggled:', {
+        cardId,
+        wasExpanded: isExpanded,
+        nowExpanded: !isExpanded
+    });
+}
+
+	
+	// ==========================================
+// INIZIALIZZAZIONE CARD FILTRI - VERSIONE CORRETTA
+// ==========================================
+function initializeFilterCards() {
+    console.log('🔧 Inizializzazione card filtri...');
+    
+    // ✅ TROVA TUTTE LE CARD
+    const filterCards = document.querySelectorAll('.filter-card');
+    
+    console.log('📋 Card trovate:', filterCards.length);
+    
+    filterCards.forEach((card, index) => {
+        const cardHeader = card.querySelector('.filter-card-header');
+        const cardContent = card.querySelector('.filter-card-content');
+        
+        if (!cardHeader || !cardContent) {
+            console.warn('⚠️ Card incompleta:', { index, cardHeader: !!cardHeader, cardContent: !!cardContent });
+            return;
+        }
+        
+        // ✅ ASSICURA CHE IL CONTENT ABBIA UN ID
+        if (!cardContent.id) {
+            console.warn('⚠️ Card content senza ID, assegnamento automatico');
+            cardContent.id = `filter-card-content-${index}`;
+        }
+        
+        // ✅ STATO INIZIALE: Prima card espansa, altre collassate
+        if (index === 0) {
+            cardContent.classList.add('expanded');
+            const collapseIcon = cardHeader.querySelector('.collapse-icon');
+            if (collapseIcon) {
+                collapseIcon.classList.add('rotated');
+            }
+            cardHeader.setAttribute('aria-expanded', 'true');
+        } else {
+            cardContent.classList.remove('expanded');
+            const collapseIcon = cardHeader.querySelector('.collapse-icon');
+            if (collapseIcon) {
+                collapseIcon.classList.remove('rotated');
+            }
+            cardHeader.setAttribute('aria-expanded', 'false');
+        }
+        
+        console.log('✅ Card inizializzata:', {
+            index,
+            id: cardContent.id,
+            expanded: cardContent.classList.contains('expanded')
+        });
+    });
+    
+    console.log('✅ Inizializzazione card completata');
+}
+
+// ==========================================
+// AUTO-INIZIALIZZAZIONE
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM caricato, inizializzazione card filtri...');
+    
+    // ✅ DELAY PER ASSICURARE CHE TUTTO SIA PRONTO
+    setTimeout(() => {
+        initializeFilterCards();
+    }, 500);
+});
 	 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
