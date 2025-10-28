@@ -1083,4 +1083,28 @@
     }
 }
 
+/* Nascondi l'icona originale */
+i[data-lucide="x"] {
+    visibility: hidden;
+    position: relative;
+}
+
+/* Aggiungi Font Awesome con pseudo-elemento */
+i[data-lucide="x"]::before {
+    content: "\f00d"; /* Codice Unicode per l'icona 'x' di Font Awesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    visibility: visible;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px; /* Equivalente a h-3 */
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
