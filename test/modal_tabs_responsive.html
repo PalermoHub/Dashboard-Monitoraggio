@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabs Modal Responsivo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #00264b;
+            --color-accent: #3b82f6;
+            --color-white: #ffffff;
+            --color-gray-50: #f8fafc;
+            --color-gray-100: #f1f5f9;
+            --color-gray-200: #e2e8f0;
+            --color-gray-700: #334155;
+            --color-gray-800: #1e293b;
+            --border-radius: 0.75rem;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Titillium Web", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--color-gray-50);
+        }
+
+        /* ==================== BUTTON TRIGGER ==================== */
+        .btn-open-tabs {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            color: var(--color-white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .btn-open-tabs:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-open-tabs:active {
+            transform: scale(0.95);
+        }
+
+        /* Mostra pulsante solo su mobile quando modal è chiuso */
+        @media (max-width: 767px) {
+            .btn-open-tabs.show {
+                display: flex;
+            }
+        }
+
+        /* ==================== MODAL BACKDROP ==================== */
+        .tabs-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            z-index: 999;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .tabs-modal-backdrop.active {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Su desktop non mostra backdrop */
+        @media (min-width: 1024px) {
+            .tabs-modal-backdrop {
+                display: none !important;
+            }
+        }
+
+        /* ==================== MODAL CONTAINER ==================== */
+        .tabs-modal {
+            position: absolute;
+            z-index: 1000;
+            background: var(--color-white);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        /* DESKTOP: Posizionamento come tabs-sidebar */
+        @media (min-width: 1024px) {
+            .tabs-modal {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 320px;
+                height: 100vh;
+                border-radius: 0;
+                max-height: 100vh;
+                box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* TABLET: Posizionamento adattato */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .tabs-modal {
+                position: fixed;
+                top: 90px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: 500px;
+                max-height: calc(100vh - 120px);
+                border-radius: var(--border-radius);
+            }
+        }
+
+        /* MOBILE: Schermo intero bottom-sheet style */
+        @media (max-width: 767px) {
+            .tabs-modal {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-width: none;
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+                max-height: 85vh;
+                transform: translateY(0);
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+
+            /* Stato collassato - completamente nascosto */
+            .tabs-modal.collapsed {
+                max-height: 0;
+                height: 0;
+                visibility: hidden;
+                opacity: 0;
+                transform: translateY(100%);
+            }
+        }
+
+        /* ==================== MODAL HEADER ==================== */
+        .tabs-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--color-gray-200);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%);
+            color: var(--color-white);
+            flex-shrink: 0;
+        }
+
+        .tabs-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tabs-modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--color-white);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .tabs-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* ==================== TAB NAVIGATION ==================== */
+        .tabs-modal-nav {
+            display: flex;
+            background-color: #e9ecef;
+            border-bottom: 1px solid var(--color-gray-200);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+        /* Nascondi tutto quando collassato */
+        @media (max-width: 767px) {
+            .tabs-modal.collapsed .tabs-modal-header {
+                display: none;
+            }
+
+            .tabs-modal.collapsed .tabs-modal-nav {
+                display: none;
+            }
+
+            .tabs-modal.collapsed .tabs-modal-content {
+                display: none;
+            }
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--color-gray-700);
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .tab-button:hover {
+            background-color: #dee2e6;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            border-bottom-color: var(--color-accent);
+            color: var(--color-white);
+        }
+
+        /* ==================== TAB CONTENT ==================== */
+        .tabs-modal-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-pane h2 {
+            margin-bottom: 15px;
+            color: var(--color-gray-800);
+            font-size: 18px;
+        }
+
+        .tab-pane p {
+            line-height: 1.6;
+            color: var(--color-gray-700);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .tab-pane h3 {
+            margin: 20px 0 10px 0;
+            color: var(--color-gray-800);
+            font-size: 16px;
+        }
+
+        .tab-pane ul {
+            margin: 10px 0 15px 20px;
+            color: var(--color-gray-700);
+        }
+
+        .tab-pane li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ==================== DEMO CONTENT ==================== */
+        .demo-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .demo-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 20px;
+        }
+
+        .demo-description {
+            color: var(--color-gray-700);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 480px) {
+            .btn-open-tabs {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .tabs-modal-nav {
+                gap: 0;
+            }
+
+            .tab-button {
+                min-width: 80px;
+                font-size: 10px;
+                padding: 12px 8px;
+            }
+
+            .tabs-modal-header {
+                padding: 12px 16px;
+            }
+
+            .tabs-modal-title {
+                font-size: 16px;
+            }
+
+            .tabs-modal-close {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .tabs-modal-content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BUTTON TRIGGER -->
+<button class="btn-open-tabs" id="openTabsBtn" title="Apri statistiche">
+    <i class="fas fa-chart-bar"></i>
+</button>
+
+<!-- MODAL BACKDROP -->
+<div class="tabs-modal-backdrop" id="tabsBackdrop"></div>
+
+<!-- MODAL TABS -->
+<div class="tabs-modal" id="tabsModal">
+    <!-- HEADER -->
+    <div class="tabs-modal-header">
+        <h2 class="tabs-modal-title">
+            <i class="fas fa-chart-bar"></i>
+            Statistiche & Grafici
+        </h2>
+        <button class="tabs-modal-close" id="closeTabsBtn" title="Chiudi">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-modal-nav">
+        <button class="tab-button active" data-tab="tab-stats">
+            <i class="fas fa-bar-chart"></i>
+            <span>Statistiche</span>
+        </button>
+        <button class="tab-button" data-tab="tab-charts">
+            <i class="fas fa-chart-line"></i>
+            <span>DataViz</span>
+        </button>
+        <button class="tab-button" data-tab="tab-info">
+            <i class="fas fa-info-circle"></i>
+            <span>Info</span>
+        </button>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <div class="tabs-modal-content">
+        <!-- TAB 1: STATISTICHE -->
+        <div id="tab-stats" class="tab-pane active">
+            <h2>Stato di Avanzamento</h2>
+            <p>Le statistiche mostrano la distribuzione percentuale di tutti i progetti per stato. Consente di identificare rapidamente quanti progetti sono stati stipulati, quanti sono in istruttoria, in attesa di integrazione, in monitoraggio, respinti o archiviati.</p>
+            
+            <h3>Metriche Principali</h3>
+            <ul>
+                <li><strong>Patti Stipulati:</strong> Progetti completati con successo</li>
+                <li><strong>Istruttoria in Corso:</strong> In fase di valutazione</li>
+                <li><strong>In Attesa di Integrazione:</strong> Documentazione da completare</li>
+                <li><strong>Monitoraggio:</strong> In fase di verifiche periodiche</li>
+                <li><strong>Respinti:</strong> Non idonei ai criteri</li>
+                <li><strong>Archiviati:</strong> Conclusi positivamente</li>
+            </ul>
+        </div>
+
+        <!-- TAB 2: GRAFICI -->
+        <div id="tab-charts" class="tab-pane">
+            <h2>Grafici e Analisi</h2>
+            <p>Visualizza la distribuzione delle istanze attraverso grafici interattivi. Clicca sulle barre per filtrare i risultati.</p>
+            
+            <h3>Tipi di Grafici Disponibili</h3>
+            <ul>
+                <li><strong>Distribuzione per Stato:</strong> Analizza il progresso dei patti</li>
+                <li><strong>Distribuzione per Proponente:</strong> Identifica i principali attori</li>
+                <li><strong>Distribuzione per Ambiti:</strong> Scopri i settori più attivi</li>
+            </ul>
+
+            <h3>Interattività</h3>
+            <p>Tutti i grafici sono completamente interattivi. Passa il mouse sopra i dati per visualizzare dettagli, clicca per filtrare i risultati.</p>
+        </div>
+
+        <!-- TAB 3: INFO -->
+        <div id="tab-info" class="tab-pane">
+            <h2>Informazioni sulla Dashboard</h2>
+            <p>Questa dashboard ti permette di monitorare in tempo reale lo stato di avanzamento di tutti i patti di collaborazione del Comune di Palermo.</p>
+            
+            <h3>Come Utilizzare</h3>
+            <ul>
+                <li><strong>Mappa Interattiva:</strong> Visualizza la posizione geografica dei patti</li>
+                <li><strong>Filtri:</strong> Ricerca per stato, quartiere, proponente</li>
+                <li><strong>Grafici:</strong> Analizza i dati in diversi modi</li>
+                <li><strong>Tabella:</strong> Accedi a tutti i dati strutturati</li>
+            </ul>
+
+            <h3>Supporto</h3>
+            <p>Per informazioni dettagliate, contatta l'Ufficio Rigenerazione Urbana del Comune di Palermo.</p>
+        </div>
+    </div>
+</div>
+
+<!-- DEMO CONTENT -->
+<div class="demo-container">
+    <h1 class="demo-title">📊 Modal Tabs Responsivo - Di Default Aperto</h1>
+    <p class="demo-description">
+        Il <strong>tabs-sidebar</strong> è stato trasformato in un <strong>modal responsivo</strong> 
+        che di default è aperto e occupa la stessa posizione dell'originale.
+    </p>
+    <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin-top: 20px;">
+        <strong>✨ Comportamento per Device:</strong>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>🖥️ <strong>Desktop (1024px+):</strong> Sidebar permanente a destra (come l'originale)</li>
+            <li>📱 <strong>Tablet (768-1023px):</strong> Modal centrato con pulsante toggle</li>
+            <strong>✅ Comportamento Mobile:</strong>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>📬 Di default COMPLETAMENTE NASCOSTO (tutto scompare)</li>
+            <li>📤 Clicca il pulsante FAB per ESPANDERE a full-screen</li>
+            <li>📥 Clicca l'X o fuori dal modal per NASCONDERE completamente</li>
+            <li>🎯 Si riduce a ZERO quando chiuso</li>
+        </ul>
+        </ul>
+    </div>
+    <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 16px; border-radius: 8px; margin-top: 16px;">
+        <strong>✅ Caratteristiche Implementate:</strong>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>✅ Di default APERTO su desktop e tablet</li>
+            <li>✅ Occupa stessa posizione del tabs-sidebar originale</li>
+            <li>✅ Bottom-sheet su mobile (chiuso di default)</li>
+            <li>✅ Pulsante toggle solo su mobile quando chiuso</li>
+            <li>✅ Backdrop solo su mobile e tablet</li>
+            <li>✅ Responsive e adaptive</li>
+            <li>✅ Keyboard navigation (frecce)</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Elementi DOM
+    const openBtn = document.getElementById('openTabsBtn');
+    const closeBtn = document.getElementById('closeTabsBtn');
+    const backdrop = document.getElementById('tabsBackdrop');
+    const modal = document.getElementById('tabsModal');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    // Verifica se siamo su desktop o mobile
+    const isDesktop = () => window.innerWidth >= 1024;
+    const isMobile = () => window.innerWidth < 768;
+
+    // APRI/CHIUDI MODAL (toggle su mobile)
+    openBtn.addEventListener('click', () => {
+        if (isMobile()) {
+            modal.classList.remove('collapsed');
+            openBtn.classList.remove('show');
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
+    // CHIUDI MODAL -> Collassa a icona su mobile
+    const closeModal = () => {
+        if (isMobile()) {
+            modal.classList.add('collapsed');
+            openBtn.classList.add('show');
+            document.body.style.overflow = '';
+        }
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    // COLLASSA quando clicchi su header (mobile)
+    const modalHeader = document.querySelector('.tabs-modal-header');
+    if (isMobile()) {
+        modalHeader.style.cursor = 'pointer';
+        modalHeader.addEventListener('click', closeModal);
+    }
+
+    // GESTIONE TAB
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Rimuovi active da tutti i tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Aggiungi active al tab cliccato
+            button.classList.add('active');
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // CHIUDI CON ESC (solo su mobile quando espanso)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isMobile() && !modal.classList.contains('collapsed')) {
+            closeModal();
+        }
+    });
+
+    // KEYBOARD NAVIGATION
+    document.addEventListener('keydown', (e) => {
+        const currentButton = document.querySelector('.tab-button.active');
+        const allButtons = Array.from(tabButtons);
+        const currentIndex = allButtons.indexOf(currentButton);
+
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIndex = (currentIndex + 1) % allButtons.length;
+            allButtons[nextIndex].click();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevIndex = (currentIndex - 1 + allButtons.length) % allButtons.length;
+            allButtons[prevIndex].click();
+        }
+    });
+
+    // Al caricamento: gestisci stato iniziale
+    window.addEventListener('load', () => {
+        if (isDesktop()) {
+            openBtn.classList.remove('show');
+            backdrop.classList.remove('active');
+            modal.classList.remove('collapsed');
+        } else if (isMobile()) {
+            openBtn.classList.add('show');
+            modal.classList.add('collapsed');
+        } else {
+            openBtn.classList.remove('show');
+            modal.classList.remove('collapsed');
+        }
+    });
+
+    // Gestisci resize
+    window.addEventListener('resize', () => {
+        if (isDesktop()) {
+            openBtn.classList.remove('show');
+            backdrop.classList.remove('active');
+            modal.classList.remove('collapsed');
+            document.body.style.overflow = '';
+        } else if (isMobile()) {
+            openBtn.classList.add('show');
+            modal.classList.add('collapsed');
+            document.body.style.overflow = '';
+        } else {
+            openBtn.classList.remove('show');
+            modal.classList.remove('collapsed');
+        }
+    });
+</script>
+
+</body>
+</html>

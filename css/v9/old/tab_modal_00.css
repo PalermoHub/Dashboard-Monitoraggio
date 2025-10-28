@@ -1,0 +1,453 @@
+   /* ==================== BUTTON TRIGGER ==================== */
+        .btn-open-tabs {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            color: var(--color-white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+                   
+        }
+
+        .btn-open-tabs:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-open-tabs:active {
+            transform: scale(0.95);
+        }
+
+        /* Mostra pulsante solo su mobile quando modal è chiuso */
+        @media (max-width: 767px) {
+            .btn-open-tabs.show {
+                display: flex;
+            }
+        }
+
+        /* ==================== MODAL BACKDROP ==================== */
+        .tabs-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            z-index: 999;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .tabs-modal-backdrop.active {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Su desktop non mostra backdrop */
+        @media (min-width: 1024px) {
+            .tabs-modal-backdrop {
+                display: none !important;
+            }
+        }
+
+        /* ==================== MODAL CONTAINER ==================== */
+        .tabs-modal {
+            position: absolute;
+            z-index: 1000;
+            background: var(--color-white);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        /* DESKTOP: Posizionamento come tabs-sidebar */
+        @media (min-width: 1024px) {
+            .tabs-modal {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 320px;
+                height: 100vh;
+                border-radius: 0;
+                max-height: 100vh;
+                box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* TABLET: Posizionamento adattato */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .tabs-modal {
+                position: fixed;
+                top: 90px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: 500px;
+                max-height: calc(100vh - 120px);
+                border-radius: var(--border-radius);
+            }
+        }
+
+        /* MOBILE: Schermo intero bottom-sheet style */
+        @media (max-width: 767px) {
+            .tabs-modal {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-width: none;
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+                max-height: 85vh;
+                transform: translateY(0);
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+
+            /* Stato collassato - completamente nascosto */
+            .tabs-modal.collapsed {
+                max-height: 0;
+                height: 0;
+                visibility: hidden;
+                opacity: 0;
+                transform: translateY(100%);
+            }
+        }
+
+        /* ==================== MODAL HEADER ==================== */
+        .tabs-modal-header {
+     padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    color: var(--color-white);
+    flex-shrink: 0;
+    gap: 8px;
+    min-height: 48px;
+        }
+
+        .tabs-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tabs-modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--color-white);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .tabs-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* ==================== TAB NAVIGATION ==================== */
+        .tabs-modal-nav {
+            display: flex;
+            background-color: #e9ecef;
+            border-bottom: 1px solid var(--color-gray-200);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .tabs-modal-nav::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+        /* Nascondi tutto quando collassato */
+        @media (max-width: 767px) {
+            .tabs-modal.collapsed .tabs-modal-header {
+                display: none;
+            }
+
+            .tabs-modal.collapsed .tabs-modal-nav {
+                display: none;
+            }
+
+            .tabs-modal.collapsed .tabs-modal-content {
+                display: none;
+            }
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--color-gray-700);
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .tab-button:hover {
+            background-color: #dee2e6;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            border-bottom-color: var(--color-accent);
+            color: var(--color-white);
+        }
+
+        /* ==================== TAB CONTENT ==================== */
+        .tabs-modal-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .tabs-modal-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-pane h2 {
+            margin-bottom: 15px;
+            color: var(--color-gray-800);
+            font-size: 18px;
+        }
+
+        .tab-pane p {
+            line-height: 1.6;
+            color: var(--color-gray-700);
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .tab-pane h3 {
+            margin: 20px 0 10px 0;
+            color: var(--color-gray-800);
+            font-size: 16px;
+        }
+
+        .tab-pane ul {
+            margin: 10px 0 15px 20px;
+            color: var(--color-gray-700);
+        }
+
+        .tab-pane li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ==================== DEMO CONTENT ==================== */
+        .demo-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .demo-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-gray-800);
+            margin-bottom: 20px;
+        }
+
+        .demo-description {
+            color: var(--color-gray-700);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 480px) {
+            .btn-open-tabs {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                bottom: 260px;
+                right: 20px;
+            }
+
+            .tabs-modal-nav {
+                gap: 0;
+            }
+
+            .tab-button {
+                min-width: 80px;
+                font-size: 10px;
+                padding: 12px 8px;
+            }
+
+            .tabs-modal-header {
+                padding: 12px 16px;
+            }
+
+            .tabs-modal-title {
+                font-size: 16px;
+            }
+
+            .tabs-modal-close {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .tabs-modal-content {
+                padding: 16px;
+            }
+        }
+		
+		/* ==================== CORREZIONE Z-INDEX MOBILE ==================== */
+
+/* Mobile: assicura che backdrop e modal siano sopra la mappa */
+@media (max-width: 768px) {
+    /* Backdrop dietro il modal ma sopra la mappa */
+    .tabs-modal-backdrop {
+        z-index: 998 !important;
+    }
+
+    /* Modal sopra il backdrop */
+    .tabs-modal {
+        z-index: 999 !important;
+    }
+
+    /* Abbassa gli elementi della mappa */
+    .map-container {
+        z-index: 1 !important;
+        position: relative !important;
+    }
+
+    .map-area {
+        z-index: 1 !important;
+        position: relative !important;
+    }
+
+    /* Abbassa i controlli mappa */
+    .map-controls {
+        z-index: 10 !important; /* sopra la mappa (z:1) ma sotto il modal */
+    }
+
+    /* Abbassa l'attribution di Leaflet */
+    .leaflet-control-attribution {
+        z-index: 10 !important;
+    }
+
+    /* Abbassa i popup della mappa */
+    .leaflet-popup-pane {
+        z-index: 5 !important;
+    }
+
+    .leaflet-marker-pane {
+        z-index: 5 !important;
+    }
+
+    /* Assicura che i controlli Leaflet rimangono visibili ma sotto il modal */
+    .leaflet-control {
+        z-index: 10 !important;
+    }
+
+    /* Pulsante FAB (apri tabs) sopra tutto quando modal è chiuso */
+    .btn-open-tabs {
+        z-index: 50 !important; /* sotto il modal (999) ma sopra tutto il resto */
+    }
+
+    /* Quando il modal è aperto, il FAB potrebbe essere nascosto dal backdrop */
+    .tabs-modal-backdrop.active {
+        z-index: 998 !important;
+    }
+}
+
+/* Desktop: mantiene il comportamento originale */
+@media (min-width: 769px) {
+    .map-controls {
+        z-index: var(--z-fixed);
+    }
+
+    .tabs-modal-backdrop {
+        display: none !important;
+    }
+
+    .btn-open-tabs {
+        display: none !important;
+    }
+}

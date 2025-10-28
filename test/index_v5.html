@@ -10,15 +10,14 @@
     <title>Ufficio Rigenerazione Urbana | Patti di Collaborazione | Dashboard di monitoraggio</title>
     
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
- <script src="js/v9/lucide_to_fontawesome_migration.js"></script>
+ <script src="js/v5/lucide_to_fontawesome_migration.js"></script>
 	
     <!-- CSS --> <!-- -->
-	<link rel="stylesheet" href="css/v9/patti_pa_general.css"> 
-	<link rel="stylesheet" href="css/v9/tab_modal.css"> 
-	<link rel="stylesheet" href="css/v9/patti_pa_media.css"> 
-	<link rel="stylesheet" href="css/v9/patti_pa_footer.css">
-	<link rel="stylesheet" href="css/v9/patti_pa_footer_media.css">
-	<link rel="stylesheet" href="css/v9/reg_att.css"> 
+	<link rel="stylesheet" href="css/v5/patti_pa_general.css"> 
+	<link rel="stylesheet" href="css/v5/patti_pa_media.css"> 
+	<link rel="stylesheet" href="css/v5/patti_pa_footer.css">
+	<link rel="stylesheet" href="css/v5/patti_pa_footer_media.css">
+	<link rel="stylesheet" href="css/v5/reg_att.css"> 
 
  <!--	   -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -110,8 +109,9 @@
 </header>
 
     <!-- MAIN CONTENT -->
-    <main class="dashboard-main" role="main"> 
-        <!-- SIDEBAR -->		
+    <main class="dashboard-main" role="main">
+        
+        <!-- SIDEBAR -->
         <aside class="sidebar" role="complementary" aria-label="Filtri di ricerca"> 
             <div class="sidebar-header">  
                 <h2 class="sidebar-title">
@@ -406,27 +406,34 @@
                         </button>
                     </div>
                 </div>
- <p style="font-size:11px;">La Dashboard offre un sistema di filtri intelligenti e interconnessi che ti permette di esplorare le istanze sui Patti di Collaborazione in modo semplice e intuitivo.<br><br>
- <span><b> Filtri Disponibili.</b></span><br>
- <span><ol style="font-size:11px;">  <li ><strong>Stato di Avanzamento</strong> - Filtra per lo stato del patto (stipulato, in istruttoria, ecc.)</li><br>
-  <li><b>Ambiti di Azione</b> - Seleziona i settori di intervento</li><br>
-  <li><b>Localizzazione</b> - Affina la ricerca per:
-    <ul>
-      <li>Circoscrizione</li>
-      <li>Quartiere</li>
-      <li>UPL (Unità di Primo Livello)</li>
-    </ul>
-  </li><br>
-  <li><b>Smart Search</b> - Cerca liberamente per titolo, proponente, rappresentante o indirizzo</li>
-</ol> </span>
-<span style="font-size:11px;"><b> Filtri a Cascata.</b></span>
-<span style="font-size:11px;">Il sistema utilizza una <b>logica a cascata intelligente</b>: quando selezioni un filtro, gli altri si aggiornano automaticamente mostrando solo le opzioni disponibili per i dati filtrati.<br> Ad esempio:</span>
-<ul style="font-size:11px;">
-  <li>Selezioni una <b>Circoscrizione</b> → i filtri <b>Quartiere e UPL</b> mostrano solo quelli relativi a quella Circoscrizione</li>
-  <li>Scegli uno <b>Stato</b> → tutti i filtri geografici si aggiornano mostrando solo le zone con patti in quello stato</li>
-</ul>
- </p>
-		   </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <div class="chart-title-enhanced">
+                            <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
+                            <span id="chartTitle">Distribuzione Dati</span>
+                        </div>
+                        <div class="chart-selector-enhanced">
+                            <label for="chartTypeSelector" class="sr-only">Tipo di grafico</label>
+                            <select id="chartTypeSelector" 
+                                    aria-label="Seleziona il tipo di grafico da visualizzare">
+                                <option value="stato">Per stato di avanzamento</option>
+                                <option value="proponente">Per proponente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-info">
+                        <p id="chartHelp"></p>
+                        <div id="chartStats" class="text-xs text-gray-500 mt-1"></div>
+                    </div>
+                    
+                    <div class="chart-container" role="img" aria-label="Grafico distribuzione patti">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </aside>
 
         <!-- CONTENT AREA -->
@@ -435,172 +442,8 @@
             <section class="map-container" 
                      role="application" 
                      aria-label="Mappa interattiva dei patti di collaborazione">
-	
-
-	<!-- Sidebar con tabs -->
-<!-- BUTTON TRIGGER -->
-<button class="btn-open-tabs" id="openTabsBtn" title="Apri statistiche">
-    <i class="fas fa-chart-bar"></i>
-</button>
-
-<!-- MODAL BACKDROP -->
-<div class="tabs-modal-backdrop" id="tabsBackdrop"></div>
-
-<!-- MODAL TABS -->
-<div class="tabs-modal" id="tabsModal">
-    <!-- HEADER -->
-    <div class="tabs-modal-header">
-        <h2 class="tabs-modal-title">
-            <img src="img/patti.png" alt="Logo Patti" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione">
-            Statistiche & Grafici
-        </h2>
-        <button class="tabs-modal-close" id="closeTabsBtn" title="Chiudi">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <!-- TAB NAVIGATION -->
-    <div class="tabs-modal-nav">
-        <button class="tab-button active" data-tab="tab-stats">
-            <i class="fas fa-bar-chart"></i>
-            <span>Statistiche</span>
-        </button>
-        <button class="tab-button" data-tab="tab-charts">
-            <i class="fas fa-chart-line"></i>
-            <span>DataViz</span>
-        </button>
-    </div>
-
-    <!-- TAB CONTENT -->
-    <div class="tabs-modal-content">
-        <!-- TAB 1: STATISTICHE -->
-        <div id="tab-stats" class="tab-pane active">
-            <h2><b>Stato di Avanzamento</b></h2>
-            <p>Le statistiche mostrano la distribuzione percentuale di tutti i progetti per stato. Consente di identificare rapidamente quanti progetti sono stati stipulati, quanti sono in istruttoria, in attesa di integrazione, in monitoraggio, respinti o archiviati.</p>
-				
-            <!-- STATISTICS AND LEGEND -->
-            <div class="stats-container">
-			                <!-- Statistics -->
-                <div class="stats-card">
-                    <h3 class="section-title">
-                        <i data-lucide="bar-chart-4" class="h-4 w-4" aria-hidden="true"></i>
-                        Statistiche
-                    </h3>
-                    
-                    <div class="stats-grid" role="list">
-                        <div class="stat-item" role="listitem" title="Totale istanne presentate">
-                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
-                            <div class="stat-label">Richieste</div>
-                        </div>
-                        <div class="stat-item" role="listitem" title="Patti stipulati">
-                            <div id="pattiStipulati" class="stat-value" style="color: var(--status-stipulato);">0</div>
-                            <div class="stat-label">Stipulati</div>
-                        </div>
-                        <div class="stat-item" role="listitem" title="Istanze con istruttoria in corso">
-                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--status-istruttoria);">0</div>
-                            <div class="stat-label">In Istruttoria</div>
-                        </div>
-                        <div class="stat-item" role="listitem" title="Istanze in attesa di integrazioni">
-                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: var(--status-integrazione);">0</div>
-                            <div class="stat-label">Integrazione</div>
-                        </div>
-                        <div class="stat-item" role="listitem" title="Proroga / Monitoraggio">
-                            <div id="pattiMonitoraggio" class="stat-value" style="color: var(--status-monitoraggio);" >0</div>
-                            <div class="stat-label">Proroga</div>
-                        </div>
-                        <div class="stat-item" role="listitem" title="Istanze respinte">
-                            <div id="pattiRespinti" class="stat-value" style="color: var(--status-respinto);">0</div>
-                            <div class="stat-label">Respinte</div>
-                        </div>
-						<div class="stat-item" role="listitem">
-    <div id="pattiArchiviati" class="stat-value" style="color: var(--status-archiviato);">0</div>
-    <div class="stat-label">Archiviati</div>
-</div>
-      </div>
-          </div>	
-                <!-- Legend -->
-                <div class="legend-card">
-                    <h3 class="section-title">
-                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
-                        Legenda stato di avanzamento
-                    </h3>
-                    
-                    <div id="legend" class="legend-items" role="list">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div><br><br><br><br><br>	
-        </div>
-        </div>
-  <!-- fine TAB 1 -->
-  
-        <!-- TAB 2: GRAFICI -->
-        <div id="tab-charts" class="tab-pane">
-            <h2><b>DataViz e Analisi</b></h2>
-            <p>Visualizza la distribuzione delle istanze attraverso grafici interattivi. Clicca sulle barre per filtrare i risultati.</p>
-    <!-- Chart Section -->
-    <div class="chart-section">
-	<span>
-        <i class="fas fa-chart-bar h-4 w-4" aria-hidden="true"></i> <strong>Distribuzione per Stato:</strong> Analizza il progresso dei patti</span>
-        <!-- GRAFICO 1: STATO DI AVANZAMENTO -->
-        <div class="chart-subsection">
-            <div class="chart-header-single">
-                <div class="chart-title-enhanced">
-                    <i data-lucide="bar-chart-3" class="h-4 w-4" aria-hidden="true"></i>
-                    <span id="chartTitle1">Distribuzione per Stato di Avanzamento</span>
-                </div>
-            </div>
-            
-            <div class="chart-info">
-                <div id="chartStats1" class="text-xs text-gray-500"></div>
-            </div>
-            
-            <div class="chart-container" role="img" aria-label="Grafico distribuzione per stato">
-                <canvas id="statusChart1"></canvas>
-            </div>
-        </div>
-        
-        <!-- GRAFICO 2: PROPONENTE -->
-		<span><i class="fas fa-people-group h-4 w-4" aria-hidden="true"></i> <strong>Distribuzione per Proponente:</strong> Identifica i principali attori</span>
-        <div class="chart-subsection">
-            <div class="chart-header-single">
-                <div class="chart-title-enhanced">
-                    <i data-lucide="users" class="h-4 w-4" aria-hidden="true"></i>
-                    <span id="chartTitle2">Distribuzione per Proponente</span>
-                </div>
-            </div>
-            
-            <div class="chart-info">
-                <div id="chartStats2" class="text-xs text-gray-500"></div>
-            </div>
-            
-            <div class="chart-container" role="img" aria-label="Grafico distribuzione per proponente">
-                <canvas id="statusChart2"></canvas>
-            </div>
-        </div>
-        
-        <!-- 🆕 GRAFICO 3: AMBITI DI AZIONE -->
-		<span><i class="fas fa-bullseye h-4 w-4" aria-hidden="true"></i><strong>Distribuzione per Ambiti:</strong> Scopri i settori più attivi</span>
-        <div class="chart-subsection">
-            <div class="chart-header-single">
-                <div class="chart-title-enhanced">
-                    <i data-lucide="target" class="h-4 w-4" aria-hidden="true"></i>
-                    <span id="chartTitle3">Distribuzione per Ambiti di Azione</span>
-                </div>
-            </div>
-            <div class="chart-info">
-                <div id="chartStats3" class="text-xs text-gray-500"></div>
-            </div>
-            <div class="chart-container" role="img" aria-label="Grafico distribuzione per ambiti">
-                <canvas id="statusChart3"></canvas>
-            </div>
-        </div>
-		<br> <br> <br> <br><br> <br><br>
-    </div>
-  </div>
- <!-- fine TAB 2 --> 
- </div>
-</div>
-
+                   
+				   
 <div id="map" class="map-area">
     <!-- Map Controls -->
     <div class="map-controls">
@@ -613,6 +456,7 @@
                     aria-haspopup="true">
                 <i data-lucide="layers" class="h-5 w-5" aria-hidden="true"></i>
             </button>
+            
             <div id="layerMenu" 
                  class="layer-menu hidden"
                  role="menu"
@@ -629,6 +473,7 @@
                 </button>
             </div>
         </div>
+        
         <!-- Center Button -->
         <button id="centerPalermo" 
                 class="map-control"
@@ -637,10 +482,64 @@
             <i data-lucide="home" class="h-5 w-5" aria-hidden="true"></i>
         </button>
     </div>
-</div>	  
+</div>
 		   </section>
-		  
-	  </div>
+
+            <!-- STATISTICS AND LEGEND -->
+            <div class="stats-container">
+			                <!-- Statistics -->
+                <div class="stats-card">
+                    <h3 class="section-title">
+                        <i data-lucide="bar-chart-4" class="h-4 w-4" aria-hidden="true"></i>
+                        Statistiche
+                    </h3>
+                    
+                    <div class="stats-grid" role="list">
+                        <div class="stat-item" role="listitem">
+                            <div id="totalPatti" class="stat-value" style="color: var(--color-accent);">0</div>
+                            <div class="stat-label">Richieste</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiStipulati" class="stat-value" style="color: var(--status-stipulato);">0</div>
+                            <div class="stat-label">Stipulati</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiIstruttoria" class="stat-value" style="color: var(--status-istruttoria);">0</div>
+                            <div class="stat-label">In Istruttoria</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiAttesaIntegrazione" class="stat-value" style="color: var(--status-integrazione);">0</div>
+                            <div class="stat-label">Attesa Integrazione</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiMonitoraggio" class="stat-value" style="color: var(--status-monitoraggio);">0</div>
+                            <div class="stat-label">Proroga / Monitoraggio</div>
+                        </div>
+                        <div class="stat-item" role="listitem">
+                            <div id="pattiRespinti" class="stat-value" style="color: var(--status-respinto);">0</div>
+                            <div class="stat-label">Respinti</div>
+                        </div>
+						<div class="stat-item" role="listitem">
+    <div id="pattiArchiviati" class="stat-value" style="color: var(--status-archiviato);">0</div>
+    <div class="stat-label">Archiviati</div>
+</div>
+                    </div>
+                </div>
+    
+			
+                <!-- Legend -->
+                <div class="legend-card">
+                    <h3 class="section-title">
+                        <i data-lucide="info" class="h-4 w-4" aria-hidden="true"></i>
+                        Legenda stato di avanzamento
+                    </h3>
+                    
+                    <div id="legend" class="legend-items" role="list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+        </div>
+        </div>
 
     </main>
 
@@ -2368,9 +2267,9 @@
                                 <div class="legend-color-dot" style="background: var(--status-integrazione);"></div>
                                 <span>In attesa di integrazione</span>
                             </div>
-                            <div class="legend-item-full" title="Proroga / Monitoraggio">
-                                <div class="legend-color-dot" style="background: var(--status-monitoraggio);" ></div>
-                                <span>Proroga</span>
+                            <div class="legend-item-full">
+                                <div class="legend-color-dot" style="background: var(--status-monitoraggio);"></div>
+                                <span>Proroga / Monitoraggio</span>
                             </div>
                             <div class="legend-item-full">
                                 <div class="legend-color-dot" style="background: var(--status-respinto);"></div>
@@ -2596,14 +2495,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
     <!-- JavaScript -->
-	<script src="js/v9/monitoraggio_p1-v9.js"></script>
-	<script src="js/v9/side-panel.js"></script>
-	<script src="js/v9/map-controls_layer.js"></script>
-    <script src="js/v9/smart-search-v2.js"></script>
-	<script src="js/v9/monitoraggio_p2.js"></script>
-	<script src="js/v9/attiva_patto.js"></script>
-	<script src="js/v9/regolamento.js"></script>	
-	<!-- sidebar tab -->
-	<script src="js/v9/tab-modal.js"></script>
+	<script src="js/v5/monitoraggio_p1-v5.js"></script>
+	<script src="js/v5/side-panel.js"></script>
+	<script src="js/v5/map-controls_layer.js"></script>
+    <script src="js/v5/smart-search-v2.js"></script>
+	<script src="js/v5/monitoraggio_p2.js"></script>
+	<script src="js/v5/attiva_patto.js"></script>
+	<script src="js/v5/regolamento.js"></script>	
 </body>
 </html>
