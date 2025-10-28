@@ -785,7 +785,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--color-gray-50);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
 }
 
 .modal-title {
@@ -830,7 +830,28 @@ body {
 .modal-body {
     padding: var(--space-6);
     overflow-y: auto;
+    overflow-x: auto;
     flex: 1;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Personalizzazione scrollbar */
+.modal-body::-webkit-scrollbar {
+    height: 8px;  /* Altezza scrollbar orizzontale */
+    width: 8px;   /* Larghezza scrollbar verticale */
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #1e40af;
 }
 
 /* ==================== */
@@ -878,17 +899,38 @@ body {
 /* TABLE                */
 /* ==================== */
 
+/* ==================== */
+/* TABLE CONTAINER SCROLL */
+/* ==================== */
+
 .table-container {
-    overflow-x: auto;
-    border-radius: var(--border-radius);
-    border: var(--border-width) solid var(--border-color);
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
+    min-width: max-content;
     width: 100%;
-    border-collapse: collapse;
-    background: var(--color-white);
-    font-size: var(--font-size-sm);
+}
+
+/* Personalizzazione scrollbar orizzontale */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #1e40af;
 }
 
 .data-table th {
@@ -2884,7 +2926,7 @@ body {
     gap: 12px;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #ffffff;
     margin: 0;
 }
 
