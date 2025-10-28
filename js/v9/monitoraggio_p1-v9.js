@@ -33,6 +33,15 @@ let proponenteFilter = ''; // Filtro nascosto per proponente
 let allDataMonitoraggio = [];
 let uniqueValuesCache = {};
 
+window.chartFilterState = {
+    activeChartType: null,      // 'stato', 'proponente', 'ambiti' o null
+    activeChartValue: null,     // valore attualmente filtrato dal grafico
+    lastUpdateTime: 0,          // timestamp ultimo aggiornamento
+    isUpdating: false           // flag per evitare aggiornamenti ricorsivi
+};
+
+console.log('✅ chartFilterState inizializzato');
+
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
 const PALERMO_BOUNDS = [
@@ -377,35 +386,8 @@ function closeFiltersPopupOnly() {
 }
 
 function resetFiltersFromPopup() {
-    console.log('Reset filtri dal popup');
-    
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
-    
-    filterIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-            updateFilterAppearance(element, '');
-        }
-    });
-    
-    proponenteFilter = '';
-    
-    const suggestions = document.getElementById('autocompleteSuggestions');
-    if (suggestions) {
-        suggestions.classList.add('hidden');
-    }
-    
-    filteredData = [...allData];
-    
-    updateFilters();
-    updateMap();
-    updateStatistics();
-    addDualChartStyles();
-updateChartDual();
-    updateTable();
-    
-    hideFiltersPopup();
+    console.log('🔄 Reset filtri dal popup');
+    resetAllFiltersAndCharts(); // ✅ DELEGA A FUNZIONE CENTRALIZZATA
 }
 
 function setupFiltersPopupEventListeners() {
@@ -950,6 +932,10 @@ function updateFilters() {
         
         updateFilterAppearance(select, select.value);
     });
+
+    console.log('📊 Aggiornamento filtri completato, notifica grafici');
+    updateAllChartsSynchronized();
+
 }
 
 function updateFilterAppearance(selectElement, value) {
@@ -964,14 +950,10 @@ function updateFilterAppearance(selectElement, value) {
     }
 }
 
-
-// 🔧 CORREZIONE: Applicazione filtri con cascata BIDIRECTIONAL
 function applyFilters() {
-    console.log('🔄 applyFilters() - VERSIONE CORRETTA CON CASCATA');
+    console.log('🔄 applyFilters() - VERSIONE SINCRONIZZATA');
     
-    lastClickedChartValue = null;
-    lastClickedChartType = null;
-  
+    // 1️⃣ Raccogli TUTTI i filtri attivi
     const filters = {
         stato: document.getElementById('filterStato')?.value?.trim() || '',
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
@@ -982,8 +964,9 @@ function applyFilters() {
         proponente: proponenteFilter.trim()
     };
     
-    console.log('📋 Filtri applicati:', filters);
+    console.log('📋 Filtri attivi:', filters);
     
+    // 2️⃣ Filtra i dati - LOGICA UNIFICATA
     filteredData = allData.filter(item => {
         const statoKey = Object.keys(item).find(k => k.toLowerCase().includes('stato'));
         const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
@@ -993,6 +976,7 @@ function applyFilters() {
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
+        // ✅ TUTTI i filtri devono matchare (logica AND)
         const statoMatch = !filters.stato || (item[statoKey] && item[statoKey].trim() === filters.stato);
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
@@ -1006,12 +990,15 @@ function applyFilters() {
     
     console.log(`✅ Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
+    // 3️⃣ Aggiorna TUTTI i componenti in sequenza CORRETTA
     updateMap();
     updateStatistics();
-    addDualChartStyles();
-    updateChartDual(); // 🔥 Chiama la versione corretta
     updateTable();
     updateFiltersPopup();
+    
+    // 4️⃣ ✅ CRUCIALE: Aggiorna grafici SINCRONIZZATI
+    console.log('🎨 Trigger updateAllChartsSynchronized()...');
+    updateAllChartsSynchronized();
 }
 
 console.log('✨ Correzioni applicate con successo!');
@@ -1402,64 +1389,36 @@ function createModernChart(labels, data, colors, type, fullLabels = null, canvas
                     beginAtZero: true
                 }
             },
-            onClick: (event, elements) => {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    const clickedValue = fullLabels ? fullLabels[index] : labels[index];
+			
+			onClick: (event, elements) => {
+                if (elements.length === 0) return;
+                
+                const index = elements[0].index;
+                const clickedValue = fullLabels ? fullLabels[index] : labels[index];
+                
+                console.log(`📊 Click su grafico [${type}]: "${clickedValue}"`);
+                
+                // ✅ LOGICA: Se clicchi lo STESSO valore su STESSO grafico = RESET
+                if (window.chartFilterState.activeChartType === type && 
+                    window.chartFilterState.activeChartValue === clickedValue) {
                     
-                    // 🔄 FILTRI INTERCONNESSI: Controlla se già selezionato
-                    if (lastClickedChartValue === clickedValue && lastClickedChartType === type) {
-                        console.log('🔄 Secondo click - RESET tutti i filtri');
-                        lastClickedChartValue = null;
-                        lastClickedChartType = null;
-                        
-                        const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti', 'filterTitolo'];
-                        filterIds.forEach(id => {
-                            const element = document.getElementById(id);
-                            if (element) {
-                                element.value = '';
-                                updateFilterAppearance(element, '');
-                            }
-                        });
-                        
-                        proponenteFilter = '';
-                        filteredData = [...allData];
-                        
-                        updateFilters();
-                        updateMap();
-                        updateStatistics();
-                        addDualChartStyles();
-                        updateChartDual();
-                        updateTable();
-                        hideFiltersPopup();
-                        
-                        showNotification('✨ Filtri resettati', 'info');
-                        return;
-                    }
-                    
-                    console.log('🎯 Click su:', clickedValue);
-                    lastClickedChartValue = clickedValue;
-                    lastClickedChartType = type;
-                    
-                    // ⚙️ APPLICA FILTRO IN BASE AL TIPO
-                    if (type === 'stato') {
-                        const statusSelect = document.getElementById('filterStato');
-                        if (statusSelect) {
-                            statusSelect.value = clickedValue;
-                            applyFilters();
-                        }
-                    } else if (type === 'ambiti') {
-                        const ambitiSelect = document.getElementById('filterAmbiti');
-                        if (ambitiSelect) {
-                            ambitiSelect.value = clickedValue;
-                            applyFilters();
-                        }
-                    } else if (type === 'proponente') {
-                        applyProponenteFilter(clickedValue);
-                    }
+                    console.log('🔄 DOPPIO CLICK RILEVATO - Attivazione RESET');
+                    resetAllFiltersAndCharts();
+                    return;
                 }
+                
+                // ✅ Nuovo filtro: Aggiorna stato centralizzato
+                window.chartFilterState.activeChartType = type;
+                window.chartFilterState.activeChartValue = clickedValue;
+                
+                console.log(`📌 Stato grafico aggiornato:`, window.chartFilterState);
+                
+                // ✅ Applica il filtro e aggiorna TUTTI i grafici
+                applyChartFilter(type, clickedValue);
             },
-            onHover: (event, elements) => {
+
+
+   onHover: (event, elements) => {
                 const canvas = event.native?.target;
                 if (canvas) {
                     canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
@@ -1474,6 +1433,143 @@ function createModernChart(labels, data, colors, type, fullLabels = null, canvas
     return chartInstance;
 }
 
+
+function resetAllFiltersAndCharts() {
+    console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato');
+    
+    // 1️⃣ Reset stato grafici
+    window.chartFilterState.activeChartType = null;
+    window.chartFilterState.activeChartValue = null;
+    window.chartFilterState.isUpdating = false;
+    
+    // 2️⃣ Reset input filtri - TUTTI gli ID
+    const filterIds = [
+        'filterStato', 
+        'filterUpl', 
+        'filterQuartiere', 
+        'filterCircoscrizione', 
+        'filterAmbiti', 
+        'filterTitolo'
+    ];
+    
+    filterIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            updateFilterAppearance(el, '');
+        }
+    });
+    
+    // 3️⃣ Reset variabili globali filtri
+    proponenteFilter = '';
+    const suggestions = document.getElementById('autocompleteSuggestions');
+    if (suggestions) {
+        suggestions.classList.add('hidden');
+    }
+    
+    // 4️⃣ Ripristina dati originali
+    filteredData = [...allData];
+    
+    // 5️⃣ Aggiorna TUTTO in sequenza CORRETTA
+    console.log('📊 Aggiornamento componenti...');
+    updateFilters();
+    updateMap();
+    updateStatistics();
+    updateTable();
+    hideFiltersPopup();
+    
+    // 6️⃣ Aggiorna grafici SINCRONIZZATI (NUOVA FUNZIONE)
+    console.log('🎨 Aggiornamento grafici sincronizzati...');
+    updateAllChartsSynchronized();
+    
+    console.log('✅ Reset completato con successo');
+    showNotification('✅ Tutti i filtri resettati', 'info');
+}
+
+// ✅ NUOVO: Aggiornamento SINCRONIZZATO dei 3 grafici
+function updateAllChartsSynchronized() {
+    console.log('🎨 Aggiornamento SINCRONIZZATO grafici...');
+    
+    // Flag per evitare aggiornamenti ricorsivi
+    if (window.chartFilterState.isUpdating) {
+        console.warn('⚠️ Aggiornamento già in corso, skip');
+        return;
+    }
+    
+    window.chartFilterState.isUpdating = true;
+    
+    try {
+        // 1️⃣ Distruggi TUTTI i grafici precedenti
+        const chartIds = ['statusChart1', 'statusChart2', 'statusChart3'];
+        
+        chartIds.forEach(canvasId => {
+            if (window.chartsMap && window.chartsMap[canvasId]) {
+                try {
+                    console.log(`🗑️ Distruggo grafico: ${canvasId}`);
+                    window.chartsMap[canvasId].destroy();
+                    delete window.chartsMap[canvasId];
+                } catch (e) {
+                    console.warn(`⚠️ Errore nel distruggere ${canvasId}:`, e);
+                }
+            }
+        });
+        
+        // 2️⃣ Attendi un frame prima di ricreate
+        setTimeout(() => {
+            console.log('📈 Ricreazione grafici...');
+            
+            // Ricrea i 3 grafici con i dati ATTUALI (filteredData)
+            updateStatusChart('statusChart1');
+            console.log('✅ Grafico Stato creato');
+            
+            updateProponenteChart('statusChart2');
+            console.log('✅ Grafico Proponente creato');
+            
+            updateAmbitiChart('statusChart3');
+            console.log('✅ Grafico Ambiti creato');
+            
+            updateChartInterfaceDual();
+            console.log('✅ Interfaccia grafici aggiornata');
+            
+            window.chartFilterState.lastUpdateTime = Date.now();
+            window.chartFilterState.isUpdating = false;
+            
+            console.log('✅ Grafici sincronizzati completamente');
+        }, 50);
+        
+    } catch (error) {
+        console.error('❌ Errore nell\'aggiornamento sincronizzato:', error);
+        window.chartFilterState.isUpdating = false;
+    }
+}
+
+// ✅ NUOVO: Applica filtro dal grafico + aggiorna altri grafici
+function applyChartFilter(chartType, value) {
+    console.log(`⚙️ Applicazione filtro da grafico [${chartType}]: "${value}"`);
+    
+    // Mappa tipo grafico → ID filtro
+    const filterMap = {
+        'stato': 'filterStato',
+        'ambiti': 'filterAmbiti'
+    };
+    
+    // Applica il filtro al campo corrispondente
+    if (chartType === 'proponente') {
+        proponenteFilter = value;
+        console.log(`📌 Filtro Proponente impostato: "${value}"`);
+    } else if (filterMap[chartType]) {
+        const filterEl = document.getElementById(filterMap[chartType]);
+        if (filterEl) {
+            filterEl.value = value;
+            updateFilterAppearance(filterEl, value);
+            console.log(`📌 Filtro ${chartType} impostato: "${value}"`);
+        }
+    }
+    
+    // ✅ FONDAMENTALE: Applica filtri e aggiorna TUTTI i grafici
+    console.log('🔄 Trigger applyFilters()...');
+    applyFilters();
+}
 
 function updateChartInterfaceDual() {
     // Stats per grafico 1 (Stato)
@@ -1497,13 +1593,10 @@ function updateStatusChart(canvasId = 'statusChart1') {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
     
+    // 🔥 USA filteredData invece di allData
     filteredData.forEach(item => {
         const status = item[statoKey] || 'Non specificato';
-        if (status && 
-            status.toString().trim() !== '' && 
-            status.toString().trim().toLowerCase() !== 'undefined' &&
-            status.toString().trim().toLowerCase() !== 'null' &&
-            status.toString().trim() !== 'N/A') {
+        if (status && status.toString().trim() !== '') {
             statusCounts[status] = (statusCounts[status] || 0) + 1;
         }
     });
@@ -2199,11 +2292,7 @@ function setupEventListeners() {
         successCount++;
     }
     
-
-    
-	
-	
-// === FILTRI CON LOGICA CASCATA ===
+// === FILTRI CON LOGICA CASCATA + AGGIORNAMENTO GRAFICI ===
 const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
 
 filterIds.forEach(id => {
@@ -2212,14 +2301,16 @@ filterIds.forEach(id => {
     
     if (element) {
         element.addEventListener('change', function() {
-            console.log(`Filtro ${id} cambiato a: "${this.value}"`);
+            console.log(`🔄 Filtro ${id} cambiato a: "${this.value}"`);
             
-            if (typeof window.applyFiltersUnified === 'function') {
-                window.applyFiltersUnified();
-            } else {
-                applyFilters();
-            }
+            // ✅ Reset stato grafico quando cambi manualmente filtri
+            window.chartFilterState.activeChartType = null;
+            window.chartFilterState.activeChartValue = null;
             
+            // Applica i filtri
+            applyFilters();
+            
+            // Aggiorna i dropdown in cascata
             setTimeout(() => {
                 updateFilters();
             }, 100);
@@ -2228,7 +2319,8 @@ filterIds.forEach(id => {
         successCount++;
     }
 });
-    
+
+   
     // === MODAL INFO ===
     totalAttempts++;
     if (safeAddEventListener('infoBtn', 'click', function() {
@@ -2279,46 +2371,16 @@ if (safeAddEventListener('filterAmbiti', 'change', function() {
     successCount++;
 }
 	
-    // === RESET FILTRI ===
+
+// === RESET FILTRI ===
 totalAttempts++;
 if (safeAddEventListener('clearFilters', 'click', function() {
-    console.log('Reset filtri richiesto');
-    
-    // ✅ INCLUDI filterAmbiti nel reset
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti', 'filterTitolo'];
-    filterIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-            updateFilterAppearance(element, '');
-        }
-    });
-    
-    const suggestions = document.getElementById('autocompleteSuggestions');
-    if (suggestions) {
-        suggestions.classList.add('hidden');
-    }
-    
-    proponenteFilter = '';
-    filteredData = [...allData];
-    
-    updateFilters();
-    updateMap();
-    updateStatistics();
-addDualChartStyles();
-updateChartDual();
-    updateTable();
-    hideFiltersPopup();
-    
-    // AGGIUNGI QUESTA PARTE:
-    if (typeof window.updateSidePanelForFilters === 'function') {
-        window.updateSidePanelForFilters();
-    }
-    
+    console.log('🔄 Reset filtri richiesto');
+    resetAllFiltersAndCharts(); // ✅ NUOVA FUNZIONE CENTRALIZZATA
 }, 'Reset filtri')) {
     successCount++;
 }
-    
+ 
     // === CONTROLLI MAPPA ===
     totalAttempts++;
     if (safeAddEventListener('centerPalermo', 'click', centerMapOnPalermo, 'Centra Palermo')) {
