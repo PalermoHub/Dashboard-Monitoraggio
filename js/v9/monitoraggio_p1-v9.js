@@ -951,7 +951,7 @@ function updateFilterAppearance(selectElement, value) {
 }
 
 function applyFilters() {
-    console.log('🔄 applyFilters() - VERSIONE SINCRONIZZATA');
+    console.log('🔄 applyFilters() - VERSIONE CORRETTA CON RESET');
     
     // 1️⃣ Raccogli TUTTI i filtri attivi
     const filters = {
@@ -990,18 +990,23 @@ function applyFilters() {
     
     console.log(`✅ Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    // 3️⃣ Aggiorna TUTTI i componenti in sequenza CORRETTA
+    // 3️⃣ Aggiorna componenti MAPPA PRIMA (per visibilità)
+    console.log('🗺️ Aggiornamento mappa...');
     updateMap();
+    
+    console.log('📊 Aggiornamento statistiche...');
     updateStatistics();
+    
+    console.log('📋 Aggiornamento tabella...');
     updateTable();
+    
+    console.log('🔔 Aggiornamento popup filtri...');
     updateFiltersPopup();
     
     // 4️⃣ ✅ CRUCIALE: Aggiorna grafici SINCRONIZZATI
-    console.log('🎨 Trigger updateAllChartsSynchronized()...');
+    console.log('📈 Trigger updateAllChartsSynchronized()...');
     updateAllChartsSynchronized();
 }
-
-console.log('✨ Correzioni applicate con successo!');
 
 
 // ==========================================
@@ -1433,14 +1438,15 @@ function createModernChart(labels, data, colors, type, fullLabels = null, canvas
     return chartInstance;
 }
 
-
 function resetAllFiltersAndCharts() {
-    console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato');
+    console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato (IMPROVED)');
     
-    // 1️⃣ Reset stato grafici
+    // 1️⃣ Reset stato grafici COMPLETAMENTE
     window.chartFilterState.activeChartType = null;
     window.chartFilterState.activeChartValue = null;
     window.chartFilterState.isUpdating = false;
+    window.chartFilterState.lastUpdateTime = 0;
+    console.log('✅ Stato grafici resettato');
     
     // 2️⃣ Reset input filtri - TUTTI gli ID
     const filterIds = [
@@ -1457,6 +1463,7 @@ function resetAllFiltersAndCharts() {
         if (el) {
             el.value = '';
             updateFilterAppearance(el, '');
+            console.log(`✅ Reset filtro: ${id}`);
         }
     });
     
@@ -1466,29 +1473,41 @@ function resetAllFiltersAndCharts() {
     if (suggestions) {
         suggestions.classList.add('hidden');
     }
+    console.log('✅ Variabili filtri resettate');
     
-    // 4️⃣ Ripristina dati originali
-    filteredData = [...allData];
+    // 4️⃣ Ripristina dati originali (COPIA PROFONDA)
+    filteredData = JSON.parse(JSON.stringify(allData));
+    console.log(`✅ Dati ripristinati: ${filteredData.length} elementi`);
     
     // 5️⃣ Aggiorna TUTTO in sequenza CORRETTA
-    console.log('📊 Aggiornamento componenti...');
-    updateFilters();
-    updateMap();
-    updateStatistics();
-    updateTable();
-    hideFiltersPopup();
+    console.log('🔄 Aggiornamento componenti...');
     
-    // 6️⃣ Aggiorna grafici SINCRONIZZATI (NUOVA FUNZIONE)
-    console.log('🎨 Aggiornamento grafici sincronizzati...');
-    updateAllChartsSynchronized();
-    
-    console.log('✅ Reset completato con successo');
-    showNotification('✅ Tutti i filtri resettati', 'info');
+    try {
+        updateFilters();
+        updateMap();
+        updateStatistics();
+        updateTable();
+        hideFiltersPopup();
+        
+        console.log('✅ Componenti aggiornati');
+        
+        // 6️⃣ Aggiorna grafici SINCRONIZZATI
+        console.log('📈 Aggiornamento grafici sincronizzati...');
+        updateAllChartsSynchronized();
+        
+        console.log('✅✅ RESET COMPLETATO CON SUCCESSO');
+        showNotification('✅ Tutti i filtri resettati', 'info');
+        
+    } catch (error) {
+        console.error('❌ Errore durante reset:', error);
+        showNotification('⚠️ Errore durante il reset', 'error');
+    }
 }
 
 // ✅ NUOVO: Aggiornamento SINCRONIZZATO dei 3 grafici
+
 function updateAllChartsSynchronized() {
-    console.log('🎨 Aggiornamento SINCRONIZZATO grafici...');
+    console.log('🎨 Aggiornamento SINCRONIZZATO grafici (START)...');
     
     // Flag per evitare aggiornamenti ricorsivi
     if (window.chartFilterState.isUpdating) {
@@ -1499,42 +1518,66 @@ function updateAllChartsSynchronized() {
     window.chartFilterState.isUpdating = true;
     
     try {
-        // 1️⃣ Distruggi TUTTI i grafici precedenti
         const chartIds = ['statusChart1', 'statusChart2', 'statusChart3'];
+        let destroyedCount = 0;
+        
+        // 1️⃣ STEP 1: Distruggi TUTTI i grafici precedenti con logica robusta
+        console.log('🗑️ STEP 1: Distruzione grafici precedenti...');
         
         chartIds.forEach(canvasId => {
-            if (window.chartsMap && window.chartsMap[canvasId]) {
-                try {
-                    console.log(`🗑️ Distruggo grafico: ${canvasId}`);
-                    window.chartsMap[canvasId].destroy();
-                    delete window.chartsMap[canvasId];
-                } catch (e) {
-                    console.warn(`⚠️ Errore nel distruggere ${canvasId}:`, e);
+            try {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.warn(`⚠️ Canvas ${canvasId} non trovato nel DOM`);
+                    return;
                 }
+                
+                if (window.chartsMap && window.chartsMap[canvasId]) {
+                    console.log(`🗑️ Distruggo grafico: ${canvasId}`);
+                    const chartInstance = window.chartsMap[canvasId];
+                    chartInstance.destroy();
+                    delete window.chartsMap[canvasId];
+                    destroyedCount++;
+                }
+            } catch (e) {
+                console.warn(`⚠️ Errore nel distruggere ${canvasId}:`, e.message);
             }
         });
         
-        // 2️⃣ Attendi un frame prima di ricreate
+        console.log(`✅ Grafici distrutti: ${destroyedCount}/${chartIds.length}`);
+        
+        // 2️⃣ STEP 2: Attendi un frame prima di ricreate (IMPORTANTE)
         setTimeout(() => {
-            console.log('📈 Ricreazione grafici...');
-            
-            // Ricrea i 3 grafici con i dati ATTUALI (filteredData)
-            updateStatusChart('statusChart1');
-            console.log('✅ Grafico Stato creato');
-            
-            updateProponenteChart('statusChart2');
-            console.log('✅ Grafico Proponente creato');
-            
-            updateAmbitiChart('statusChart3');
-            console.log('✅ Grafico Ambiti creato');
-            
-            updateChartInterfaceDual();
-            console.log('✅ Interfaccia grafici aggiornata');
-            
-            window.chartFilterState.lastUpdateTime = Date.now();
-            window.chartFilterState.isUpdating = false;
-            
-            console.log('✅ Grafici sincronizzati completamente');
+            try {
+                console.log('📊 STEP 2: Ricreazione grafici con dati filtrati...');
+                console.log(`   - filteredData.length = ${filteredData.length}`);
+                console.log(`   - allData.length = ${allData.length}`);
+                
+                // 🔥 RICREA I 3 GRAFICI CON I DATI ATTUALI (filteredData)
+                updateStatusChart('statusChart1');
+                console.log('✅ Grafico Stato (statusChart1) creato');
+                
+                updateProponenteChart('statusChart2');
+                console.log('✅ Grafico Proponente (statusChart2) creato');
+                
+                updateAmbitiChart('statusChart3');
+                console.log('✅ Grafico Ambiti (statusChart3) creato');
+                
+                // 3️⃣ STEP 3: Aggiorna interfaccia
+                console.log('🎯 STEP 3: Aggiornamento interfaccia grafici...');
+                updateChartInterfaceDual();
+                
+                // 4️⃣ STEP 4: Marca come completato
+                window.chartFilterState.lastUpdateTime = Date.now();
+                window.chartFilterState.isUpdating = false;
+                
+                console.log('✅ Grafici sincronizzati COMPLETAMENTE');
+                console.log(`   Stato filtro: ${JSON.stringify(window.chartFilterState)}`);
+                
+            } catch (error) {
+                console.error('❌ Errore nella ricreazione dei grafici:', error);
+                window.chartFilterState.isUpdating = false;
+            }
         }, 50);
         
     } catch (error) {
@@ -1545,29 +1588,46 @@ function updateAllChartsSynchronized() {
 
 // ✅ NUOVO: Applica filtro dal grafico + aggiorna altri grafici
 function applyChartFilter(chartType, value) {
-    console.log(`⚙️ Applicazione filtro da grafico [${chartType}]: "${value}"`);
+    console.log(`🔧 FILTER APPLICATION [${chartType}]: "${value}"`);
+    
+    if (!value || value.trim() === '') {
+        console.warn('⚠️ Valore filtro vuoto, skip');
+        return;
+    }
     
     // Mappa tipo grafico → ID filtro
     const filterMap = {
         'stato': 'filterStato',
-        'ambiti': 'filterAmbiti'
+        'ambiti': 'filterAmbiti',
+        'proponente': null // Gestione speciale
     };
     
-    // Applica il filtro al campo corrispondente
+    // Applica il filtro
     if (chartType === 'proponente') {
+        // 🔑 CORREZIONE: Non stai né aggiornando il campo di ricerca NÉ aggiornando l'UI
+        console.log(`📝 Impostazione filtro proponente: "${value}"`);
         proponenteFilter = value;
-        console.log(`📌 Filtro Proponente impostato: "${value}"`);
+        
+        // 🆕 NUOVO: Aggiorna anche il campo ricerca se esiste
+        const searchInput = document.getElementById('filterTitolo');
+        if (searchInput && proponenteFilter) {
+            // Nota: Non cambiamo il titolo, solo logghiamo
+            console.log(`ℹ️ Filtro proponente attivato, escludiamo altre colonne`);
+        }
+        
     } else if (filterMap[chartType]) {
         const filterEl = document.getElementById(filterMap[chartType]);
         if (filterEl) {
             filterEl.value = value;
             updateFilterAppearance(filterEl, value);
-            console.log(`📌 Filtro ${chartType} impostato: "${value}"`);
+            console.log(`📌 Filtro ${chartType} input impostato: "${value}"`);
+        } else {
+            console.warn(`⚠️ Elemento filtro ${filterMap[chartType]} non trovato`);
         }
     }
     
-    // ✅ FONDAMENTALE: Applica filtri e aggiorna TUTTI i grafici
-    console.log('🔄 Trigger applyFilters()...');
+    // 🔥 FONDAMENTALE: Applica i filtri e aggiorna TUTTO in sequenza
+    console.log('🔄 TRIGGER applyFilters() con logica sincronizzata...');
     applyFilters();
 }
 
@@ -1976,181 +2036,206 @@ function addDualChartStyles() {
 // ==========================================
 
 function updateTable() {
-    if (!filteredData || filteredData.length === 0) {
-        const tableCount = document.getElementById('tableCount');
-        const tableHeader = document.getElementById('tableHeader');
-        const tableBody = document.getElementById('tableBody');
-        
-        if (tableCount) tableCount.textContent = '0';
-        if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
-        if (tableBody) tableBody.innerHTML = '';
-        return;
-    }
+    console.log('📊 updateTable() - START');
+    console.log(`   filteredData.length = ${filteredData ? filteredData.length : 'undefined'}`);
+    
+    try {
+        if (!filteredData || filteredData.length === 0) {
+            console.log('📭 Nessun dato filtrato, svuota tabella');
+            
+            const tableCount = document.getElementById('tableCount');
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            if (tableCount) tableCount.textContent = '0';
+            if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
+            if (tableBody) tableBody.innerHTML = '';
+            
+            console.log('✅ Tabella svuotata');
+            return;
+        }
 
-    const excludedFields = [
-        'foto', 'googlemaps', 'geouri', 'upl',
-        'lat.', 'long.', 'lat', 'lng', 'coordinate',
-        'quartiere', 'circoscrizione'
-    ];
-    
-    const columnOrder = [
-        'id',
-        'titolo proposta', 
-        'proponente',
-        'rappresentante',
-        'indirizzo',
-        'stato di avanzamento',
-        'nota per attività conclusive'
-    ];
-    
-    const allKeys = Object.keys(filteredData[0]);
-    
-    const filteredKeys = allKeys.filter(key => {
-        const keyLower = key.toLowerCase().trim();
-        return !excludedFields.some(excluded => {
-            const excludedLower = excluded.toLowerCase().trim();
-            return keyLower === excludedLower || 
-                   keyLower.includes(excludedLower) || 
-                   excludedLower.includes(keyLower);
-        });
-    });
-    
-    const orderedKeys = [];
-    
-    columnOrder.forEach(orderKey => {
-        const foundKey = filteredKeys.find(key => {
+        const excludedFields = [
+            'foto', 'googlemaps', 'geouri', 'upl',
+            'lat.', 'long.', 'lat', 'lng', 'coordinate',
+            'quartiere', 'circoscrizione'
+        ];
+        
+        const columnOrder = [
+            'id',
+            'titolo proposta', 
+            'proponente',
+            'rappresentante',
+            'indirizzo',
+            'stato di avanzamento',
+            'nota per attività conclusive'
+        ];
+        
+        const allKeys = Object.keys(filteredData[0]);
+        console.log(`📋 Chiavi disponibili: ${allKeys.length}`, allKeys.slice(0, 5));
+        
+        const filteredKeys = allKeys.filter(key => {
             const keyLower = key.toLowerCase().trim();
-            const orderLower = orderKey.toLowerCase().trim();
-            return keyLower === orderLower || 
-                   keyLower.includes(orderLower) ||
-                   orderLower.includes(keyLower);
+            return !excludedFields.some(excluded => {
+                const excludedLower = excluded.toLowerCase().trim();
+                return keyLower === excludedLower || 
+                       keyLower.includes(excludedLower) || 
+                       excludedLower.includes(keyLower);
+            });
         });
-        if (foundKey && !orderedKeys.includes(foundKey)) {
-            orderedKeys.push(foundKey);
-        }
-    });
-    
-    filteredKeys.forEach(key => {
-        if (!orderedKeys.includes(key)) {
-            orderedKeys.push(key);
-        }
-    });
-
-    const tableCount = document.getElementById('tableCount');
-    if (tableCount) tableCount.textContent = filteredData.length;
-
-    const tableHeader = document.getElementById('tableHeader');
-    if (tableHeader) {
-        tableHeader.innerHTML = '';
         
-        orderedKeys.forEach(key => {
-            const th = document.createElement('th');
-            th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-            th.textContent = key;
-            tableHeader.appendChild(th);
+        console.log(`📋 Chiavi filtrate: ${filteredKeys.length}`, filteredKeys.slice(0, 5));
+        
+        const orderedKeys = [];
+        
+        columnOrder.forEach(orderKey => {
+            const foundKey = filteredKeys.find(key => {
+                const keyLower = key.toLowerCase().trim();
+                const orderLower = orderKey.toLowerCase().trim();
+                return keyLower === orderLower || 
+                       keyLower.includes(orderLower) ||
+                       orderLower.includes(keyLower);
+            });
+            if (foundKey && !orderedKeys.includes(foundKey)) {
+                orderedKeys.push(foundKey);
+            }
+        });
+        
+        filteredKeys.forEach(key => {
+            if (!orderedKeys.includes(key)) {
+                orderedKeys.push(key);
+            }
         });
 
-        const actionTh = document.createElement('th');
-        actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-        actionTh.textContent = 'Azioni';
-        tableHeader.appendChild(actionTh);
-    }
+        console.log(`📋 Ordine finale: ${orderedKeys.length} colonne`);
 
-    const tableBody = document.getElementById('tableBody');
-    if (tableBody) {
-        tableBody.innerHTML = '';
+        // === AGGIORNA CONTATORE ===
+        const tableCount = document.getElementById('tableCount');
+        if (tableCount) {
+            tableCount.textContent = filteredData.length;
+            console.log(`✅ Contatore aggiornato: ${filteredData.length}`);
+        }
 
-        filteredData.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-50';
-
+        // === AGGIORNA HEADER ===
+        const tableHeader = document.getElementById('tableHeader');
+        if (tableHeader) {
+            tableHeader.innerHTML = '';
+            
             orderedKeys.forEach(key => {
-    const td = document.createElement('td');
-    td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
-    
-    let value = item[key] || 'N/A';
-    
-    // ✅ GESTIONE COLONNA STATO (con colori)
-    if (key.toLowerCase().includes('stato')) {
-        const color = statusColors[value] || '#6b7280';
-        td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
-    } 
-    // ✅ NUOVA GESTIONE COLONNA PDF (con link cliccabile e stile)
-    else if (key.toLowerCase().includes('scarica') && key.toLowerCase().includes('patto')) {
-        if (value && value.trim() !== '' && value !== 'N/A') {
-            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
-            const pattoId = item[idKey] || 'XX';
-            const color = statusColors['Patto stipulato'] || '#8fd67d';
-            
-            td.innerHTML = `
-                <a href="${value.trim()}" 
-                   download
-                   target="_blank"
-                   rel="noopener"
-				   title="Scarica il Patto di Collaborazione" 
-                   style="background-color: ${color}; 
-                          color: white; 
-                          padding: 4px 8px; 
-                          border-radius: 4px; 
-                          font-size: 10px;
-                          font-weight: 600;
-                          text-decoration: none;
-                          display: inline-flex;
-                          align-items: center;
-                          gap: 4px;
-                          transition: all 0.2s ease;"
-                   onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
-                   onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
-                    <i data-lucide="download" style="width: 12px; height: 12px;"></i>
-                    Patto n° ${pattoId}
-                </a>
-            `;
-        } else {
-            td.innerHTML = `<span style="color: #9ca3af; font-size: 10px;">Non disponibile</span>`;
-        }
-    }
-    // Gestione normale altri campi
-    else {
-        if (value.toString().length > 40) {
-            td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
-        } else {
-            td.textContent = value;
-        }
-    }
-    
-    row.appendChild(td);
-});
+                const th = document.createElement('th');
+                th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = key;
+                tableHeader.appendChild(th);
+            });
 
-            const actionTd = document.createElement('td');
-            actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+            const actionTh = document.createElement('th');
+            actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            actionTh.textContent = 'Azioni';
+            tableHeader.appendChild(actionTh);
             
-            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
-            actionTd.innerHTML = `
-                <button onclick="showPattoDetails('${item[idKey]}')" 
-                        class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
-                    <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
-                    Dettagli
-                </button>
-            `;
-            
-            row.appendChild(actionTd);
-            tableBody.appendChild(row);
-        });
+            console.log(`✅ Header creato con ${orderedKeys.length + 1} colonne`);
+        }
 
-     //   if (typeof lucide !== 'undefined' && lucide.createIcons) {
-      //      lucide.createIcons();
-       // }
+        // === AGGIORNA BODY ===
+        const tableBody = document.getElementById('tableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+
+            filteredData.forEach((item, index) => {
+                try {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+
+                    orderedKeys.forEach(key => {
+                        const td = document.createElement('td');
+                        td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+                        
+                        let value = item[key] || 'N/A';
+                        
+                        // ✅ GESTIONE COLONNA STATO (con colori)
+                        if (key.toLowerCase().includes('stato')) {
+                            const color = statusColors[value] || '#6b7280';
+                            td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
+                        } 
+                        // ✅ GESTIONE COLONNA PDF (con link cliccabile e stile)
+                        else if (key.toLowerCase().includes('scarica') && key.toLowerCase().includes('patto')) {
+                            if (value && value.trim() !== '' && value !== 'N/A') {
+                                const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+                                const pattoId = item[idKey] || 'XX';
+                                const color = statusColors['Patto stipulato'] || '#8fd67d';
+                                
+                                td.innerHTML = `
+                                    <a href="${value.trim()}" 
+                                       download
+                                       target="_blank"
+                                       rel="noopener"
+                                       title="Scarica il Patto di Collaborazione" 
+                                       style="background-color: ${color}; 
+                                              color: white; 
+                                              padding: 4px 8px; 
+                                              border-radius: 4px; 
+                                              font-size: 10px;
+                                              font-weight: 600;
+                                              text-decoration: none;
+                                              display: inline-flex;
+                                              align-items: center;
+                                              gap: 4px;
+                                              transition: all 0.2s ease;"
+                                       onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
+                                       onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
+                                        <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+                                        Patto nÂ° ${pattoId}
+                                    </a>
+                                `;
+                            } else {
+                                td.innerHTML = `<span style="color: #9ca3af; font-size: 10px;">Non disponibile</span>`;
+                            }
+                        }
+                        // Gestione normale altri campi
+                        else {
+                            if (value.toString().length > 40) {
+                                td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
+                            } else {
+                                td.textContent = value;
+                            }
+                        }
+                        
+                        row.appendChild(td);
+                    });
+
+                    // === AZIONI ===
+                    const actionTd = document.createElement('td');
+                    actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+                    
+                    const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+                    actionTd.innerHTML = `
+                        <button onclick="showPattoDetails('${item[idKey]}')" 
+                                class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
+                            <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
+                            Dettagli
+                        </button>
+                    `;
+                    
+                    row.appendChild(actionTd);
+                    tableBody.appendChild(row);
+                    
+                } catch (rowError) {
+                    console.warn(`⚠️ Errore nella riga ${index}:`, rowError);
+                }
+            });
+
+            console.log(`✅ Body creato con ${filteredData.length} righe`);
+        } else {
+            console.error('❌ Elemento #tableBody non trovato');
+        }
+        
+        console.log('✅ updateTable() COMPLETATO');
+        
+    } catch (error) {
+        console.error('❌ ERRORE in updateTable():', error);
+        throw error; // Re-throw per essere gestito dall'event listener
     }
 }
-
-//function showPattoDetails(pattoId) {
-    // ... il vecchio codice del modal ...
- //   const modal = document.getElementById('pattoModal');
-//    if (modal) {
-//       modal.classList.remove('hidden');
- //       modal.classList.add('flex');
-//    }
-// }
 
 // ==========================================
 // AUTOCOMPLETAMENTO
@@ -2247,7 +2332,7 @@ function setupAutocompleteEventListeners() {
 // ==========================================
 
 function setupEventListeners() {
-    console.log('Configurazione event listeners...');
+    console.log('🔧 Configurazione event listeners...');
     
     let successCount = 0;
     let totalAttempts = 0;
@@ -2292,38 +2377,42 @@ function setupEventListeners() {
         successCount++;
     }
     
-// === FILTRI CON LOGICA CASCATA + AGGIORNAMENTO GRAFICI ===
-const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
+    // === FILTRI CON LOGICA CASCATA + AGGIORNAMENTO GRAFICI ===
+    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
 
-filterIds.forEach(id => {
-    totalAttempts++;
-    const element = document.getElementById(id);
-    
-    if (element) {
-        element.addEventListener('change', function() {
-            console.log(`🔄 Filtro ${id} cambiato a: "${this.value}"`);
-            
-            // ✅ Reset stato grafico quando cambi manualmente filtri
-            window.chartFilterState.activeChartType = null;
-            window.chartFilterState.activeChartValue = null;
-            
-            // Applica i filtri
-            applyFilters();
-            
-            // Aggiorna i dropdown in cascata
-            setTimeout(() => {
-                updateFilters();
-            }, 100);
-        });
+    filterIds.forEach(id => {
+        totalAttempts++;
+        const element = document.getElementById(id);
         
-        successCount++;
-    }
-});
+        if (element) {
+            element.addEventListener('change', function() {
+                console.log(`🔄 Filtro ${id} cambiato a: "${this.value}"`);
+                
+                // ✅ Reset stato grafico quando cambi manualmente filtri
+                if (window.chartFilterState.activeChartType !== null) {
+                    console.log(`🔄 Reset stato grafico perché filtro manuale`);
+                    window.chartFilterState.activeChartType = null;
+                    window.chartFilterState.activeChartValue = null;
+                }
+                
+                // 🔥 Applica i filtri (che a sua volta chiama updateAllChartsSynchronized)
+                applyFilters();
+                
+                // Aggiorna i dropdown in cascata
+                setTimeout(() => {
+                    console.log('🔄 Aggiornamento cascata filtri...');
+                    updateFilters();
+                }, 100);
+            });
+            
+            successCount++;
+        }
+    });
 
-   
     // === MODAL INFO ===
     totalAttempts++;
     if (safeAddEventListener('infoBtn', 'click', function() {
+        console.log('ℹ️ Apertura modal info...');
         const modal = document.getElementById('infoModal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -2335,6 +2424,7 @@ filterIds.forEach(id => {
     
     totalAttempts++;
     if (safeAddEventListener('closeInfoModal', 'click', function() {
+        console.log('ℹ️ Chiusura modal info...');
         const modal = document.getElementById('infoModal');
         if (modal) {
             modal.classList.add('hidden');
@@ -2353,34 +2443,34 @@ filterIds.forEach(id => {
             }
         });
     }
-    
-	totalAttempts++;
-if (safeAddEventListener('filterAmbiti', 'change', function() {
-    console.log(`Filtro Ambiti cambiato a: "${this.value}"`);
-    
-    if (typeof window.applyFiltersUnified === 'function') {
-        window.applyFiltersUnified();
-    } else {
-        applyFilters();
+
+    // === FILTRO AMBITI ===
+    totalAttempts++;
+    if (safeAddEventListener('filterAmbiti', 'change', function() {
+        console.log(`Filtro Ambiti cambiato a: "${this.value}"`);
+        
+        if (typeof window.applyFiltersUnified === 'function') {
+            window.applyFiltersUnified();
+        } else {
+            applyFilters();
+        }
+        
+        setTimeout(() => {
+            updateFilters();
+        }, 100);
+    }, 'Filtro Ambiti di azione')) {
+        successCount++;
+    }
+
+    // === RESET FILTRI ===
+    totalAttempts++;
+    if (safeAddEventListener('clearFilters', 'click', function() {
+        console.log('🔄 Reset filtri richiesto');
+        resetAllFiltersAndCharts();
+    }, 'Reset filtri')) {
+        successCount++;
     }
     
-    setTimeout(() => {
-        updateFilters();
-    }, 100);
-}, 'Filtro Ambiti di azione')) {
-    successCount++;
-}
-	
-
-// === RESET FILTRI ===
-totalAttempts++;
-if (safeAddEventListener('clearFilters', 'click', function() {
-    console.log('🔄 Reset filtri richiesto');
-    resetAllFiltersAndCharts(); // ✅ NUOVA FUNZIONE CENTRALIZZATA
-}, 'Reset filtri')) {
-    successCount++;
-}
- 
     // === CONTROLLI MAPPA ===
     totalAttempts++;
     if (safeAddEventListener('centerPalermo', 'click', centerMapOnPalermo, 'Centra Palermo')) {
@@ -2426,44 +2516,109 @@ if (safeAddEventListener('clearFilters', 'click', function() {
         successCount++;
     }
     
-    // === POPUP TABELLA ===
+    // === MOSTRA TABELLA - VERSIONE DEBUGGED ===
     totalAttempts++;
-    if (safeAddEventListener('showTableBtn', 'click', function() {
-        updateTable();
+    console.log('🔍 Ricerca elemento #showTableBtn...');
+    const showTableBtn = document.getElementById('showTableBtn');
+    
+    if (showTableBtn) {
+        console.log('✅ Elemento #showTableBtn trovato, aggiunta event listener');
         
-        const modal = document.getElementById('tableModal');
-        if (modal) {
+        showTableBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('📋 CLICK su showTableBtn rilevato');
+            console.log('📊 Aggiornamento tabella...');
+            
+            try {
+                updateTable();
+                console.log('✅ updateTable() completato senza errori');
+            } catch (error) {
+                console.error('❌ Errore in updateTable():', error);
+                showNotification('⚠️ Errore nell\'aggiornamento della tabella', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('tableModal');
+            console.log('🔍 Ricerca modale #tableModal...');
+            
+            if (!modal) {
+                console.error('❌ Modale #tableModal NON TROVATO nel DOM');
+                console.log('📄 Elementimodali disponibili:', Array.from(document.querySelectorAll('[id*="modal"]')).map(el => el.id));
+                showNotification('❌ Errore: Modale tabella non trovato', 'error');
+                return;
+            }
+            
+            console.log('✅ Modale #tableModal trovato');
+            console.log('📊 Classi prima:', modal.className);
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-        }
-    }, 'Mostra tabella')) {
+            
+            console.log('📊 Classi dopo:', modal.className);
+            console.log('✅ Modale tabella aperta');
+            
+            // Debug: Verifica che il modale sia effettivamente visibile
+            setTimeout(() => {
+                const isVisible = modal.offsetHeight > 0;
+                console.log(`👁️ Modale visibile: ${isVisible}`);
+            }, 100);
+        });
+        
         successCount++;
+    } else {
+        console.error('❌ Elemento #showTableBtn NON TROVATO nel DOM');
+        console.log('🔍 Elementi disponibili con ID:', Array.from(document.querySelectorAll('[id]')).slice(0, 20).map(el => el.id));
     }
     
+    // === CHIUDI TABELLA - VERSIONE DEBUGGED ===
     totalAttempts++;
-    if (safeAddEventListener('closeTableModal', 'click', function() {
-        const modal = document.getElementById('tableModal');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    }, 'Chiudi tabella')) {
+    console.log('🔍 Ricerca elemento #closeTableModal...');
+    const closeTableBtn = document.getElementById('closeTableModal');
+    
+    if (closeTableBtn) {
+        console.log('✅ Elemento #closeTableModal trovato, aggiunta event listener');
+        
+        closeTableBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('📋 CLICK su closeTableModal rilevato');
+            
+            const modal = document.getElementById('tableModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                console.log('✅ Modale tabella chiusa');
+            } else {
+                console.warn('⚠️ Modale #tableModal non trovato al momento della chiusura');
+            }
+        });
+        
         successCount++;
+    } else {
+        console.error('❌ Elemento #closeTableModal NON TROVATO nel DOM');
     }
     
+    // === CHIUDI CLICCANDO FUORI ===
+    totalAttempts++;
     const tableModal = document.getElementById('tableModal');
     if (tableModal) {
         tableModal.addEventListener('click', function(e) {
             if (e.target === tableModal) {
+                console.log('🖱️ Click su backdrop, chiusura modale');
                 const closeBtn = document.getElementById('closeTableModal');
                 if (closeBtn) closeBtn.click();
             }
         });
+        successCount++;
     }
     
     // === MODALE DETTAGLI PATTO ===
     totalAttempts++;
     if (safeAddEventListener('closeModal', 'click', function() {
+        console.log('📄 Chiusura modal dettagli patto');
         const modal = document.getElementById('pattoModal');
         if (modal) {
             modal.classList.add('hidden');
@@ -2512,7 +2667,8 @@ if (safeAddEventListener('clearFilters', 'click', function() {
     setupAutocompleteEventListeners();
     
     // === REPORT FINALE ===
-    console.log(`Event listeners configurati: ${successCount}/${totalAttempts}`);
+    console.log(`✅ Event listeners configurati: ${successCount}/${totalAttempts}`);
+    console.log(`⚠️ Missing: ${totalAttempts - successCount}`);
     
     return {
         success: successCount,
