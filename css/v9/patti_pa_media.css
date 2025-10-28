@@ -1099,9 +1099,10 @@
     }
 
     .stats-card .section-title {
-        margin-bottom: var(--space-1) !important;
+        margin-bottom: var(--space-2) !important;
         font-size: var(--font-size-sm) !important;
         font-weight: 600 !important;
+		margin-top: 0px;
     }
 
     /* Statistiche in un rigo - 7 colonne */
