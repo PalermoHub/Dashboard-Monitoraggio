@@ -3,6 +3,8 @@
 // ==========================================
 
 // Variabili globali
+let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
+let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
 let map;
 let miniMap;
 let markersLayer;
@@ -11,6 +13,15 @@ window.filteredData = [];
 let allData = window.allData;
 let filteredData = window.filteredData;
 let chart;
+let chart1; // Grafico stato di avanzamento
+let chart2; // Grafico proponente
+
+let lastClickedChartValue1 = null;
+let lastClickedChartType1 = 'stato';
+
+let lastClickedChartValue2 = null;
+let lastClickedChartType2 = 'proponente';
+
 let currentMapLayer = 'standard';
 let autocompleteData = [];
 let currentSuggestionIndex = -1;
@@ -19,11 +30,17 @@ let currentSuggestionIndex = -1;
 let currentChartType = 'stato'; // 'stato' o 'proponente'
 let proponenteFilter = ''; // Filtro nascosto per proponente
 
-let lastClickedChartValue = null;  // Tiene traccia dell'ultimo valore cliccato
-let lastClickedChartType = null;   // Tiene traccia del tipo di grafico ('stato' o 'proponente')
-
 let allDataMonitoraggio = [];
 let uniqueValuesCache = {};
+
+window.chartFilterState = {
+    activeChartType: null,      // 'stato', 'proponente', 'ambiti' o null
+    activeChartValue: null,     // valore attualmente filtrato dal grafico
+    lastUpdateTime: 0,          // timestamp ultimo aggiornamento
+    isUpdating: false           // flag per evitare aggiornamenti ricorsivi
+};
+
+console.log('✅ chartFilterState inizializzato');
 
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
@@ -199,16 +216,16 @@ const modernTooltipConfig = {
     bodyColor: '#E2E8F0',
     borderColor: 'rgba(59, 130, 246, 0.3)',
     borderWidth: 1,
-    cornerRadius: 12,
+    cornerRadius:8,
     displayColors: true,
-    padding: 16,
+    padding: 6,
     titleFont: {
-        size: 14,
+        size: 12,
         weight: '600',
         family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif'
     },
     bodyFont: {
-        size: 13,
+        size: 11,
         family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif'
     },
     usePointStyle: true,
@@ -369,34 +386,8 @@ function closeFiltersPopupOnly() {
 }
 
 function resetFiltersFromPopup() {
-    console.log('Reset filtri dal popup');
-    
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
-    
-    filterIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-            updateFilterAppearance(element, '');
-        }
-    });
-    
-    proponenteFilter = '';
-    
-    const suggestions = document.getElementById('autocompleteSuggestions');
-    if (suggestions) {
-        suggestions.classList.add('hidden');
-    }
-    
-    filteredData = [...allData];
-    
-    updateFilters();
-    updateMap();
-    updateStatistics();
-    updateChart();
-    updateTable();
-    
-    hideFiltersPopup();
+    console.log('🔄 Reset filtri dal popup');
+    resetAllFiltersAndCharts(); // ✅ DELEGA A FUNZIONE CENTRALIZZATA
 }
 
 function setupFiltersPopupEventListeners() {
@@ -439,11 +430,11 @@ function initializeFiltersPopup() {
     addCloseButtonToFiltersPopup();
     setupFiltersPopupEventListeners();
     
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        setTimeout(() => {
-            lucide.createIcons();
-        }, 100);
-    }
+  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+  //      setTimeout(() => {
+  //          lucide.createIcons();
+  //      }, 100);
+  //  }
     
     console.log('Popup filtri inizializzato');
 }
@@ -563,77 +554,6 @@ function highlightPalermoCenter() {
     }, 2000);
 }
 
-function switchMapLayer(layerType) {
-    console.log(`Cambiando layer mappa a: ${layerType}`);
-    
-    if (!map) {
-        console.error('Mappa non inizializzata per cambio layer');
-        return;
-    }
-    
-    try {
-        currentMapLayer = layerType;
-        updateLayerButtons(layerType);
-        
-        map.eachLayer((layer) => {
-            if (layer instanceof L.TileLayer) {
-                console.log('Rimozione layer:', layer);
-                map.removeLayer(layer);
-            }
-        });
-        
-        let newTileLayer;
-        
-        if (layerType === 'satellite') {
-            newTileLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                attribution: '&copy; Google Satellite - Rielaborazione dataset di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano</a> - 2025',
-                maxZoom: 18,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-            });
-        } else {
-            newTileLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-                attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. Data © <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> - Rielaborazione di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano</a> - 2025',
-                maxZoom: 18
-            });
-        }
-        
-        newTileLayer.addTo(map);
-        console.log(`Layer ${layerType} applicato`);
-        
-    } catch (error) {
-        console.error('Errore nel cambio layer:', error);
-        showNotification('Errore nel cambio mappa', 'error');
-        
-        if (layerType !== 'standard') {
-            console.log('Fallback a layer standard...');
-            switchMapLayer('standard');
-        }
-    }
-}
-
-function updateLayerButtons(activeLayer) {
-    console.log(`Aggiornando UI pulsanti per layer: ${activeLayer}`);
-    
-    const standardBtn = document.getElementById('mapStandard');
-    const satelliteBtn = document.getElementById('mapSatellite');
-    
-    if (!standardBtn || !satelliteBtn) {
-        console.warn('Pulsanti layer non trovati nel DOM');
-        return;
-    }
-    
-    const activeClasses = 'w-full text-xs p-1.5 rounded transition-colors bg-blue-600 text-white font-semibold';
-    const inactiveClasses = 'w-full text-xs p-1.5 rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200';
-    
-    if (activeLayer === 'standard') {
-        standardBtn.className = activeClasses;
-        satelliteBtn.className = inactiveClasses;
-    } else {
-        standardBtn.className = inactiveClasses;
-        satelliteBtn.className = activeClasses;
-    }
-}
-
 // ==========================================
 // INIZIALIZZAZIONE PRINCIPALE
 // ==========================================
@@ -643,9 +563,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     addModernChartStyles();
     
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        lucide.createIcons();
-    }
+  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+   //     lucide.createIcons();
+  //  }
     
     initializeMap();
     
@@ -753,7 +673,8 @@ async function loadData() {
         updateFilters();
         updateMap();
         updateStatistics();
-        updateChart();
+        addDualChartStyles();
+updateChartDual();
         updateLegend();
         updateLastUpdate();
         updateTable();
@@ -1011,6 +932,10 @@ function updateFilters() {
         
         updateFilterAppearance(select, select.value);
     });
+
+    console.log('📊 Aggiornamento filtri completato, notifica grafici');
+    updateAllChartsSynchronized();
+
 }
 
 function updateFilterAppearance(selectElement, value) {
@@ -1026,66 +951,62 @@ function updateFilterAppearance(selectElement, value) {
 }
 
 function applyFilters() {
-    lastClickedChartValue = null;
-    lastClickedChartType = null;
-  
+    console.log('🔄 applyFilters() - VERSIONE CORRETTA CON RESET');
+    
+    // 1️⃣ Raccogli TUTTI i filtri attivi
     const filters = {
         stato: document.getElementById('filterStato')?.value?.trim() || '',
         upl: document.getElementById('filterUpl')?.value?.trim() || '',
         quartiere: document.getElementById('filterQuartiere')?.value?.trim() || '',
         circoscrizione: document.getElementById('filterCircoscrizione')?.value?.trim() || '',
-        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '', // NUOVO
+        ambiti: document.getElementById('filterAmbiti')?.value?.trim() || '',
         titolo: document.getElementById('filterTitolo')?.value?.toLowerCase()?.trim() || '',
         proponente: proponenteFilter.trim()
     };
     
-    console.log('Applicando filtri:', filters);
+    console.log('📋 Filtri attivi:', filters);
     
+    // 2️⃣ Filtra i dati - LOGICA UNIFICATA
     filteredData = allData.filter(item => {
         const statoKey = Object.keys(item).find(k => k.toLowerCase().includes('stato'));
         const uplKey = Object.keys(item).find(k => k.toLowerCase() === 'upl');
         const quartiereKey = Object.keys(item).find(k => k.toLowerCase().includes('quartiere'));
         const circoscrizioneKey = Object.keys(item).find(k => k.toLowerCase().includes('circoscrizione'));
-        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti')); // NUOVO
+        const ambitiKey = Object.keys(item).find(k => k.toLowerCase().includes('ambiti'));
         const titoloKey = Object.keys(item).find(k => k.toLowerCase().includes('titolo'));
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
+        // ✅ TUTTI i filtri devono matchare (logica AND)
         const statoMatch = !filters.stato || (item[statoKey] && item[statoKey].trim() === filters.stato);
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
-        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti); // NUOVO
+        const ambitiMatch = !filters.ambiti || (item[ambitiKey] && item[ambitiKey].trim() === filters.ambiti);
         const titoloMatch = !filters.titolo || (item[titoloKey] && item[titoloKey].toLowerCase().includes(filters.titolo));
         const proponenteMatch = !filters.proponente || (item[proponenteKey] && item[proponenteKey].trim() === filters.proponente);
         
-        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch; // INCLUDI ambitiMatch
+        return statoMatch && uplMatch && quartiereMatch && circoscrizioneMatch && ambitiMatch && titoloMatch && proponenteMatch;
     });
     
-    console.log(`Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
+    console.log(`✅ Filtrati ${filteredData.length} elementi da ${allData.length} totali`);
     
-    // ✅ AGGIUNGI filterAmbiti nella lista
-    ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'].forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            updateFilterAppearance(element, element.value);
-        }
-    });
-    
-    const titoloField = document.getElementById('filterTitolo');
-    if (titoloField) {
-        updateFilterAppearance(titoloField, titoloField.value);
-    }
-    
+    // 3️⃣ Aggiorna componenti MAPPA PRIMA (per visibilità)
+    console.log('🗺️ Aggiornamento mappa...');
     updateMap();
+    
+    console.log('📊 Aggiornamento statistiche...');
     updateStatistics();
-    updateChart();
+    
+    console.log('📋 Aggiornamento tabella...');
     updateTable();
+    
+    console.log('🔔 Aggiornamento popup filtri...');
     updateFiltersPopup();
+    
+    // 4️⃣ ✅ CRUCIALE: Aggiorna grafici SINCRONIZZATI
+    console.log('📈 Trigger updateAllChartsSynchronized()...');
+    updateAllChartsSynchronized();
 }
-
-// ==========================================
-// AGGIORNAMENTO MAPPA
-// ==========================================
 
 
 // ==========================================
@@ -1182,17 +1103,6 @@ function updateMap() {
         marker.on('popupopen', function() {
             console.log('✨ Popup aperto per patto:', patto[idKey]);
             
-            // Ricrea le icone Lucide quando il popup è aperto
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                setTimeout(() => {
-                    try {
-                        lucide.createIcons();
-                        console.log('🎨 Icone Lucide ricreate');
-                    } catch (e) {
-                        console.warn('⚠️ Errore ricreazione icone:', e);
-                    }
-                }, 50);
-            }
         });
         
         // ==========================================
@@ -1310,15 +1220,41 @@ function updateStatistics() {
     const attesaIntegrazione = filteredData.filter(p => p[statoKey] === 'In attesa di integrazione').length;
     const monitoraggio = filteredData.filter(p => p[statoKey] === 'Proroga e/o Monitoraggio e valutazione dei risultati').length;
     const respinti = filteredData.filter(p => p[statoKey] === 'Respinta').length;
-    const archiviati = filteredData.filter(p => p[statoKey] === 'Archiviata').length; // NUOVO
+    const archiviati = filteredData.filter(p => p[statoKey] === 'Archiviata').length;
+    
+    // Calcola percentuali (proteggi da divisione per zero)
+    const calcPercentage = (value) => total > 0 ? ((value / total) * 100).toFixed(1) : 0;
     
     updateCounterWithAnimation('totalPatti', total);
-    updateCounterWithAnimation('pattiStipulati', stipulati);
-    updateCounterWithAnimation('pattiIstruttoria', istruttoria);
-    updateCounterWithAnimation('pattiAttesaIntegrazione', attesaIntegrazione);
-    updateCounterWithAnimation('pattiMonitoraggio', monitoraggio);
-    updateCounterWithAnimation('pattiRespinti', respinti);
-    updateCounterWithAnimation('pattiArchiviati', archiviati); // NUOVO
+    updateCounterWithPercentage('pattiStipulati', stipulati, calcPercentage(stipulati));
+    updateCounterWithPercentage('pattiIstruttoria', istruttoria, calcPercentage(istruttoria));
+    updateCounterWithPercentage('pattiAttesaIntegrazione', attesaIntegrazione, calcPercentage(attesaIntegrazione));
+    updateCounterWithPercentage('pattiMonitoraggio', monitoraggio, calcPercentage(monitoraggio));
+    updateCounterWithPercentage('pattiRespinti', respinti, calcPercentage(respinti));
+    updateCounterWithPercentage('pattiArchiviati', archiviati, calcPercentage(archiviati));
+}
+
+function updateChartDual() {
+    console.log('🔧 updateChartDual() - VERSIONE CORRETTA');
+    
+    try {
+        // Grafico 1: Stato di Avanzamento (Canvas: statusChart1)
+        updateStatusChart('statusChart1');
+        console.log('✅ Grafico 1 (Stato → statusChart1) generato');
+        
+        // Grafico 2: Proponente (Canvas: statusChart2)
+        updateProponenteChart('statusChart2');
+        console.log('✅ Grafico 2 (Proponente → statusChart2) generato');
+        
+        // Grafico 3: Ambiti di Azione (Canvas: statusChart3)
+        updateAmbitiChart('statusChart3');
+        console.log('✅ Grafico 3 (Ambiti → statusChart3) generato');
+        
+        updateChartInterfaceDual();
+        
+    } catch (error) {
+        console.error('❌ Errore nell\'aggiornamento dei grafici:', error);
+    }
 }
 
 
@@ -1345,80 +1281,84 @@ function updateCounterWithAnimation(elementId, newValue) {
     }, 20);
 }
 
-function updateChartInterface() {
-    const titleElement = document.getElementById('chartTitle');
-    const helpElement = document.getElementById('chartHelp');
-    const statsElement = document.getElementById('chartStats');
+// NUOVA FUNZIONE: Aggiorna contatore con valore + percentuale
+function updateCounterWithPercentage(elementId, newValue, percentage) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
     
-    if (titleElement) {
-        if (currentChartType === 'stato') {
-            titleElement.textContent = 'Richieste per stato di avanzamento';
-        } else {
-            titleElement.textContent = 'Richieste per proponente';
+    // Estrai il valore numerico corrente (prima della percentuale)
+    const currentText = element.textContent;
+    const currentValue = parseInt(currentText.match(/\d+/)?.[0]) || 0;
+    
+    if (currentValue === newValue) return;
+    
+    const steps = 5;
+    const stepValue = (newValue - currentValue) / steps;
+    let currentStep = 0;
+    
+    const interval = setInterval(() => {
+        currentStep++;
+        const displayValue = Math.round(currentValue + (stepValue * currentStep));
+        element.textContent = `${displayValue} (${percentage}%)`;
+        
+        if (currentStep >= steps) {
+            element.textContent = `${newValue} (${percentage}%)`;
+            clearInterval(interval);
         }
-    }
-    
-    if (statsElement) {
-        const totalVisible = filteredData.length;
-        const totalOverall = allData.length;
-        statsElement.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
-    }
+    }, 20);
 }
 
-function updateChart() {
-    if (currentChartType === 'stato') {
-        updateStatusChart();
-    } else {
-        updateProponenteChart();
-    }
-    updateChartInterface();
-}
 
-// Funzione principale migliorata per creare grafici
-function createModernChart(labels, data, colors, type, fullLabels = null) {
-    if (chart) {
-        chart.destroy();
+function createModernChart(labels, data, colors, type, fullLabels = null, canvasId = 'statusChart') {
+    console.log(`🎨 createModernChart - Tipo: ${type}, Canvas: ${canvasId}`);
+    
+    // Distruggi grafico precedente
+    if (window.chartsMap && window.chartsMap[canvasId]) {
+        try {
+            window.chartsMap[canvasId].destroy();
+        } catch (e) {}
     }
     
-    const ctx = document.getElementById('statusChart');
+    // Inizializza map se non esiste
+    if (!window.chartsMap) {
+        window.chartsMap = {};
+    }
+    
+    const ctx = document.getElementById(canvasId);
     if (!ctx) {
-        console.warn('Canvas statusChart non trovato');
+        console.warn(`❌ Canvas ${canvasId} non trovato nel DOM`);
         return;
     }
 
-    // Prepara colori intelligenti
+    const context = ctx.getContext('2d');
+    
     let chartColors;
     if (type === 'stato') {
         chartColors = labels.map(label => {
-            // Cerca corrispondenza nei colori stato
             const matchingStatus = Object.keys(modernChartColors.status).find(status => {
                 return status.includes(label) || label.includes(status.split(' ')[0]);
             });
-            return matchingStatus ? modernChartColors.status[matchingStatus] : modernChartColors.status['Istruttoria in corso'];
+            return matchingStatus ? modernChartColors.status[matchingStatus] : '#F59E0B';
         });
     } else {
         chartColors = generateIntelligentColors(data.length, 220);
     }
 
-    // Colori hover più brillanti
     const hoverColors = chartColors.map(color => getBrighterColor(color));
 
-    chart = new Chart(ctx.getContext('2d'), {
+    const chartInstance = new Chart(context, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: type === 'stato' ? 'Numero di patti' : 'Numero di richieste',
+                label: type === 'stato' ? 'N° Patti' : 
+                       type === 'proponente' ? 'N° Richieste' :
+                       'N° Progetti',
                 data: data,
                 backgroundColor: chartColors,
-                borderColor: chartColors.map(color => color),
+                borderColor: chartColors,
                 borderWidth: 2,
-               borderRadius: {
-				topLeft: 4,      // Curvatura ridotta in alto a sinistra
-				topRight: 4,     // Curvatura ridotta in alto a destra  
-				bottomLeft: 0,  // Bordi curvi in basso a sinistra
-				bottomRight: 0  // Bordi curvi in basso a destra
-			},
+                borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
                 borderSkipped: false,
                 hoverBackgroundColor: hoverColors,
                 hoverBorderColor: hoverColors,
@@ -1428,177 +1368,295 @@ function createModernChart(labels, data, colors, type, fullLabels = null) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            layout: {
-                padding: {
-                    top: 20,
-                    bottom: 5,
-                    left: 0,
-                    right: 0
-                }
-            },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
-            },
+            interaction: { intersect: false, mode: 'index' },
+            layout: { padding: { top: 20, bottom: 5, left: 0, right: 0 } },
+            animation: { duration: 1000, easing: 'easeOutQuart' },
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: modernTooltipConfig
             },
             scales: {
                 x: {
-                    grid: {
-                        display: false
+                    grid: { display: false },
+                    ticks: {
+                        maxRotation: 70,
+                        minRotation: 70,
+                        font: { size: 9, weight: '500' },
+                        color: '#64748B'
                     },
-                  ticks: {
-    maxRotation: 70,  // FISSO a 90 gradi per entrambi i grafici
-        minRotation: 70,  // AGGIUNGI questa linea per forzare sempre 90 gradi
-    font: {
-       size: 9, 
-        family: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
-        weight: '500'
-    },
-                        color: '#64748B',
-                        callback: function(value, index) {
-                            const label = this.getLabelForValue(value);
-                            if (type === 'proponente' && label.length > 20) {
-                                return label.substring(0, 18) + '...';
-                            }
-                            return label;
-                        }
-                    },
-                    border: {
-                        display: false
-                    }
+                    border: { display: false }
                 },
-y: {
-    display: false,          // Nasconde l'intero asse
-    grid: {
-        display: false,      // Nasconde le linee della griglia
-        drawBorder: false,   // Nasconde il bordo principale
-        drawOnChartArea: false,  // Nasconde le linee nell'area del grafico
-        drawTicks: false     // Nasconde i segni di spunta
-    },
-    ticks: {
-        display: false       // Nasconde le etichette
-    },
-    border: {
-        display: false,      // Nasconde il bordo dell'asse
-        width: 0             // Forza larghezza 0
-    },
-    beginAtZero: true
-}
-            },
-			onClick: (event, elements) => {
-    if (elements.length > 0) {
-        const index = elements[0].index;
-        const clickedValue = fullLabels ? fullLabels[index] : labels[index];
-        
-        // 🔄 TOGGLE LOGIC: Se clicco sulla stessa barra, resetto tutto
-        if (lastClickedChartValue === clickedValue && lastClickedChartType === type) {
-            console.log('🔄 Secondo click sulla stessa barra - RESET');
-            
-            // Reset variabili di tracking
-            lastClickedChartValue = null;
-            lastClickedChartType = null;
-            
-            // Reset tutti i filtri
-            const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterTitolo'];
-            filterIds.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.value = '';
-                    updateFilterAppearance(element, '');
+                y: {
+                    display: false,
+                    grid: { display: false },
+                    ticks: { display: false },
+                    border: { display: false },
+                    beginAtZero: true
                 }
-            });
-            
-            // Reset filtro proponente nascosto
-            proponenteFilter = '';
-            
-            // Nascondi suggestions autocomplete
-            const suggestions = document.getElementById('autocompleteSuggestions');
-            if (suggestions) {
-                suggestions.classList.add('hidden');
-            }
-            
-            // Reset dati
-            filteredData = [...allData];
-            
-            // Aggiorna tutto
-            updateFilters();
-            updateMap();
-            updateStatistics();
-            updateChart();
-            updateTable();
-            hideFiltersPopup();
-            
-            // Notifica all'utente
-            showNotification('Filtri resettati', 'info');
-            
-            return; // ⚠️ IMPORTANTE: Esci dalla funzione
-        }
-        
-        // 🎯 PRIMO CLICK: Applica il filtro normalmente
-        console.log('🎯 Primo click sulla barra - FILTRO:', clickedValue);
-        
-        // Salva il valore cliccato
-        lastClickedChartValue = clickedValue;
-        lastClickedChartType = type;
-        
-        if (type === 'stato') {
-            const statusSelect = document.getElementById('filterStato');
-            if (statusSelect) {
-                // Trova la corrispondenza esatta
-                const statusKey = Object.keys(statusColors).find(key => 
-                    key.includes(clickedValue) || clickedValue.includes(key)
-                );
-                statusSelect.value = statusKey || clickedValue;
-                applyFilters();
-            }
-        } else {
-            applyProponenteFilter(clickedValue);
-        }
-    }
-},
+            },
 			
-			
-            onHover: (event, elements) => {
-                const canvas = event.native.target;
-                canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+			onClick: (event, elements) => {
+                if (elements.length === 0) return;
                 
-                // Effetto hover migliorato
-                if (elements.length > 0) {
-                    canvas.style.filter = 'brightness(1.05)';
-                } else {
-                    canvas.style.filter = 'brightness(1)';
+                const index = elements[0].index;
+                const clickedValue = fullLabels ? fullLabels[index] : labels[index];
+                
+                console.log(`📊 Click su grafico [${type}]: "${clickedValue}"`);
+                
+                // ✅ LOGICA: Se clicchi lo STESSO valore su STESSO grafico = RESET
+                if (window.chartFilterState.activeChartType === type && 
+                    window.chartFilterState.activeChartValue === clickedValue) {
+                    
+                    console.log('🔄 DOPPIO CLICK RILEVATO - Attivazione RESET');
+                    resetAllFiltersAndCharts();
+                    return;
+                }
+                
+                // ✅ Nuovo filtro: Aggiorna stato centralizzato
+                window.chartFilterState.activeChartType = type;
+                window.chartFilterState.activeChartValue = clickedValue;
+                
+                console.log(`📌 Stato grafico aggiornato:`, window.chartFilterState);
+                
+                // ✅ Applica il filtro e aggiorna TUTTI i grafici
+                applyChartFilter(type, clickedValue);
+            },
+
+
+   onHover: (event, elements) => {
+                const canvas = event.native?.target;
+                if (canvas) {
+                    canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                 }
             }
         },
         plugins: [smartDataLabelsPlugin]
     });
 
-    // Aggiunge animazione di entrata
-    chart.update('active');
-
-    return chart;
+    chartInstance.update('active');
+    window.chartsMap[canvasId] = chartInstance;
+    return chartInstance;
 }
 
-function updateStatusChart() {
+function resetAllFiltersAndCharts() {
+    console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato (IMPROVED)');
+    
+    // 1️⃣ Reset stato grafici COMPLETAMENTE
+    window.chartFilterState.activeChartType = null;
+    window.chartFilterState.activeChartValue = null;
+    window.chartFilterState.isUpdating = false;
+    window.chartFilterState.lastUpdateTime = 0;
+    console.log('✅ Stato grafici resettato');
+    
+    // 2️⃣ Reset input filtri - TUTTI gli ID
+    const filterIds = [
+        'filterStato', 
+        'filterUpl', 
+        'filterQuartiere', 
+        'filterCircoscrizione', 
+        'filterAmbiti', 
+        'filterTitolo'
+    ];
+    
+    filterIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            updateFilterAppearance(el, '');
+            console.log(`✅ Reset filtro: ${id}`);
+        }
+    });
+    
+    // 3️⃣ Reset variabili globali filtri
+    proponenteFilter = '';
+    const suggestions = document.getElementById('autocompleteSuggestions');
+    if (suggestions) {
+        suggestions.classList.add('hidden');
+    }
+    console.log('✅ Variabili filtri resettate');
+    
+    // 4️⃣ Ripristina dati originali (COPIA PROFONDA)
+    filteredData = JSON.parse(JSON.stringify(allData));
+    console.log(`✅ Dati ripristinati: ${filteredData.length} elementi`);
+    
+    // 5️⃣ Aggiorna TUTTO in sequenza CORRETTA
+    console.log('🔄 Aggiornamento componenti...');
+    
+    try {
+        updateFilters();
+        updateMap();
+        updateStatistics();
+        updateTable();
+        hideFiltersPopup();
+        
+        console.log('✅ Componenti aggiornati');
+        
+        // 6️⃣ Aggiorna grafici SINCRONIZZATI
+        console.log('📈 Aggiornamento grafici sincronizzati...');
+        updateAllChartsSynchronized();
+        
+        console.log('✅✅ RESET COMPLETATO CON SUCCESSO');
+        showNotification('✅ Tutti i filtri resettati', 'info');
+        
+    } catch (error) {
+        console.error('❌ Errore durante reset:', error);
+        showNotification('⚠️ Errore durante il reset', 'error');
+    }
+}
+
+// ✅ NUOVO: Aggiornamento SINCRONIZZATO dei 3 grafici
+
+function updateAllChartsSynchronized() {
+    console.log('🎨 Aggiornamento SINCRONIZZATO grafici (START)...');
+    
+    // Flag per evitare aggiornamenti ricorsivi
+    if (window.chartFilterState.isUpdating) {
+        console.warn('⚠️ Aggiornamento già in corso, skip');
+        return;
+    }
+    
+    window.chartFilterState.isUpdating = true;
+    
+    try {
+        const chartIds = ['statusChart1', 'statusChart2', 'statusChart3'];
+        let destroyedCount = 0;
+        
+        // 1️⃣ STEP 1: Distruggi TUTTI i grafici precedenti con logica robusta
+        console.log('🗑️ STEP 1: Distruzione grafici precedenti...');
+        
+        chartIds.forEach(canvasId => {
+            try {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.warn(`⚠️ Canvas ${canvasId} non trovato nel DOM`);
+                    return;
+                }
+                
+                if (window.chartsMap && window.chartsMap[canvasId]) {
+                    console.log(`🗑️ Distruggo grafico: ${canvasId}`);
+                    const chartInstance = window.chartsMap[canvasId];
+                    chartInstance.destroy();
+                    delete window.chartsMap[canvasId];
+                    destroyedCount++;
+                }
+            } catch (e) {
+                console.warn(`⚠️ Errore nel distruggere ${canvasId}:`, e.message);
+            }
+        });
+        
+        console.log(`✅ Grafici distrutti: ${destroyedCount}/${chartIds.length}`);
+        
+        // 2️⃣ STEP 2: Attendi un frame prima di ricreate (IMPORTANTE)
+        setTimeout(() => {
+            try {
+                console.log('📊 STEP 2: Ricreazione grafici con dati filtrati...');
+                console.log(`   - filteredData.length = ${filteredData.length}`);
+                console.log(`   - allData.length = ${allData.length}`);
+                
+                // 🔥 RICREA I 3 GRAFICI CON I DATI ATTUALI (filteredData)
+                updateStatusChart('statusChart1');
+                console.log('✅ Grafico Stato (statusChart1) creato');
+                
+                updateProponenteChart('statusChart2');
+                console.log('✅ Grafico Proponente (statusChart2) creato');
+                
+                updateAmbitiChart('statusChart3');
+                console.log('✅ Grafico Ambiti (statusChart3) creato');
+                
+                // 3️⃣ STEP 3: Aggiorna interfaccia
+                console.log('🎯 STEP 3: Aggiornamento interfaccia grafici...');
+                updateChartInterfaceDual();
+                
+                // 4️⃣ STEP 4: Marca come completato
+                window.chartFilterState.lastUpdateTime = Date.now();
+                window.chartFilterState.isUpdating = false;
+                
+                console.log('✅ Grafici sincronizzati COMPLETAMENTE');
+                console.log(`   Stato filtro: ${JSON.stringify(window.chartFilterState)}`);
+                
+            } catch (error) {
+                console.error('❌ Errore nella ricreazione dei grafici:', error);
+                window.chartFilterState.isUpdating = false;
+            }
+        }, 50);
+        
+    } catch (error) {
+        console.error('❌ Errore nell\'aggiornamento sincronizzato:', error);
+        window.chartFilterState.isUpdating = false;
+    }
+}
+
+// ✅ NUOVO: Applica filtro dal grafico + aggiorna altri grafici
+function applyChartFilter(chartType, value) {
+    console.log(`🔧 FILTER APPLICATION [${chartType}]: "${value}"`);
+    
+    if (!value || value.trim() === '') {
+        console.warn('⚠️ Valore filtro vuoto, skip');
+        return;
+    }
+    
+    // Mappa tipo grafico → ID filtro
+    const filterMap = {
+        'stato': 'filterStato',
+        'ambiti': 'filterAmbiti',
+        'proponente': null // Gestione speciale
+    };
+    
+    // Applica il filtro
+    if (chartType === 'proponente') {
+        // 🔑 CORREZIONE: Non stai né aggiornando il campo di ricerca NÉ aggiornando l'UI
+        console.log(`📝 Impostazione filtro proponente: "${value}"`);
+        proponenteFilter = value;
+        
+        // 🆕 NUOVO: Aggiorna anche il campo ricerca se esiste
+        const searchInput = document.getElementById('filterTitolo');
+        if (searchInput && proponenteFilter) {
+            // Nota: Non cambiamo il titolo, solo logghiamo
+            console.log(`ℹ️ Filtro proponente attivato, escludiamo altre colonne`);
+        }
+        
+    } else if (filterMap[chartType]) {
+        const filterEl = document.getElementById(filterMap[chartType]);
+        if (filterEl) {
+            filterEl.value = value;
+            updateFilterAppearance(filterEl, value);
+            console.log(`📌 Filtro ${chartType} input impostato: "${value}"`);
+        } else {
+            console.warn(`⚠️ Elemento filtro ${filterMap[chartType]} non trovato`);
+        }
+    }
+    
+    // 🔥 FONDAMENTALE: Applica i filtri e aggiorna TUTTO in sequenza
+    console.log('🔄 TRIGGER applyFilters() con logica sincronizzata...');
+    applyFilters();
+}
+
+function updateChartInterfaceDual() {
+    // Stats per grafico 1 (Stato)
+    const statsElement1 = document.getElementById('chartStats1');
+    if (statsElement1) {
+        const totalVisible = filteredData.length;
+        const totalOverall = allData.length;
+        statsElement1.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
+    }
+    
+    // Stats per grafico 2 (Proponente)
+    const statsElement2 = document.getElementById('chartStats2');
+    if (statsElement2) {
+        const totalVisible = filteredData.length;
+        const totalOverall = allData.length;
+        statsElement2.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
+    }
+}
+
+function updateStatusChart(canvasId = 'statusChart1') {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
     
+    // 🔥 USA filteredData invece di allData
     filteredData.forEach(item => {
         const status = item[statoKey] || 'Non specificato';
-        if (status && 
-            status.toString().trim() !== '' && 
-            status.toString().trim().toLowerCase() !== 'undefined' &&
-            status.toString().trim().toLowerCase() !== 'null' &&
-            status.toString().trim() !== 'N/A') {
+        if (status && status.toString().trim() !== '') {
             statusCounts[status] = (statusCounts[status] || 0) + 1;
         }
     });
@@ -1612,17 +1670,17 @@ function updateStatusChart() {
     
     const labels = Object.keys(validStatusCounts).map(label => {
         if (label === 'Proroga e/o Monitoraggio e valutazione dei risultati') {
-            return 'Proroga e/o Monitoraggio';
+            return 'Proroga/Monitoraggio';
         }
         return label;
     });
     const data = Object.values(validStatusCounts);
-    const fullLabels = Object.keys(validStatusCounts); // Labels originali per il click
+    const fullLabels = Object.keys(validStatusCounts);
     
-    createModernChart(labels, data, null, 'stato', fullLabels);
+    createModernChart(labels, data, null, 'stato', fullLabels, canvasId);
 }
 
-function updateProponenteChart() {
+function updateProponenteChart(canvasId = 'statusChart2') {
     const proponenteKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('proponente'));
     const proponenteCounts = {};
     
@@ -1648,8 +1706,47 @@ function updateProponenteChart() {
     const data = sortedProponenti.map(([,count]) => count);
     const fullLabels = sortedProponenti.map(([fullLabel]) => fullLabel);
     
-    createModernChart(labels, data, null, 'proponente', fullLabels);
+    createModernChart(labels, data, null, 'proponente', fullLabels, canvasId);
 }
+
+
+function updateAmbitiChart(canvasId = 'statusChart3') {
+    const ambitiKey = Object.keys(allData[0] || {}).find(k => 
+        k.toLowerCase().includes('ambiti')
+    );
+    
+    if (!ambitiKey) {
+        console.warn('⚠️ Colonna "Ambiti" non trovata nei dati');
+        return;
+    }
+    
+    const ambitiCounts = {};
+    
+    filteredData.forEach(item => {
+        const ambiti = item[ambitiKey] || 'Non specificato';
+        if (ambiti && 
+            ambiti.toString().trim() !== '' && 
+            ambiti.toString().trim().toLowerCase() !== 'undefined' &&
+            ambiti.toString().trim().toLowerCase() !== 'null' &&
+            ambiti.toString().trim() !== 'N/A') {
+            const normalizedAmbiti = ambiti.toString().trim();
+            ambitiCounts[normalizedAmbiti] = (ambitiCounts[normalizedAmbiti] || 0) + 1;
+        }
+    });
+    
+    const sortedAmbiti = Object.entries(ambitiCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 15);
+    
+    const labels = sortedAmbiti.map(([label]) => {
+        return label.length > 25 ? label.substring(0, 22) + '...' : label;
+    });
+    const data = sortedAmbiti.map(([,count]) => count);
+    const fullLabels = sortedAmbiti.map(([fullLabel]) => fullLabel);
+    
+    createModernChart(labels, data, null, 'ambiti', fullLabels, canvasId);
+}
+
 
 // Sostituisce la funzione createChart esistente
 function createChart(labels, data, colors, type, fullLabels = null) {
@@ -1669,38 +1766,36 @@ function addModernChartStyles() {
     style.id = 'modernChartStyles';
     style.textContent = `
 .chart-container {
-    /*background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);*/
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    padding: 4px; /* MINIMO per sfruttare tutto lo spazio */
+    padding: 4px 2px 0 2px; /* TOP ridotto, BOTTOM ridotto */
     position: relative;
     overflow: hidden;
     flex: 1;
     height: 300px;
     width: 100%;
+    margin: 0; /* AGGIUNGI */
+    line-height: 1; /* FORZA line-height zero */
 }
 
 .chart-section {
-    padding-top: var(--space-2);
-    border-top: var(--border-width) solid var(--border-color);
-    margin-top: auto;
-    flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 300px); /* NUOVO: usa tutta l'altezza disponibile */
+    gap: 4px; /* RIDOTTO da 8px */
+    padding: 2px 0; /* RIDOTTO da 16px - TOP/BOTTOM a 0 */
+    max-height: none;
+    overflow: visible;
+    margin: 0; /* AGGIUNGI QUESTA RIGA */
 }
 
         
-        .chart-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-         /*   background: linear-gradient(90deg, #3B82F6, #10B981, #F59E0B, #EF4444, #8B5CF6);*/
-            border-radius: 16px 16px 0 0;
-        }
+.chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0px; /* RIDOTTO da 4px */
+    display: none; /* NASCONDI */
+}
         
 #statusChart {
     transition: filter 0.3s ease;
@@ -1744,14 +1839,17 @@ function addModernChartStyles() {
     gap: 8px; /* RIDOTTO da 12px */
 }
         
-        .chart-title-enhanced {
-            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-            font-size: 1rem;
-        }
+.chart-title-enhanced {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem; /* RIDOTTO da 0.75rem */
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
         
         .chart-selector-enhanced select {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -1774,6 +1872,7 @@ function addModernChartStyles() {
             background: rgba(59, 130, 246, 0.05);
             border-radius: 8px;
             border-left: 4px solid #3b82f6;
+			display: none;
         }
         
 		
@@ -1828,186 +1927,315 @@ function addModernChartStyles() {
     document.head.appendChild(sidePanelHighlightStyle);
 }
 
+
+// ✨ STILI CORRETTI PER I GRAFICI
+function addDualChartStyles() {
+    if (document.getElementById('dualChartStyles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'dualChartStyles';
+    style.textContent = `
+        /* 🎨 Container principale per i grafici */
+        .chart-section {
+            display: flex;
+            flex-direction: column;
+            gap:8px;
+           /* padding: 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);*/
+            max-height: none; /* 🔧 RIMOSSO calc() che causava scroll */
+            overflow: visible;
+        }
+        
+        /* 🎨 Container per singolo grafico */
+.chart-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* RIDOTTO da 2px */
+    padding: 0; /* RIDOTTO da 2px */
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    min-height: 330px; /* RIDOTTO da 350px */
+    margin: 0; /* AGGIUNGI QUESTA RIGA */
+}
+        
+        /* 🎨 Canvas dei grafici - DIMENSIONI FISSE */
+        #statusChart1, #statusChart2, #statusChart3 {
+            transition: filter 0.3s ease;
+            width: 100% !important;
+            height: 280px !important;
+            max-width: none !important;
+            display: block;
+        }
+        
+        /* 🎨 Header del grafico */
+.chart-header-single {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0; /* RIDOTTO da 8px */
+    padding: 2px 4px; /* RIDOTTO */
+    gap: 4px;
+    height: 20px; /* FISSO */
+    overflow: hidden;
+	display: none;
+}
+        
+        .chart-title-enhanced {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        /* Info sotto il grafico */
+ .chart-info {
+    font-size: 0.65rem;
+    color: #64748b;
+    padding: 2px 4px; /* RIDOTTO da 8px */
+    margin: 2px 0; /* RIDOTTO da auto */
+    background: #f0f9ff;
+    border-radius: 4px;
+    border-left: 2px solid #3b82f6; /* RIDOTTO da 3px */
+    line-height: 1.2;
+}
+        
+        /* 🔧 MEDIA QUERIES */
+        @media (max-width: 768px) {
+            .chart-section {
+                padding:2px;
+                gap: 2px;
+            }
+            
+            .chart-subsection {
+                padding: 12px;
+                min-height: 300px;
+            }
+            
+          #statusChart1, #statusChart2, #statusChart3 {
+    transition: filter 0.3s ease;
+    width: 100% !important;
+    height: 300px !important; /* RIDOTTO da 280px per compensare */
+    max-width: none !important;
+    display: block;
+    padding: 0 !important; /* FORZA zero padding */
+    margin: 0 !important; /* FORZA zero margin */
+}
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+
 // ==========================================
 // GESTIONE TABELLA
 // ==========================================
 
 function updateTable() {
-    if (!filteredData || filteredData.length === 0) {
-        const tableCount = document.getElementById('tableCount');
-        const tableHeader = document.getElementById('tableHeader');
-        const tableBody = document.getElementById('tableBody');
-        
-        if (tableCount) tableCount.textContent = '0';
-        if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
-        if (tableBody) tableBody.innerHTML = '';
-        return;
-    }
+    console.log('📊 updateTable() - START');
+    console.log(`   filteredData.length = ${filteredData ? filteredData.length : 'undefined'}`);
+    
+    try {
+        if (!filteredData || filteredData.length === 0) {
+            console.log('📭 Nessun dato filtrato, svuota tabella');
+            
+            const tableCount = document.getElementById('tableCount');
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            if (tableCount) tableCount.textContent = '0';
+            if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
+            if (tableBody) tableBody.innerHTML = '';
+            
+            console.log('✅ Tabella svuotata');
+            return;
+        }
 
-    const excludedFields = [
-        'foto', 'googlemaps', 'geouri', 'upl',
-        'lat.', 'long.', 'lat', 'lng', 'coordinate',
-        'quartiere', 'circoscrizione'
-    ];
-    
-    const columnOrder = [
-        'id',
-        'titolo proposta', 
-        'proponente',
-        'rappresentante',
-        'indirizzo',
-        'stato di avanzamento',
-        'nota per attività conclusive'
-    ];
-    
-    const allKeys = Object.keys(filteredData[0]);
-    
-    const filteredKeys = allKeys.filter(key => {
-        const keyLower = key.toLowerCase().trim();
-        return !excludedFields.some(excluded => {
-            const excludedLower = excluded.toLowerCase().trim();
-            return keyLower === excludedLower || 
-                   keyLower.includes(excludedLower) || 
-                   excludedLower.includes(keyLower);
-        });
-    });
-    
-    const orderedKeys = [];
-    
-    columnOrder.forEach(orderKey => {
-        const foundKey = filteredKeys.find(key => {
+        const excludedFields = [
+            'foto', 'googlemaps', 'geouri', 'upl',
+            'lat.', 'long.', 'lat', 'lng', 'coordinate',
+            'quartiere', 'circoscrizione'
+        ];
+        
+        const columnOrder = [
+            'id',
+            'titolo proposta', 
+            'proponente',
+            'rappresentante',
+            'indirizzo',
+            'stato di avanzamento',
+            'nota per attività conclusive'
+        ];
+        
+        const allKeys = Object.keys(filteredData[0]);
+        console.log(`📋 Chiavi disponibili: ${allKeys.length}`, allKeys.slice(0, 5));
+        
+        const filteredKeys = allKeys.filter(key => {
             const keyLower = key.toLowerCase().trim();
-            const orderLower = orderKey.toLowerCase().trim();
-            return keyLower === orderLower || 
-                   keyLower.includes(orderLower) ||
-                   orderLower.includes(keyLower);
+            return !excludedFields.some(excluded => {
+                const excludedLower = excluded.toLowerCase().trim();
+                return keyLower === excludedLower || 
+                       keyLower.includes(excludedLower) || 
+                       excludedLower.includes(keyLower);
+            });
         });
-        if (foundKey && !orderedKeys.includes(foundKey)) {
-            orderedKeys.push(foundKey);
-        }
-    });
-    
-    filteredKeys.forEach(key => {
-        if (!orderedKeys.includes(key)) {
-            orderedKeys.push(key);
-        }
-    });
-
-    const tableCount = document.getElementById('tableCount');
-    if (tableCount) tableCount.textContent = filteredData.length;
-
-    const tableHeader = document.getElementById('tableHeader');
-    if (tableHeader) {
-        tableHeader.innerHTML = '';
         
-        orderedKeys.forEach(key => {
-            const th = document.createElement('th');
-            th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-            th.textContent = key;
-            tableHeader.appendChild(th);
+        console.log(`📋 Chiavi filtrate: ${filteredKeys.length}`, filteredKeys.slice(0, 5));
+        
+        const orderedKeys = [];
+        
+        columnOrder.forEach(orderKey => {
+            const foundKey = filteredKeys.find(key => {
+                const keyLower = key.toLowerCase().trim();
+                const orderLower = orderKey.toLowerCase().trim();
+                return keyLower === orderLower || 
+                       keyLower.includes(orderLower) ||
+                       orderLower.includes(keyLower);
+            });
+            if (foundKey && !orderedKeys.includes(foundKey)) {
+                orderedKeys.push(foundKey);
+            }
+        });
+        
+        filteredKeys.forEach(key => {
+            if (!orderedKeys.includes(key)) {
+                orderedKeys.push(key);
+            }
         });
 
-        const actionTh = document.createElement('th');
-        actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-        actionTh.textContent = 'Azioni';
-        tableHeader.appendChild(actionTh);
-    }
+        console.log(`📋 Ordine finale: ${orderedKeys.length} colonne`);
 
-    const tableBody = document.getElementById('tableBody');
-    if (tableBody) {
-        tableBody.innerHTML = '';
+        // === AGGIORNA CONTATORE ===
+        const tableCount = document.getElementById('tableCount');
+        if (tableCount) {
+            tableCount.textContent = filteredData.length;
+            console.log(`✅ Contatore aggiornato: ${filteredData.length}`);
+        }
 
-        filteredData.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-50';
-
+        // === AGGIORNA HEADER ===
+        const tableHeader = document.getElementById('tableHeader');
+        if (tableHeader) {
+            tableHeader.innerHTML = '';
+            
             orderedKeys.forEach(key => {
-    const td = document.createElement('td');
-    td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
-    
-    let value = item[key] || 'N/A';
-    
-    // ✅ GESTIONE COLONNA STATO (con colori)
-    if (key.toLowerCase().includes('stato')) {
-        const color = statusColors[value] || '#6b7280';
-        td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
-    } 
-    // ✅ NUOVA GESTIONE COLONNA PDF (con link cliccabile e stile)
-    else if (key.toLowerCase().includes('scarica') && key.toLowerCase().includes('patto')) {
-        if (value && value.trim() !== '' && value !== 'N/A') {
-            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
-            const pattoId = item[idKey] || 'XX';
-            const color = statusColors['Patto stipulato'] || '#8fd67d';
-            
-            td.innerHTML = `
-                <a href="${value.trim()}" 
-                   download
-                   target="_blank"
-                   rel="noopener"
-				   title="Scarica il Patto di Collaborazione" 
-                   style="background-color: ${color}; 
-                          color: white; 
-                          padding: 4px 8px; 
-                          border-radius: 4px; 
-                          font-size: 10px;
-                          font-weight: 600;
-                          text-decoration: none;
-                          display: inline-flex;
-                          align-items: center;
-                          gap: 4px;
-                          transition: all 0.2s ease;"
-                   onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
-                   onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
-                    <i data-lucide="download" style="width: 12px; height: 12px;"></i>
-                    Patto n° ${pattoId}
-                </a>
-            `;
-        } else {
-            td.innerHTML = `<span style="color: #9ca3af; font-size: 10px;">Non disponibile</span>`;
-        }
-    }
-    // Gestione normale altri campi
-    else {
-        if (value.toString().length > 40) {
-            td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
-        } else {
-            td.textContent = value;
-        }
-    }
-    
-    row.appendChild(td);
-});
+                const th = document.createElement('th');
+                th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = key;
+                tableHeader.appendChild(th);
+            });
 
-            const actionTd = document.createElement('td');
-            actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+            const actionTh = document.createElement('th');
+            actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            actionTh.textContent = 'Azioni';
+            tableHeader.appendChild(actionTh);
             
-            const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
-            actionTd.innerHTML = `
-                <button onclick="showPattoDetails('${item[idKey]}')" 
-                        class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
-                    <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
-                    Dettagli
-                </button>
-            `;
-            
-            row.appendChild(actionTd);
-            tableBody.appendChild(row);
-        });
-
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            lucide.createIcons();
+            console.log(`✅ Header creato con ${orderedKeys.length + 1} colonne`);
         }
+
+        // === AGGIORNA BODY ===
+        const tableBody = document.getElementById('tableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+
+            filteredData.forEach((item, index) => {
+                try {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+
+                    orderedKeys.forEach(key => {
+                        const td = document.createElement('td');
+                        td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+                        
+                        let value = item[key] || 'N/A';
+                        
+                        // ✅ GESTIONE COLONNA STATO (con colori)
+                        if (key.toLowerCase().includes('stato')) {
+                            const color = statusColors[value] || '#6b7280';
+                            td.innerHTML = `<span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${value}</span>`;
+                        } 
+                        // ✅ GESTIONE COLONNA PDF (con link cliccabile e stile)
+                        else if (key.toLowerCase().includes('scarica') && key.toLowerCase().includes('patto')) {
+                            if (value && value.trim() !== '' && value !== 'N/A') {
+                                const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+                                const pattoId = item[idKey] || 'XX';
+                                const color = statusColors['Patto stipulato'] || '#8fd67d';
+                                
+                                td.innerHTML = `
+                                    <a href="${value.trim()}" 
+                                       download
+                                       target="_blank"
+                                       rel="noopener"
+                                       title="Scarica il Patto di Collaborazione" 
+                                       style="background-color: ${color}; 
+                                              color: white; 
+                                              padding: 4px 8px; 
+                                              border-radius: 4px; 
+                                              font-size: 10px;
+                                              font-weight: 600;
+                                              text-decoration: none;
+                                              display: inline-flex;
+                                              align-items: center;
+                                              gap: 4px;
+                                              transition: all 0.2s ease;"
+                                       onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
+                                       onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
+                                        <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+                                        Patto nÂ° ${pattoId}
+                                    </a>
+                                `;
+                            } else {
+                                td.innerHTML = `<span style="color: #9ca3af; font-size: 10px;">Non disponibile</span>`;
+                            }
+                        }
+                        // Gestione normale altri campi
+                        else {
+                            if (value.toString().length > 40) {
+                                td.innerHTML = `<span title="${value}">${value.toString().substring(0, 37)}...</span>`;
+                            } else {
+                                td.textContent = value;
+                            }
+                        }
+                        
+                        row.appendChild(td);
+                    });
+
+                    // === AZIONI ===
+                    const actionTd = document.createElement('td');
+                    actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+                    
+                    const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
+                    actionTd.innerHTML = `
+                        <button onclick="showPattoDetails('${item[idKey]}')" 
+                                class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
+                            <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
+                            Dettagli
+                        </button>
+                    `;
+                    
+                    row.appendChild(actionTd);
+                    tableBody.appendChild(row);
+                    
+                } catch (rowError) {
+                    console.warn(`⚠️ Errore nella riga ${index}:`, rowError);
+                }
+            });
+
+            console.log(`✅ Body creato con ${filteredData.length} righe`);
+        } else {
+            console.error('❌ Elemento #tableBody non trovato');
+        }
+        
+        console.log('✅ updateTable() COMPLETATO');
+        
+    } catch (error) {
+        console.error('❌ ERRORE in updateTable():', error);
+        throw error; // Re-throw per essere gestito dall'event listener
     }
 }
-
-//function showPattoDetails(pattoId) {
-    // ... il vecchio codice del modal ...
- //   const modal = document.getElementById('pattoModal');
-//    if (modal) {
-//       modal.classList.remove('hidden');
- //       modal.classList.add('flex');
-//    }
-// }
 
 // ==========================================
 // AUTOCOMPLETAMENTO
@@ -2104,7 +2332,7 @@ function setupAutocompleteEventListeners() {
 // ==========================================
 
 function setupEventListeners() {
-    console.log('Configurazione event listeners...');
+    console.log('🔧 Configurazione event listeners...');
     
     let successCount = 0;
     let totalAttempts = 0;
@@ -2149,52 +2377,42 @@ function setupEventListeners() {
         successCount++;
     }
     
-    // === CHART TYPE SELECTOR ===
-    totalAttempts++;
-if (safeAddEventListener('chartTypeSelector', 'change', function() {
-    currentChartType = this.value;
-    
-    // ✅ RESET TRACKING quando cambio tipo di grafico
-    lastClickedChartValue = null;
-    lastClickedChartType = null;
-    
-    updateChart();
-    updateChartInterface();
-}, 'Selettore tipo grafico')) {
-    successCount++;
-}
-    
-	
-	
-// === FILTRI CON LOGICA CASCATA ===
-const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
+    // === FILTRI CON LOGICA CASCATA + AGGIORNAMENTO GRAFICI ===
+    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti'];
 
-filterIds.forEach(id => {
-    totalAttempts++;
-    const element = document.getElementById(id);
-    
-    if (element) {
-        element.addEventListener('change', function() {
-            console.log(`Filtro ${id} cambiato a: "${this.value}"`);
-            
-            if (typeof window.applyFiltersUnified === 'function') {
-                window.applyFiltersUnified();
-            } else {
-                applyFilters();
-            }
-            
-            setTimeout(() => {
-                updateFilters();
-            }, 100);
-        });
+    filterIds.forEach(id => {
+        totalAttempts++;
+        const element = document.getElementById(id);
         
-        successCount++;
-    }
-});
-    
+        if (element) {
+            element.addEventListener('change', function() {
+                console.log(`🔄 Filtro ${id} cambiato a: "${this.value}"`);
+                
+                // ✅ Reset stato grafico quando cambi manualmente filtri
+                if (window.chartFilterState.activeChartType !== null) {
+                    console.log(`🔄 Reset stato grafico perché filtro manuale`);
+                    window.chartFilterState.activeChartType = null;
+                    window.chartFilterState.activeChartValue = null;
+                }
+                
+                // 🔥 Applica i filtri (che a sua volta chiama updateAllChartsSynchronized)
+                applyFilters();
+                
+                // Aggiorna i dropdown in cascata
+                setTimeout(() => {
+                    console.log('🔄 Aggiornamento cascata filtri...');
+                    updateFilters();
+                }, 100);
+            });
+            
+            successCount++;
+        }
+    });
+
     // === MODAL INFO ===
     totalAttempts++;
     if (safeAddEventListener('infoBtn', 'click', function() {
+        console.log('ℹ️ Apertura modal info...');
         const modal = document.getElementById('infoModal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -2206,6 +2424,7 @@ filterIds.forEach(id => {
     
     totalAttempts++;
     if (safeAddEventListener('closeInfoModal', 'click', function() {
+        console.log('ℹ️ Chiusura modal info...');
         const modal = document.getElementById('infoModal');
         if (modal) {
             modal.classList.add('hidden');
@@ -2224,62 +2443,33 @@ filterIds.forEach(id => {
             }
         });
     }
-    
-	totalAttempts++;
-if (safeAddEventListener('filterAmbiti', 'change', function() {
-    console.log(`Filtro Ambiti cambiato a: "${this.value}"`);
-    
-    if (typeof window.applyFiltersUnified === 'function') {
-        window.applyFiltersUnified();
-    } else {
-        applyFilters();
-    }
-    
-    setTimeout(() => {
-        updateFilters();
-    }, 100);
-}, 'Filtro Ambiti di azione')) {
-    successCount++;
-}
-	
-    // === RESET FILTRI ===
-totalAttempts++;
-if (safeAddEventListener('clearFilters', 'click', function() {
-    console.log('Reset filtri richiesto');
-    
-    // ✅ INCLUDI filterAmbiti nel reset
-    const filterIds = ['filterStato', 'filterUpl', 'filterQuartiere', 'filterCircoscrizione', 'filterAmbiti', 'filterTitolo'];
-    filterIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-            updateFilterAppearance(element, '');
+
+    // === FILTRO AMBITI ===
+    totalAttempts++;
+    if (safeAddEventListener('filterAmbiti', 'change', function() {
+        console.log(`Filtro Ambiti cambiato a: "${this.value}"`);
+        
+        if (typeof window.applyFiltersUnified === 'function') {
+            window.applyFiltersUnified();
+        } else {
+            applyFilters();
         }
-    });
-    
-    const suggestions = document.getElementById('autocompleteSuggestions');
-    if (suggestions) {
-        suggestions.classList.add('hidden');
+        
+        setTimeout(() => {
+            updateFilters();
+        }, 100);
+    }, 'Filtro Ambiti di azione')) {
+        successCount++;
     }
-    
-    proponenteFilter = '';
-    filteredData = [...allData];
-    
-    updateFilters();
-    updateMap();
-    updateStatistics();
-    updateChart();
-    updateTable();
-    hideFiltersPopup();
-    
-    // AGGIUNGI QUESTA PARTE:
-    if (typeof window.updateSidePanelForFilters === 'function') {
-        window.updateSidePanelForFilters();
+
+    // === RESET FILTRI ===
+    totalAttempts++;
+    if (safeAddEventListener('clearFilters', 'click', function() {
+        console.log('🔄 Reset filtri richiesto');
+        resetAllFiltersAndCharts();
+    }, 'Reset filtri')) {
+        successCount++;
     }
-    
-}, 'Reset filtri')) {
-    successCount++;
-}
     
     // === CONTROLLI MAPPA ===
     totalAttempts++;
@@ -2326,44 +2516,109 @@ if (safeAddEventListener('clearFilters', 'click', function() {
         successCount++;
     }
     
-    // === POPUP TABELLA ===
+    // === MOSTRA TABELLA - VERSIONE DEBUGGED ===
     totalAttempts++;
-    if (safeAddEventListener('showTableBtn', 'click', function() {
-        updateTable();
+    console.log('🔍 Ricerca elemento #showTableBtn...');
+    const showTableBtn = document.getElementById('showTableBtn');
+    
+    if (showTableBtn) {
+        console.log('✅ Elemento #showTableBtn trovato, aggiunta event listener');
         
-        const modal = document.getElementById('tableModal');
-        if (modal) {
+        showTableBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('📋 CLICK su showTableBtn rilevato');
+            console.log('📊 Aggiornamento tabella...');
+            
+            try {
+                updateTable();
+                console.log('✅ updateTable() completato senza errori');
+            } catch (error) {
+                console.error('❌ Errore in updateTable():', error);
+                showNotification('⚠️ Errore nell\'aggiornamento della tabella', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('tableModal');
+            console.log('🔍 Ricerca modale #tableModal...');
+            
+            if (!modal) {
+                console.error('❌ Modale #tableModal NON TROVATO nel DOM');
+                console.log('📄 Elementimodali disponibili:', Array.from(document.querySelectorAll('[id*="modal"]')).map(el => el.id));
+                showNotification('❌ Errore: Modale tabella non trovato', 'error');
+                return;
+            }
+            
+            console.log('✅ Modale #tableModal trovato');
+            console.log('📊 Classi prima:', modal.className);
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-        }
-    }, 'Mostra tabella')) {
+            
+            console.log('📊 Classi dopo:', modal.className);
+            console.log('✅ Modale tabella aperta');
+            
+            // Debug: Verifica che il modale sia effettivamente visibile
+            setTimeout(() => {
+                const isVisible = modal.offsetHeight > 0;
+                console.log(`👁️ Modale visibile: ${isVisible}`);
+            }, 100);
+        });
+        
         successCount++;
+    } else {
+        console.error('❌ Elemento #showTableBtn NON TROVATO nel DOM');
+        console.log('🔍 Elementi disponibili con ID:', Array.from(document.querySelectorAll('[id]')).slice(0, 20).map(el => el.id));
     }
     
+    // === CHIUDI TABELLA - VERSIONE DEBUGGED ===
     totalAttempts++;
-    if (safeAddEventListener('closeTableModal', 'click', function() {
-        const modal = document.getElementById('tableModal');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    }, 'Chiudi tabella')) {
+    console.log('🔍 Ricerca elemento #closeTableModal...');
+    const closeTableBtn = document.getElementById('closeTableModal');
+    
+    if (closeTableBtn) {
+        console.log('✅ Elemento #closeTableModal trovato, aggiunta event listener');
+        
+        closeTableBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('📋 CLICK su closeTableModal rilevato');
+            
+            const modal = document.getElementById('tableModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                console.log('✅ Modale tabella chiusa');
+            } else {
+                console.warn('⚠️ Modale #tableModal non trovato al momento della chiusura');
+            }
+        });
+        
         successCount++;
+    } else {
+        console.error('❌ Elemento #closeTableModal NON TROVATO nel DOM');
     }
     
+    // === CHIUDI CLICCANDO FUORI ===
+    totalAttempts++;
     const tableModal = document.getElementById('tableModal');
     if (tableModal) {
         tableModal.addEventListener('click', function(e) {
             if (e.target === tableModal) {
+                console.log('🖱️ Click su backdrop, chiusura modale');
                 const closeBtn = document.getElementById('closeTableModal');
                 if (closeBtn) closeBtn.click();
             }
         });
+        successCount++;
     }
     
     // === MODALE DETTAGLI PATTO ===
     totalAttempts++;
     if (safeAddEventListener('closeModal', 'click', function() {
+        console.log('📄 Chiusura modal dettagli patto');
         const modal = document.getElementById('pattoModal');
         if (modal) {
             modal.classList.add('hidden');
@@ -2412,7 +2667,8 @@ if (safeAddEventListener('clearFilters', 'click', function() {
     setupAutocompleteEventListeners();
     
     // === REPORT FINALE ===
-    console.log(`Event listeners configurati: ${successCount}/${totalAttempts}`);
+    console.log(`✅ Event listeners configurati: ${successCount}/${totalAttempts}`);
+    console.log(`⚠️ Missing: ${totalAttempts - successCount}`);
     
     return {
         success: successCount,
@@ -2684,12 +2940,6 @@ function initializeFullscreenModal() {
         // Aggiorna statistiche nel tab About
         setTimeout(updateAboutStats, 500);
         
-        // Ricrea le icone Lucide
-        if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            setTimeout(() => {
-                lucide.createIcons();
-            }, 100);
-        }
     });
     
     // Chiudi modal
@@ -2749,14 +2999,8 @@ function initializeFullscreenModal() {
                     modalBody.scrollTop = 0;
                 }
             }
-            
-            // Ricrea le icone Lucide per il nuovo contenuto
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                setTimeout(() => {
-                    lucide.createIcons();
-                }, 100);
-            }
-        });
+                   
+		});
     });
     
     // Back to Top functionality
