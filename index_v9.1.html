@@ -81,7 +81,7 @@
 <header class="dashboard-header" role="banner">
     <!-- Colonna Sinistra: Brand -->
     <div class="header-brand">
-        <img src="img/logo_test.png" class="logo_test" title="Comune di Palermo - ​​​Area Urbanistica e della Rigenerazione Ubana, della mobilità e del centro storico - Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" alt="Logo 1" >
+        <img src="img/logo_test.png" class="logo_test" title="Comune di Palermo - ​​​Area Urbanistica e della Rigenerazione Ubana, della mobilità e del centro storico - Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" alt="Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" >
         <div>
             <p class="tt">Report interattivo di monitoraggio<br> Patti di Collaborazione</p>
             
@@ -146,7 +146,7 @@
                         <div class="filter-card-body">
                             <div class="filter-group">
                                 <label for="filterStato" class="filter-label">
-                                    Seleziona lo stato della richiesta
+                                    Filta per Stato di avanzamento
                                 </label>
                                 <select id="filterStato" 
                                         class="filter-select" 
@@ -177,7 +177,7 @@
         <div class="filter-card-body">
             <div class="filter-group">
                 <label for="filterAmbiti" class="filter-label">
-                    Ambiti di Azione
+                    Filta per Ambiti di Azione
                 </label>
                 <select id="filterAmbiti" 
                         class="filter-select"
@@ -209,7 +209,7 @@
                             <div class="geo-filters-grid">
                                 <div class="filter-group">
                                     <label for="filterCircoscrizione" class="filter-label">
-                                        Circoscrizione
+                                       Filta per Circoscrizione
                                     </label>
                                     <select id="filterCircoscrizione" 
                                             class="filter-select"
@@ -223,7 +223,7 @@
 
                                 <div class="filter-group">
                                     <label for="filterQuartiere" class="filter-label">
-                                        Quartiere
+                                       Filta per Quartiere
                                     </label>
                                     <select id="filterQuartiere" 
                                             class="filter-select"
@@ -237,7 +237,7 @@
 
                                 <div class="filter-group">
                                     <label for="filterUpl" class="filter-label">
-                                        Unità di Primo Livello (UPL)
+                                       Filta per Unità di Primo Livello (UPL)
                                     </label>
                                     <select id="filterUpl" 
                                             class="filter-select"
@@ -451,7 +451,7 @@
     <!-- HEADER -->
     <div class="tabs-modal-header">
         <h2 class="tabs-modal-title">
-            <img src="img/patti.png" alt="Logo Patti" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione">
+            <img src="img/patti.png" alt="Logo Patti di Collaborazione" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione">
             Statistiche & Grafici
         </h2>
         <button class="tabs-modal-close" id="closeTabsBtn" title="Chiudi">
@@ -651,7 +651,7 @@
     <div class="footer-top-section">
         <div class="footer-org-box"> 
             <div class="footer-org-icon">
-                <img src="img/logo_pa_01.png" alt="Logo 1" class="footer-logo">
+                <img src="img/logo_pa_01.png" alt="Logo Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" class="footer-logo">
             </div>
             <div class="footer-org-text">
                 <div class="footer-org-title">Città di Palermo</div>
@@ -823,7 +823,7 @@
         <!-- Header con chiusura -->
         <div class="modal-fullscreen-header">
             <div class="modal-fullscreen-brand">
-                <span>    <img src="img/patti.png" alt="Logo Patti" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span> 
+                <span>    <img src="img/patti.png" alt="Logo Patti di Collaborazione" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span> 
                 <h2 id="infoModalTitle" class="modal-fullscreen-title">
                     Normativa, FAQ, moduli e tutto quello che ti serve per attivare un Patto di Collaborazione <i data-lucide="info" class="h-6 w-6" aria-hidden="true"></i>
                 </h2>
@@ -2411,7 +2411,7 @@
     <div class="modal-content table-modal">
         <div class="modal-header">
             <h3 id="tableModalTitle" class="modal-title">
-                 <span>    <img src="img/patti.png" alt="Logo Patti" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span>
+                 <span>    <img src="img/patti.png" alt="Logo Patti di Collaborazione" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span>
                 Vista Tabella - <span id="tableCount">0</span> risultati   <i data-lucide="table" class="h-5 w-5" aria-hidden="true"></i>
             </h3>
             <button id="closeTableModal" 
@@ -2444,49 +2444,7 @@
         </div>
     </div>
 </div>
-
-<!-- ============================================= -->
-<!-- MODAL TABELLA - Inserire dopo pattoModal -->
-<!-- =============================================
-<div id="tableModal" class="modal" role="dialog" aria-labelledby="tableModalTitle" aria-modal="true">
-    <div class="modal-content table-modal">
-        <div class="modal-header">
-            <h3 id="tableModalTitle" class="modal-title">
-                 <span>    <img src="img/patti.png" alt="Logo Patti" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span> 
-                Vista Tabella - <span id="tableCount">0</span> risultati <i data-lucide="table" class="h-5 w-5" aria-hidden="true"></i>
-            </h3>
-            <button id="closeTableModal" 
-                    class="modal-close" 
-                    title="Chiudi tabella"
-                    aria-label="Chiudi tabella">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr id="tableHeader">
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Caricamento...
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td class="px-3 py-4 text-center text-gray-500">
-                                Caricamento dati in corso...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
- -->
-	 
+ 
 	 <!-- Funzione per gestire le card dei filtri -->
 	 <script>
 	 // Funzione per gestire l'apertura/chiusura delle card dei filtri
