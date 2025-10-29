@@ -1481,7 +1481,7 @@
     }
     
     .modal-fullscreen-title {
-        font-size: var(--font-size-base);
+        font-size: var(--font-size-xs);
     }
     
     .modal-tab {
