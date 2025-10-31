@@ -3,7 +3,8 @@ name: Process PDF from Google Sheets - gh-pages
 on:
   workflow_dispatch:  # Esecuzione manuale
   schedule:
-     - cron: '0 15 * * *'  # Esecuzione automatica ogni giorno alle 2:00
+     - cron: '30 15 * * 1-5'  # Esecuzione automatica ogni giorno da lunedi a venerdi alle 15:30
+   # - cron: '0 14 * * *' # ogni giorno alle 14
    # - cron: '0 * * * *' # ogni ora
    # - cron: '0 */12 * * *' ogni 12 ore
    # - cron: '0 */4 * * *'  # Ogni 4 ore
