@@ -1214,68 +1214,15 @@ window.removePattoHighlight = function() {
 function updateStatistics() {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     
-    // 🔍 DEBUG: Vedi tutti gli stati unici nei dati
-    console.log('=== DEBUG STATI ===');
-    const uniqueStati = [...new Set(filteredData.map(p => p[statoKey]).filter(Boolean))];
-    console.log('Stati unici trovati:', uniqueStati);
+    const total = filteredData.length;
+    const stipulati = filteredData.filter(p => p[statoKey] === 'Patto stipulato').length;
+    const istruttoria = filteredData.filter(p => p[statoKey] === 'Istruttoria in corso').length;
+    const attesaIntegrazione = filteredData.filter(p => p[statoKey] === 'In attesa di integrazione').length;
+    const monitoraggio = filteredData.filter(p => p[statoKey] === 'Proroga e/o Monitoraggio e valutazione dei risultati').length;
+    const respinti = filteredData.filter(p => p[statoKey] === 'Respinta').length;
+    const archiviati = filteredData.filter(p => p[statoKey] === 'Archiviata').length;
     
-    // Vedi i record con stato anomalo
-    const anomaliRecords = filteredData.filter(p => {
-        const stato = p[statoKey];
-        return !stato || 
-               stato.trim() === '' || 
-               stato.toLowerCase() === 'undefined' ||
-               stato.toLowerCase() === 'null' ||
-               !['Istruttoria in corso', 'Respinta', 'Patto stipulato', 
-                 'Proroga e/o Monitoraggio', 'Proroga e/o Monitoraggio e valutazione dei risultati',
-                 'In attesa di integrazione', 'Archiviata'].some(validStato => 
-                   stato && stato.trim() === validStato
-               );
-    });
-    console.log('Record con stato anomalo:', anomaliRecords.length);
-    anomaliRecords.forEach(r => console.log('  - Stato:', JSON.stringify(r[statoKey])));
-    
-    // ✅ CORREZIONE: Filtra solo i record con stato VALIDO
-    const validStati = [
-        'Istruttoria in corso',
-        'Respinta',
-        'Patto stipulato',
-        'Proroga e/o Monitoraggio',
-        'Proroga e/o Monitoraggio e valutazione dei risultati',
-        'In attesa di integrazione',
-        'Archiviata'
-    ];
-    
-    const validRecords = filteredData.filter(p => {
-        const stato = (p[statoKey] || '').trim();
-        return validStati.includes(stato);
-    });
-    
-    // 📊 Usa il conteggio dei record VALIDI come totale
-    const total = validRecords.length;  // ← IMPORTANTE: Usa record validi!
-    
-    const stipulati = validRecords.filter(p => p[statoKey].trim() === 'Patto stipulato').length;
-    const istruttoria = validRecords.filter(p => p[statoKey].trim() === 'Istruttoria in corso').length;
-    const attesaIntegrazione = validRecords.filter(p => p[statoKey].trim() === 'In attesa di integrazione').length;
-    
-    // Gestisci la variazione del nome "Proroga e/o Monitoraggio"
-    const monitoraggio = validRecords.filter(p => {
-        const stato = p[statoKey].trim();
-        return stato.startsWith('Proroga e/o Monitoraggio');
-    }).length;
-    
-    const respinti = validRecords.filter(p => p[statoKey].trim() === 'Respinta').length;
-    const archiviati = validRecords.filter(p => p[statoKey].trim() === 'Archiviata').length;
-    
-    // 📋 Verifica la somma
-    const sumCheck = stipulati + istruttoria + attesaIntegrazione + monitoraggio + respinti + archiviati;
-    console.log('Somma verifica:', sumCheck, '/ Total:', total);
-    
-    if (sumCheck !== total) {
-        console.warn('⚠️ DISCREPANZA:', total - sumCheck, 'record non conteggiati!');
-    }
-    
-    // Calcola percentuali
+    // Calcola percentuali (proteggi da divisione per zero)
     const calcPercentage = (value) => total > 0 ? ((value / total) * 100).toFixed(1) : 0;
     
     updateCounterWithAnimation('totalPatti', total);
@@ -1285,23 +1232,6 @@ function updateStatistics() {
     updateCounterWithPercentage('pattiMonitoraggio', monitoraggio, calcPercentage(monitoraggio));
     updateCounterWithPercentage('pattiRespinti', respinti, calcPercentage(respinti));
     updateCounterWithPercentage('pattiArchiviati', archiviati, calcPercentage(archiviati));
-}
-
-// ✅ ALTERNATIVA PIÙ ROBUSTA: Normalizza gli stati al caricamento
-function normalizeStatoField() {
-    const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
-    
-    allData.forEach(record => {
-        if (statoKey) {
-            const stato = record[statoKey];
-            // Normalizza: trim + standardizza i valori
-            if (stato) {
-                record[statoKey] = stato.trim();
-            }
-        }
-    });
-    
-    console.log('✅ Campi "Stato" normalizzati');
 }
 
 function updateChartDual() {
