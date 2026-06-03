@@ -332,7 +332,9 @@ a.header-patto-tab {
     .nh-slim { display: none; }
     .nh-main { padding: 6px 0; }
     .nh-project { padding: 6px 0; }
-    .nh-org-title { font-size: 0.8rem; }
+    .nh-org-title { display: none; }
+    .nh-org-sub { display: block; font-size: 1.2rem; color: rgba(255,255,255,0.92); font-weight: 700; }
+    .nh-org-sub-detail { display: none; }
     .header-patto-nav {
         -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
         mask-image: linear-gradient(to right, black 90%, transparent 100%);
@@ -3202,16 +3204,198 @@ a.header-patto-tab {
     .modal {
         padding: 10px;
     }
-    
+
     .modal-content {
         max-height: 95vh;
     }
-    
+
     .modal-header {
         padding: 16px;
     }
-    
+
     .modal-body {
         padding: 16px;
     }
+}
+
+/* ==================== */
+/* MOBILE DRAWER NAV    */
+/* ==================== */
+
+.nh-mobile-bar {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+@media (max-width: 640px) {
+    .nh-mobile-bar {
+        display: flex;
+    }
+
+    .header-patto-nav {
+        display: none;
+    }
+}
+
+.nh-hamburger {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+}
+
+.nh-mobile-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-white);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nh-drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+}
+
+.nh-drawer-overlay.open {
+    display: block;
+}
+
+.nh-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100%;
+    background: var(--color-white);
+    z-index: 1200;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.nh-drawer.open {
+    transform: translateX(0);
+}
+
+.nh-drawer-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.nh-drawer-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.nh-drawer-title {
+    flex: 1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-white);
+    line-height: 1.3;
+}
+
+.nh-drawer-close {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.nh-drawer-close:hover {
+    opacity: 1;
+}
+
+.nh-drawer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    flex: 1;
+}
+
+.nh-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    color: var(--color-gray-700);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.nh-drawer-link i {
+    width: 1.1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--color-gray-500);
+    flex-shrink: 0;
+}
+
+.nh-drawer-link:hover {
+    background: var(--color-gray-50);
+    color: var(--color-primary);
+}
+
+.nh-drawer-link:hover i {
+    color: var(--color-accent);
+}
+
+.nh-drawer-link.active {
+    background: rgba(59, 130, 246, 0.08);
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+}
+
+.nh-drawer-link.active i {
+    color: var(--color-accent);
+}
+
+.nh-back-top {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.72rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.nh-back-top:hover {
+    color: var(--color-white);
+}
+
+.nh-back-top i {
+    font-size: 0.65rem;
 }
