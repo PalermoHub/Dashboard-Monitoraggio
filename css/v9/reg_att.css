@@ -410,17 +410,11 @@
 /* MKDOCS LAYOUT        */
 /* ==================== */
 
-/* Altezza fissa sul main: solo il content centrale scrolla */
-body.mkdocs-page .patto-page-main {
-    height: calc(100vh - var(--header-height, 130px));
-    overflow: hidden;
-}
-
 .mkdocs-layout {
     display: grid;
     grid-template-columns: 255px 1fr 215px;
     grid-template-areas: "nav content toc";
-    height: 100%;
+    align-items: start;
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
@@ -429,7 +423,9 @@ body.mkdocs-page .patto-page-main {
 /* SIDEBAR SINISTRA */
 .mkdocs-nav {
     grid-area: nav;
-    height: 100%;
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - var(--header-height, 130px));
     overflow-y: auto;
     background: transparent;
     border-right: 1px solid var(--color-gray-200);
@@ -512,12 +508,8 @@ body.mkdocs-page .patto-page-main {
     grid-area: content;
     padding: 1.75rem 2rem 3rem;
     min-width: 0;
-    height: 100%;
-    overflow-y: auto;
     background: var(--color-gray-50);
     box-sizing: border-box;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-gray-300) transparent;
 }
 
 /* Wrapper regolamento: stesso look di content-section */
@@ -638,7 +630,9 @@ body.mkdocs-page .patto-page-main {
 /* SIDEBAR DESTRA: TOC */
 .mkdocs-toc {
     grid-area: toc;
-    height: 100%;
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - var(--header-height, 130px));
     overflow-y: auto;
     background: transparent;
     border-left: 1px solid var(--color-gray-200);
@@ -700,19 +694,12 @@ body.mkdocs-page .patto-page-main {
 }
 
 @media (max-width: 768px) {
-    body.mkdocs-page .patto-page-main {
-        height: auto;
-        overflow: auto;
-    }
     .mkdocs-layout {
         grid-template-columns: 1fr;
         grid-template-areas: "content";
-        height: auto;
     }
     .mkdocs-nav { display: none; }
     .mkdocs-content {
         padding: 1rem;
-        height: auto;
-        overflow-y: visible;
     }
 }
