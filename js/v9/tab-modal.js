@@ -21,17 +21,23 @@ class TabModalController {
     init() {
         // Event listeners
         if (this.openBtn) {
-            this.openBtn.addEventListener('click', () => this.open());
+            this.openBtn.addEventListener('click', () => {
+                if (this.isMobile && this.isOpen) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            });
         }
         
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.close());
         }
         
-        // Chiude il modal quando clicchi sul backdrop (solo su mobile)
+        // Backdrop click chiude solo su desktop (su mobile backdrop è disabilitato)
         if (this.backdrop) {
             this.backdrop.addEventListener('click', (e) => {
-                if (e.target === this.backdrop && this.isMobile) {
+                if (e.target === this.backdrop && !this.isMobile) {
                     this.close();
                 }
             });
@@ -66,44 +72,37 @@ class TabModalController {
         }
     }
     
-    /**
-     * Apre il modal
-     */
     open() {
         if (!this.modal || !this.backdrop) return;
-        
+
         this.isOpen = true;
-        
+
         if (this.isMobile) {
-            // Mobile: animazione dal basso
             this.modal.classList.remove('collapsed');
             this.backdrop.classList.add('active');
+            if (this.openBtn) {
+                this.openBtn.classList.add('open');
+                this.openBtn.innerHTML = '&#8249;';
+            }
         } else {
-            // Desktop: sempre visibile
             this.modal.style.display = 'flex';
             this.backdrop.style.display = 'block';
         }
-        
-        // Disabilita scroll della pagina
-        document.body.style.overflow = 'hidden';
     }
-    
-    /**
-     * Chiude il modal
-     */
+
     close() {
         if (!this.modal || !this.backdrop) return;
-        
+
         this.isOpen = false;
-        
+
         if (this.isMobile) {
-            // Mobile: animazione verso il basso
             this.modal.classList.add('collapsed');
             this.backdrop.classList.remove('active');
+            if (this.openBtn) {
+                this.openBtn.classList.remove('open');
+                this.openBtn.innerHTML = '&#8250;';
+            }
         }
-        
-        // Ristabilisce scroll della pagina
-        document.body.style.overflow = 'auto';
     }
     
     /**
@@ -138,22 +137,12 @@ class TabModalController {
         }
     }
     
-    /**
-     * Mostra il pulsante di apertura (solo mobile)
-     */
     showOpenButton() {
-        if (this.openBtn) {
-            this.openBtn.classList.add('show');
-        }
+        // linguetta visibilità gestita da CSS (display:none su desktop)
     }
-    
-    /**
-     * Nascondi il pulsante di apertura (solo desktop)
-     */
+
     hideOpenButton() {
-        if (this.openBtn) {
-            this.openBtn.classList.remove('show');
-        }
+        // linguetta visibilità gestita da CSS (display:none su desktop)
     }
 }
 

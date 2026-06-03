@@ -29,13 +29,8 @@
     }
 }
 
-/* ── Modal statistiche ≤640px: header sempre visibile ─────── */
-/* nh-slim nascosto → header più corto → modal può salire meno */
-@media (max-width: 640px) {
-    .tabs-modal {
-        max-height: calc(100dvh - 120px) !important;
-    }
-}
+/* Modal statistiche ≤640px — nessun max-height override:
+   il pannello è position:absolute nella mappa, altezza = 100% mappa */
 
 /* ── Content pages: prevenzione overflow testo ─────────────── */
 @media (max-width: 768px) {

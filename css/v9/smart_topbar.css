@@ -140,7 +140,7 @@
 
 .pst-btn-reset {
     border-radius: 6px;
-    border: 1px solid var(--pst-g2);
+   /* border: 1px solid var(--pst-g2);*/
     padding: 6px 10px;
     color: var(--pst-g4);
     font-size: .8rem;
@@ -153,7 +153,7 @@
 
 .pst-btn-table {
     border-radius: 6px;
-    border: 1px solid var(--pst-accent);
+  /*  border: 1px solid var(--pst-accent);*/
     padding: 6px 10px;
     color: var(--pst-accent);
     font-size: .8rem;
