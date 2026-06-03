@@ -484,13 +484,7 @@ function addFiltersPopupStyles() {
             background: #4b5563;
             transform: translateY(-1px);
         }
-        
-        .filters-popup {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+
         .filters-popup-reset {
             display: flex;
             align-items: center;
