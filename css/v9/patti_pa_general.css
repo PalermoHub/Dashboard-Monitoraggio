@@ -330,7 +330,7 @@ a.header-patto-tab {
 
 @media (max-width: 640px) {
     .nh-slim { padding: 6px 0; }
-    .nh-slim-logo { height: 36px; }
+    .nh-slim-logo { height: 46px; }
     .nh-main { padding: 6px 0; }
     .nh-project { padding: 6px 0; }
     .nh-org-title { display: none; }
