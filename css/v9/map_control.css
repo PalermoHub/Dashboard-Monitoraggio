@@ -1,185 +1,172 @@
 /* ==========================================
-   MAP CONTROLS - POSIZIONAMENTO OTTIMIZZATO
-   Da aggiungere al CSS principale o come file separato
+   MAP TOOLBAR - Barra orizzontale controlli mappa
    ========================================== */
 
-/* Container principale controlli custom */
-.map-controls {
-    position: absolute !important;
-    top: 10px !important;
-    left: 10px !important;
-    z-index: 999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    pointer-events: auto !important;
-}
-
-/* Pulsanti controllo */
-.map-control {
-    width: 40px !important;
-    height: 40px !important;
-    background: white !important;
-    border: 2px solid rgba(0, 0, 0, 0.2) !important;
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-    transition: all 0.3s ease !important;
-    z-index: 998 !important;
-    pointer-events: auto !important;
-}
-
-.map-control:hover,
-.map-control.active {
-    background: #f8f9fa !important;
-    border-color: rgba(0, 0, 0, 0.3) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* Container relativo per il menu */
-.map-controls .relative {
-    position: relative !important;
-    z-index: 1000 !important;
-}
-
-/* Menu layer dropdown */
-.layer-menu {
-    position: absolute !important;
-    top: 0 !important;
-    left: 48px !important;
-    background: white !important;
-    border: 2px solid rgba(0, 0, 0, 0.2) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-    min-width: 140px !important;
-    z-index: 1000 !important;
-    overflow: hidden !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    animation: slideInLeft 0.2s ease !important;
-}
-
-.layer-menu.hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Indicatore visivo menu */
-.layer-menu::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #10b981);
-}
-
-/* Opzioni layer */
-.layer-option {
-    width: 100% !important;
-    padding: 12px 16px !important;
-    border: none !important;
-    background: white !important;
-    text-align: left !important;
-    cursor: pointer !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    transition: all 0.2s ease !important;
-    border-bottom: 1px solid #e5e7eb !important;
-    display: block !important;
-    color: #1f2937 !important;
-}
-
-.layer-option:last-child {
-    border-bottom: none !important;
-}
-
-.layer-option:hover {
-    background: #f3f4f6 !important;
-    color: #111827 !important;
-}
-
-.layer-option.active {
-    background: #3b82f6 !important;
-    color: white !important;
-    font-weight: 600 !important;
-}
-
-/* Animazioni */
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Sposta controlli zoom Leaflet per evitare sovrapposizione */
-.leaflet-top.leaflet-left {
-    top: 60px !important;
-}
-
+/* Nasconde zoom nativo Leaflet (gestito dalla toolbar) */
 .leaflet-control-zoom {
-    margin-left: 10px !important;
-    margin-top: 10px !important;
+    display: none !important;
+}
+
+/* Toolbar principale */
+.map-toolbar {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 30px;
+    padding: 5px 14px;
+    box-shadow: 0 3px 14px rgba(0, 38, 75, 0.22), 0 1px 4px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0, 38, 75, 0.10);
+    backdrop-filter: blur(6px);
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+/* Pulsanti toolbar */
+.toolbar-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 13px;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+    flex-shrink: 0;
+}
+
+.toolbar-btn:hover {
+    background: rgba(0, 38, 75, 0.08);
+    color: #00264b;
+    transform: scale(1.1);
+}
+
+.toolbar-btn.active {
+    color: #3b82f6;
+}
+
+.toolbar-btn.active:hover {
+    background: rgba(59, 130, 246, 0.10);
+    color: #1d4ed8;
+}
+
+/* Separatore verticale */
+.toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: rgba(0, 38, 75, 0.15);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* Icona zoom (lente) */
+.toolbar-zoom-icon {
+    font-size: 12px;
+    color: #64748b;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* Contenitore slider zoom */
+.toolbar-zoom-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+}
+
+/* Slider zoom */
+.toolbar-zoom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 154px;
+    height: 4px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+}
+
+.toolbar-zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.45);
+    transition: transform 0.15s;
+}
+
+.toolbar-zoom-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.toolbar-zoom-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.45);
+}
+
+/* Etichette zoom sotto lo slider */
+.toolbar-zoom-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 154px;
+    font-size: 9px;
+    color: #94a3b8;
+    pointer-events: none;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+/* Valore zoom corrente */
+.toolbar-zoom-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #00264b;
+    min-width: 20px;
+    text-align: center;
+    margin-left: 8px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
 }
 
 /* ==========================================
    RESPONSIVE - MOBILE
    ========================================== */
 
-@media (max-width: 768px) {
-    .map-controls {
-        top: 70px !important;
-        left: 10px !important;
-        gap: 6px !important;
+@media (max-width: 600px) {
+    .map-toolbar {
+        top: 8px;
+        padding: 5px 10px;
+        gap: 1px;
     }
-    
-    .map-control {
-        width: 36px !important;
-        height: 36px !important;
-    }
-    
-    .layer-menu {
-        left: 42px !important;
-        min-width: 120px !important;
-        font-size: 13px !important;
-    }
-    
-    .layer-option {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
-    }
-    
-    /* Controlli Leaflet mobile */
-    .leaflet-top.leaflet-left {
-        top: 140px !important;
-    }
-}
 
-/* ==========================================
-   TABLET
-   ========================================== */
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .map-controls {
-        top: 15px !important;
+    .toolbar-zoom-slider,
+    .toolbar-zoom-labels {
+        width: 112px;
     }
-    
-    .leaflet-top.leaflet-left {
-        top: 80px !important;
+
+    .toolbar-sep {
+        margin: 0 4px;
     }
 }
 
@@ -188,7 +175,5 @@
    ========================================== */
 
 @media print {
-    .map-controls {
-        display: none !important;
-    }
+    .map-toolbar { display: none !important; }
 }

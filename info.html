@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info App | Patti di Collaborazione | Comune di Palermo</title>
+    <link rel="shortcut icon" href="img/favicon.ico"/>
+    <link rel="icon" href="img/favicon.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/v9/lucide_to_fontawesome_migration.js"></script>
+    <link rel="stylesheet" href="css/v9/patti_pa_general.css">
+    <link rel="stylesheet" href="css/v9/tab_modal.css">
+    <link rel="stylesheet" href="css/v9/patti_pa_media.css">
+    <link rel="stylesheet" href="css/v9/patti_pa_footer.css">
+    <link rel="stylesheet" href="css/v9/patti_pa_footer_media.css">
+    <link rel="stylesheet" href="css/v9/reg_att.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KHR1GHDRQS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-KHR1GHDRQS');
+    </script>
+</head>
+<body class="dashboard-layout">
+
+<header class="dashboard-header" role="banner">
+    <div class="header-top">
+        <div class="header-brand">
+            <img src="img/logo_test.png" class="logo_test" title="Comune di Palermo - Area Urbanistica e della Rigenerazione Urbana, della mobilità e del centro storico" alt="Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare">
+            <div>
+                <p class="tt">Report interattivo di monitoraggio<br> Patti di Collaborazione</p>
+            </div>
+        </div>
+        <div class="header-actions"></div>
+    </div>
+    <nav class="header-patto-nav" aria-label="Sezioni Patto di Collaborazione">
+        <a href="index.html" class="header-patto-tab">
+            <i data-lucide="layout-dashboard" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="normativi.html" class="header-patto-tab">
+            <i data-lucide="book-open" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Riferimenti Normativi</span>
+        </a>
+        <a href="faq.html" class="header-patto-tab">
+            <i data-lucide="heart-handshake" class="h-4 w-4" aria-hidden="true"></i>
+            <span>FAQ</span>
+        </a>
+        <a href="attiva.html" class="header-patto-tab">
+            <i data-lucide="rocket" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Attiva un Patto!</span>
+        </a>
+        <a href="modulistica.html" class="header-patto-tab">
+            <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Modulistica</span>
+        </a>
+        <a href="laboratori.html" class="header-patto-tab">
+            <i data-lucide="users" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Laboratori di Quartiere</span>
+        </a>
+        <a href="about.html" class="header-patto-tab">
+            <i data-lucide="heart" class="h-4 w-4" aria-hidden="true"></i>
+            <span>About</span>
+        </a>
+        <a href="info.html" class="header-patto-tab active" aria-current="page">
+            <i data-lucide="help-circle" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Info App</span>
+        </a>
+    </nav>
+</header>
+
+<main class="patto-page-main" role="main">
+    <div class="tab-content-inner">
+        <h3 class="tab-title">
+            <i data-lucide="help-circle" class="h-6 w-6"></i>
+            Informazioni sulla Dashboard
+        </h3>
+
+        <section class="content-section">
+            <h4 class="section-subtitle">Cosa sono i Patti di Collaborazione?</h4>
+            <div class="intro-text">
+                <p>I Patti di Collaborazione sono accordi tra il Comune di Palermo e cittadini, gruppi informali, associazioni, organizzazioni di volontariato e altri enti del Terzo Settore per la cura e rigenerazione dei beni comuni urbani. Questi strumenti permettono di realizzare interventi di miglioramento dell'ambiente urbano attraverso la partecipazione attiva della cittadinanza.</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h4 class="section-subtitle">Come utilizzare la Dashboard</h4>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon" style="background: rgba(59, 130, 246, 0.1);">
+                        <i data-lucide="map" class="h-6 w-6" style="color: var(--color-accent);"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5>Mappa Interattiva</h5>
+                        <p>Visualizza la posizione geografica di tutti i patti. Clicca sui marker colorati per vedere i dettagli di ogni progetto.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon" style="background: rgba(16, 185, 129, 0.1);">
+                        <i data-lucide="filter" class="h-6 w-6" style="color: var(--color-success);"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5>Filtri</h5>
+                        <p>Utilizza il pannello laterale per filtrare i patti per stato, UPL, quartiere, circoscrizione o cercare per titolo.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon" style="background: rgba(245, 158, 11, 0.1);">
+                        <i data-lucide="bar-chart-3" class="h-6 w-6" style="color: var(--color-warning);"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5>Grafici e Statistiche</h5>
+                        <p>Visualizza la distribuzione dei patti per stato e monitora i progressi attraverso statistiche aggiornate.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon" style="background: rgba(139, 92, 246, 0.1);">
+                        <i data-lucide="table" class="h-6 w-6" style="color: var(--status-monitoraggio);"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5>Vista Tabella</h5>
+                        <p>Accedi a una vista dettagliata in formato tabella con tutti i dati strutturati e ordinabili.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h4 class="section-subtitle">Legenda stato di avanzamento</h4>
+            <div class="legend-grid">
+                <div class="legend-item-full">
+                    <div class="legend-color-dot" style="background: var(--status-stipulato);"></div>
+                    <span>Patto stipulato</span>
+                </div>
+                <div class="legend-item-full">
+                    <div class="legend-color-dot" style="background: var(--status-istruttoria);"></div>
+                    <span>Istruttoria in corso</span>
+                </div>
+                <div class="legend-item-full">
+                    <div class="legend-color-dot" style="background: var(--status-integrazione);"></div>
+                    <span>In attesa di integrazione</span>
+                </div>
+                <div class="legend-item-full" title="Proroga / Monitoraggio">
+                    <div class="legend-color-dot" style="background: var(--status-monitoraggio);"></div>
+                    <span>Proroga</span>
+                </div>
+                <div class="legend-item-full">
+                    <div class="legend-color-dot" style="background: var(--status-respinto);"></div>
+                    <span>Patto respinto</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h4 class="section-subtitle">Crediti e Realizzazione</h4>
+            <div class="intro-text">
+                <p><strong>Sviluppo e Design:</strong> Applicazione web a tecnologia ibrida, sviluppata attraverso una collaborazione human-<a href="https://claude.ai/" title="Claude AI (Anthropic)" target="_blank">Claude AI (Anthropic)</a>, che ha supportato lo sviluppo dell'architettura modulare, l'ottimizzazione del codice e l'implementazione di funzionalità avanzate di visualizzazione.</p>
+                <p><strong>Rielaborazione dati & Autore:</strong> <a href="https://www.linkedin.com/in/gbvitrano/" title="gbvitrano" target="_blank">gbvitrano</a></p>
+            </div>
+        </section>
+
+        <div class="content-section highlight-section">
+            <i data-lucide="lightbulb" class="h-5 w-5"></i>
+            <div>
+                <h5>Suggerimento</h5>
+                <p>Su dispositivi desktop, il pannello dei controlli è sempre visibile. Su dispositivi mobili, utilizza il pulsante di apertura per accedervi.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="dashboard-footer" role="contentinfo">
+    <div class="footer-top-section">
+        <div class="footer-org-box">
+            <div class="footer-org-icon">
+                <img src="img/logo_pa_01.png" alt="Logo Ufficio per la Rigenerazione Urbana" class="footer-logo">
+            </div>
+            <div class="footer-org-text">
+                <div class="footer-org-title">Città di Palermo</div>
+                <div class="footer-org-description">
+                    <span>Area Urbanistica della Rigenerazione Ubana, della mobilità e del centro storico</span>
+                    <span>Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-loghi-placeholder"></div>
+    </div>
+    <div class="footer-contacts-section">
+        <div class="footer-contact-column">
+            <h4 class="footer-column-title">Ufficio Rigenerazione Urbana</h4>
+            <div class="footer-column-content">
+                <div class="footer-address"><strong>Ex Noviziato dei Crociferi - II° piano</strong><br>
+                    <a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" target="_blank">Foro Umberto I, 14</a><br>90133 Palermo PA - Italia</div>
+                <div class="footer-hours-label">Orari ricevimento:</div>
+                <div class="footer-hours-box"><span>Lunedì 10-13</span><span>Mercoledì 16-17:30</span></div>
+            </div>
+        </div>
+        <div class="footer-contact-column">
+            <h4 class="footer-column-title">Corrispondenza</h4>
+            <div class="footer-column-content">
+                <div class="footer-address"><strong><a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" target="_blank">Foro Umberto I, 14</a></strong><br>90133 Palermo PA - Italia</div>
+            </div>
+        </div>
+        <div class="footer-contact-column">
+            <h4 class="footer-column-title">Indirizzi di posta elettronica</h4>
+            <div class="footer-column-content">
+                <div class="footer-contact-row"><span class="footer-label">Assessore al ramo:</span><a href="mailto:m.carta@comune.palermo.it" class="footer-link">Maurizio Carta</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Capo Area:</span><a href="mailto:m.ciralli@comune.palermo.it" class="footer-link">Marco Ciralli</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Dirigente:</span><a href="mailto:s.follari@comune.palermo.it" class="footer-link">Sandro Follari</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Funzionario:</span><a href="mailto:paolo.porretto@comune.palermo.it" class="footer-link">Paolo Porretto</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Funzionario:</span><a href="mailto:p.caselli@comune.palermo.it" class="footer-link">Paola Caselli</a></div>
+                <div class="footer-contact-row"><span class="footer-label">PEC:</span><a href="mailto:cittastorica@cert.comune.palermo.it" class="footer-link">cittastorica@cert.comune.palermo.it</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Email:</span><a href="mailto:rigenerazioneurbana@comune.palermo.it" class="footer-link">Ufficio rigenerazione urbana</a></div>
+            </div>
+        </div>
+        <div class="footer-contact-column">
+            <h4 class="footer-column-title">Recapiti telefonici</h4>
+            <div class="footer-column-content">
+                <div class="footer-contact-row"><span class="footer-label">Capo Area:</span><a href="tel:+390917406803" class="footer-link">091 7406803</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Segr. Capo Area:</span><a href="tel:+390917406802" class="footer-link">091 7406802</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Dirigente:</span><a href="tel:+390917406837" class="footer-link">091 7406837</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Segr. Dirigente:</span><a href="tel:+390917406844" class="footer-link">091 7406844</a></div>
+                <div class="footer-contact-row"><span class="footer-label">Centralino:</span><a href="tel:+390917401111" class="footer-link">091 7401111</a></div>
+            </div>
+        </div>
+        <div class="footer-contact-column">
+            <h4 class="footer-column-title">Seguici su</h4>
+            <div class="footer-column-content">
+                <div class="footer-social-links">
+                    <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter"><i data-lucide="twitter" class="h-5 w-5"></i></a>
+                    <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook"><i data-lucide="facebook" class="h-5 w-5"></i></a>
+                    <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram"><i data-lucide="instagram" class="h-5 w-5"></i></a>
+                    <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube"><i data-lucide="youtube" class="h-5 w-5"></i></a>
+                    <a href="#" class="footer-social-link" title="RSS Feed"><i data-lucide="rss" class="h-5 w-5"></i></a>
+                </div>
+                <div class="footer-logo-bottom">
+                    <img src="img/s_rosalia_white.png" alt="Logo Santa Rosalia" title="400+1 Festino Santa Rosalia 1624-2025">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="footer-bottom-left">
+            <div class="footer-copyright">© 2025 Comune di Palermo - Tutti i diritti riservati</div>
+            <div class="footer-credits">
+                <span>Sviluppo & Rielaborazione dataset by <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank" rel="noopener noreferrer">@gbvitrano</a></span>
+                <span>|</span>
+                <span><a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span>
+            </div>
+        </div>
+        <div class="footer-bottom-right">
+            <a href="#" title="Privacy Policy">Privacy policy</a>
+            <span class="separator">•</span>
+            <a href="#" title="Cookie Policy">Cookie</a>
+            <span class="separator">•</span>
+            <a href="#" title="Accessibilità">Accessibilità</a>
+        </div>
+    </div>
+    <button id="backToTop" class="back-to-top" title="Torna in cima" aria-label="Torna in cima">
+        <i data-lucide="chevron-up" class="h-5 w-5"></i>
+    </button>
+</footer>
+
+<script src="js/v9/back_to_top.js"></script>
+</body>
+</html>

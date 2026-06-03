@@ -14,6 +14,7 @@
     font-size: var(--font-size-xs);
     line-height: 1.5;
     border-top: 2px solid rgba(59, 130, 246, 0.3);
+    position: relative;
 }
 
 /* SEZIONE SUPERIORE */
@@ -46,6 +47,13 @@
     border-radius: var(--border-radius-sm);
     color: var(--color-white);
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+.footer-org-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .footer-org-icon i,
@@ -314,4 +322,29 @@
 
 .separator {
     color: #475569;
+}
+
+/* Back to top */
+.back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--color-accent, #3b82f6);
+    color: var(--color-white, #fff);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.back-to-top:hover {
+    background: var(--color-primary, #1e40af);
+    transform: translateY(-2px);
 }

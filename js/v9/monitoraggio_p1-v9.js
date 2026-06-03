@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // DASHBOARD MONITORAGGIO PATTI - VERSIONE COMPLETA CON GRAFICI MODERNI
 // ==========================================
 
@@ -43,10 +43,10 @@ window.chartFilterState = {
 console.log('✅ chartFilterState inizializzato');
 
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
-const PALERMO_CENTER = [38.1170, 13.3734]; // Centro storico di Palermo
+const PALERMO_CENTER = [38.1516, 13.3617]; // allineato al pulsante Home
 const PALERMO_BOUNDS = [
-    [37.8000, 12.9000], // Sud-Ovest (più lontano)
-    [38.5000, 13.7000]  // Nord-Est (più lontano)
+    [37.96, 13.20], // Sud-Ovest — confine Comune di Palermo
+    [38.26, 13.50]  // Nord-Est  — confine Comune di Palermo
 ];
 
 // Colori per stato di avanzamento (originali)
@@ -608,9 +608,10 @@ function initializeMap() {
         
 map = L.map('map', {
     maxBounds: PALERMO_BOUNDS,
-    maxZoom: 18,
-    minZoom: 11,
-    zoomControl: true,
+    maxBoundsViscosity: 1.0,
+    maxZoom: 19,
+    minZoom: 13,
+    zoomControl: false,
     preferCanvas: true,
     closePopupOnClick: false,
     doubleClickZoom: true,
@@ -618,12 +619,15 @@ map = L.map('map', {
     keyboard: true,
     scrollWheelZoom: true,
     touchZoom: true
-}).setView(PALERMO_CENTER, 12);
+}).setView(PALERMO_CENTER, 13);
+
+        window.map = map;
+        new L.Hash(map);
 
         
         const baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
             attribution: 'Map tiles by <a href="http://cartodb.com/attributions#basemaps" target="_blank">CartoDB</a>, under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>. Data © <a href="http://osm.org/copyright" target="_blank">OpenStreetMap contributors</a> - Rielaborazione di <a href="https://www.linkedin.com/in/gbvitrano/" title="@gbvitrano" target="_blank">@gbvitrano</a> - 2025',
-            maxZoom: 18
+            maxZoom: 19
         }).addTo(map);
         
         markersLayer = L.layerGroup().addTo(map);
@@ -672,6 +676,8 @@ async function loadData() {
         setupAutocomplete();
         updateFilters();
         updateMap();
+        // Al primo caricamento usa sempre il centro standard (uguale al pulsante Home)
+        map.setView(PALERMO_CENTER, 13);
         updateStatistics();
         addDualChartStyles();
 updateChartDual();
@@ -1144,7 +1150,7 @@ function centerMapOnFilteredData() {
 
 
 function centerMapOnFilteredData() {
-    if (filteredData.length === 0) {
+    if (filteredData.length === 0 || filteredData.length === allData.length) {
         map.setView(PALERMO_CENTER, 13);
         return;
     }
@@ -1285,6 +1291,9 @@ function updateStatistics() {
     updateCounterWithPercentage('pattiMonitoraggio', monitoraggio, calcPercentage(monitoraggio));
     updateCounterWithPercentage('pattiRespinti', respinti, calcPercentage(respinti));
     updateCounterWithPercentage('pattiArchiviati', archiviati, calcPercentage(archiviati));
+
+    updateDonutChart();
+    updateLegend();
 }
 
 // ✅ ALTERNATIVA PIÙ ROBUSTA: Normalizza gli stati al caricamento
@@ -1305,25 +1314,15 @@ function normalizeStatoField() {
 }
 
 function updateChartDual() {
-    console.log('🔧 updateChartDual() - VERSIONE CORRETTA');
-    
     try {
-        // Grafico 1: Stato di Avanzamento (Canvas: statusChart1)
-        updateStatusChart('statusChart1');
-        console.log('✅ Grafico 1 (Stato → statusChart1) generato');
-        
-        // Grafico 2: Proponente (Canvas: statusChart2)
-        updateProponenteChart('statusChart2');
-        console.log('✅ Grafico 2 (Proponente → statusChart2) generato');
-        
-        // Grafico 3: Ambiti di Azione (Canvas: statusChart3)
-        updateAmbitiChart('statusChart3');
-        console.log('✅ Grafico 3 (Ambiti → statusChart3) generato');
-        
+        updateCircoscrizioneChart('rankList4');
+        updateQuartiereChart('rankList5');
+        updateStatusChart('rankList1');
+        updateProponenteChart('rankList2');
+        updateAmbitiChart('rankList3');
         updateChartInterfaceDual();
-        
     } catch (error) {
-        console.error('❌ Errore nell\'aggiornamento dei grafici:', error);
+        console.error('Errore aggiornamento classifiche:', error);
     }
 }
 
@@ -1508,6 +1507,42 @@ function createModernChart(labels, data, colors, type, fullLabels = null, canvas
     return chartInstance;
 }
 
+// ==================== RANK LIST ====================
+
+function createRankingList(containerId, labels, data, colors, type, fullLabels) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const maxVal = Math.max(...data, 1);
+    container.innerHTML = labels.map((label, i) => {
+        const val = data[i];
+        const pct = (val / maxVal * 100).toFixed(1);
+        const fullLabel = (fullLabels && fullLabels[i]) ? fullLabels[i] : label;
+        const color = (colors && colors[i]) ? colors[i] : '#3b82f6';
+        const safeVal = fullLabel.replace(/"/g, '&quot;');
+        return `<div class="rank-item" data-type="${type}" data-value="${safeVal}" onclick="handleRankClick(this)">
+            <div class="rank-badge">${i + 1}</div>
+            <div class="rank-label" title="${fullLabel}">${label}</div>
+            <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%;background:${color}"></div></div>
+            <div class="rank-count">${val}</div>
+        </div>`;
+    }).join('');
+}
+
+window.handleRankClick = function(el) {
+    const type = el.dataset.type;
+    const value = el.dataset.value;
+    if (window.chartFilterState.activeChartType === type &&
+        window.chartFilterState.activeChartValue === value) {
+        resetAllFiltersAndCharts();
+        return;
+    }
+    el.closest('.rank-list').querySelectorAll('.rank-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    window.chartFilterState.activeChartType = type;
+    window.chartFilterState.activeChartValue = value;
+    applyChartFilter(type, value);
+};
+
 function resetAllFiltersAndCharts() {
     console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato (IMPROVED)');
     
@@ -1577,81 +1612,21 @@ function resetAllFiltersAndCharts() {
 // ✅ NUOVO: Aggiornamento SINCRONIZZATO dei 3 grafici
 
 function updateAllChartsSynchronized() {
-    console.log('🎨 Aggiornamento SINCRONIZZATO grafici (START)...');
-    
-    // Flag per evitare aggiornamenti ricorsivi
-    if (window.chartFilterState.isUpdating) {
-        console.warn('⚠️ Aggiornamento già in corso, skip');
-        return;
-    }
-    
+    if (window.chartFilterState.isUpdating) return;
     window.chartFilterState.isUpdating = true;
-    
     try {
-        const chartIds = ['statusChart1', 'statusChart2', 'statusChart3'];
-        let destroyedCount = 0;
-        
-        // 1️⃣ STEP 1: Distruggi TUTTI i grafici precedenti con logica robusta
-        console.log('🗑️ STEP 1: Distruzione grafici precedenti...');
-        
-        chartIds.forEach(canvasId => {
-            try {
-                const canvas = document.getElementById(canvasId);
-                if (!canvas) {
-                    console.warn(`⚠️ Canvas ${canvasId} non trovato nel DOM`);
-                    return;
-                }
-                
-                if (window.chartsMap && window.chartsMap[canvasId]) {
-                    console.log(`🗑️ Distruggo grafico: ${canvasId}`);
-                    const chartInstance = window.chartsMap[canvasId];
-                    chartInstance.destroy();
-                    delete window.chartsMap[canvasId];
-                    destroyedCount++;
-                }
-            } catch (e) {
-                console.warn(`⚠️ Errore nel distruggere ${canvasId}:`, e.message);
-            }
-        });
-        
-        console.log(`✅ Grafici distrutti: ${destroyedCount}/${chartIds.length}`);
-        
-        // 2️⃣ STEP 2: Attendi un frame prima di ricreate (IMPORTANTE)
-        setTimeout(() => {
-            try {
-                console.log('📊 STEP 2: Ricreazione grafici con dati filtrati...');
-                console.log(`   - filteredData.length = ${filteredData.length}`);
-                console.log(`   - allData.length = ${allData.length}`);
-                
-                // 🔥 RICREA I 3 GRAFICI CON I DATI ATTUALI (filteredData)
-                updateStatusChart('statusChart1');
-                console.log('✅ Grafico Stato (statusChart1) creato');
-                
-                updateProponenteChart('statusChart2');
-                console.log('✅ Grafico Proponente (statusChart2) creato');
-                
-                updateAmbitiChart('statusChart3');
-                console.log('✅ Grafico Ambiti (statusChart3) creato');
-                
-                // 3️⃣ STEP 3: Aggiorna interfaccia
-                console.log('🎯 STEP 3: Aggiornamento interfaccia grafici...');
-                updateChartInterfaceDual();
-                
-                // 4️⃣ STEP 4: Marca come completato
-                window.chartFilterState.lastUpdateTime = Date.now();
-                window.chartFilterState.isUpdating = false;
-                
-                console.log('✅ Grafici sincronizzati COMPLETAMENTE');
-                console.log(`   Stato filtro: ${JSON.stringify(window.chartFilterState)}`);
-                
-            } catch (error) {
-                console.error('❌ Errore nella ricreazione dei grafici:', error);
-                window.chartFilterState.isUpdating = false;
-            }
-        }, 50);
-        
+        updateCircoscrizioneChart('rankList4');
+        updateQuartiereChart('rankList5');
+        updateStatusChart('rankList1');
+        updateProponenteChart('rankList2');
+        updateAmbitiChart('rankList3');
+        updateChartInterfaceDual();
+        updateDonutChart();
+        updateLegend();
+        window.chartFilterState.lastUpdateTime = Date.now();
     } catch (error) {
-        console.error('❌ Errore nell\'aggiornamento sincronizzato:', error);
+        console.error('Errore aggiornamento classifiche:', error);
+    } finally {
         window.chartFilterState.isUpdating = false;
     }
 }
@@ -1669,6 +1644,8 @@ function applyChartFilter(chartType, value) {
     const filterMap = {
         'stato': 'filterStato',
         'ambiti': 'filterAmbiti',
+        'circoscrizione': 'filterCircoscrizione',
+        'quartiere': 'filterQuartiere',
         'proponente': null // Gestione speciale
     };
     
@@ -1702,24 +1679,16 @@ function applyChartFilter(chartType, value) {
 }
 
 function updateChartInterfaceDual() {
-    // Stats per grafico 1 (Stato)
-    const statsElement1 = document.getElementById('chartStats1');
-    if (statsElement1) {
-        const totalVisible = filteredData.length;
-        const totalOverall = allData.length;
-        statsElement1.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
-    }
-    
-    // Stats per grafico 2 (Proponente)
-    const statsElement2 = document.getElementById('chartStats2');
-    if (statsElement2) {
-        const totalVisible = filteredData.length;
-        const totalOverall = allData.length;
-        statsElement2.textContent = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
-    }
+    const totalVisible = filteredData.length;
+    const totalOverall = allData.length;
+    const msg = `Stai visualizzando ${totalVisible} di ${totalOverall} richieste`;
+    ['chartStats1','chartStats2','chartStats3','chartStats4','chartStats5'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = msg;
+    });
 }
 
-function updateStatusChart(canvasId = 'statusChart1') {
+function updateStatusChart(canvasId = 'rankList1') {
     const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
     const statusCounts = {};
     
@@ -1747,10 +1716,14 @@ function updateStatusChart(canvasId = 'statusChart1') {
     const data = Object.values(validStatusCounts);
     const fullLabels = Object.keys(validStatusCounts);
     
-    createModernChart(labels, data, null, 'stato', fullLabels, canvasId);
+    const colors = labels.map(label => {
+        const match = Object.keys(modernChartColors.status).find(s => s.includes(label) || label.includes(s.split(' ')[0]));
+        return match ? modernChartColors.status[match] : '#F59E0B';
+    });
+    createRankingList(canvasId, labels, data, colors, 'stato', fullLabels);
 }
 
-function updateProponenteChart(canvasId = 'statusChart2') {
+function updateProponenteChart(canvasId = 'rankList2') {
     const proponenteKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('proponente'));
     const proponenteCounts = {};
     
@@ -1776,11 +1749,48 @@ function updateProponenteChart(canvasId = 'statusChart2') {
     const data = sortedProponenti.map(([,count]) => count);
     const fullLabels = sortedProponenti.map(([fullLabel]) => fullLabel);
     
-    createModernChart(labels, data, null, 'proponente', fullLabels, canvasId);
+    const colors = generateIntelligentColors(data.length, 220);
+    createRankingList(canvasId, labels, data, colors, 'proponente', fullLabels);
 }
 
 
-function updateAmbitiChart(canvasId = 'statusChart3') {
+function updateCircoscrizioneChart(canvasId = 'rankList4') {
+    const key = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('circoscrizione'));
+    if (!key) { console.warn('⚠️ Colonna "Circoscrizione" non trovata'); return; }
+    const counts = {};
+    filteredData.forEach(item => {
+        const v = (item[key] || '').toString().trim();
+        if (v && v.toLowerCase() !== 'undefined' && v.toLowerCase() !== 'null' && v !== 'N/A') {
+            counts[v] = (counts[v] || 0) + 1;
+        }
+    });
+    const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a);
+    const labels = sorted.map(([l]) => l.length > 25 ? l.substring(0, 22) + '...' : l);
+    const data = sorted.map(([,c]) => c);
+    const fullLabels = sorted.map(([l]) => l);
+    const colors = generateIntelligentColors(data.length, 190);
+    createRankingList(canvasId, labels, data, colors, 'circoscrizione', fullLabels);
+}
+
+function updateQuartiereChart(canvasId = 'rankList5') {
+    const key = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('quartiere'));
+    if (!key) { console.warn('⚠️ Colonna "Quartiere" non trovata'); return; }
+    const counts = {};
+    filteredData.forEach(item => {
+        const v = (item[key] || '').toString().trim();
+        if (v && v.toLowerCase() !== 'undefined' && v.toLowerCase() !== 'null' && v !== 'N/A') {
+            counts[v] = (counts[v] || 0) + 1;
+        }
+    });
+    const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0, 20);
+    const labels = sorted.map(([l]) => l.length > 25 ? l.substring(0, 22) + '...' : l);
+    const data = sorted.map(([,c]) => c);
+    const fullLabels = sorted.map(([l]) => l);
+    const colors = generateIntelligentColors(data.length, 140);
+    createRankingList(canvasId, labels, data, colors, 'quartiere', fullLabels);
+}
+
+function updateAmbitiChart(canvasId = 'rankList3') {
     const ambitiKey = Object.keys(allData[0] || {}).find(k => 
         k.toLowerCase().includes('ambiti')
     );
@@ -1814,7 +1824,8 @@ function updateAmbitiChart(canvasId = 'statusChart3') {
     const data = sortedAmbiti.map(([,count]) => count);
     const fullLabels = sortedAmbiti.map(([fullLabel]) => fullLabel);
     
-    createModernChart(labels, data, null, 'ambiti', fullLabels, canvasId);
+    const colors = generateIntelligentColors(data.length, 160);
+    createRankingList(canvasId, labels, data, colors, 'ambiti', fullLabels);
 }
 
 
@@ -2541,50 +2552,7 @@ function setupEventListeners() {
         successCount++;
     }
     
-    // === CONTROLLI MAPPA ===
-    totalAttempts++;
-    if (safeAddEventListener('centerPalermo', 'click', centerMapOnPalermo, 'Centra Palermo')) {
-        successCount++;
-    }
-    
-    totalAttempts++;
-    if (safeAddEventListener('layerToggle', 'click', function(e) {
-        e.stopPropagation();
-        const menu = document.getElementById('layerMenu');
-        if (menu) {
-            menu.classList.toggle('hidden');
-        }
-    }, 'Toggle layer menu')) {
-        successCount++;
-    }
-    
-    const layerMenu = document.getElementById('layerMenu');
-    const layerToggle = document.getElementById('layerToggle');
-    if (layerMenu && layerToggle) {
-        document.addEventListener('click', function(e) {
-            if (!layerMenu.contains(e.target) && !layerToggle.contains(e.target)) {
-                layerMenu.classList.add('hidden');
-            }
-        });
-    }
-    
-    totalAttempts++;
-    if (safeAddEventListener('mapStandard', 'click', function() {
-        switchMapLayer('standard');
-        const menu = document.getElementById('layerMenu');
-        if (menu) menu.classList.add('hidden');
-    }, 'Mappa standard')) {
-        successCount++;
-    }
-    
-    totalAttempts++;
-    if (safeAddEventListener('mapSatellite', 'click', function() {
-        switchMapLayer('satellite');
-        const menu = document.getElementById('layerMenu');
-        if (menu) menu.classList.add('hidden');
-    }, 'Mappa satellite')) {
-        successCount++;
-    }
+    // Controlli mappa gestiti da map-controls_layer.js
     
     // === MOSTRA TABELLA - VERSIONE DEBUGGED ===
     totalAttempts++;
@@ -2835,22 +2803,139 @@ function updateFilterGroupState(group, formElement) {
     }
 }
 
+function donutPolar(cx, cy, r, angleDeg) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function donutArcPath(cx, cy, rO, rI, a1, a2) {
+    const s  = donutPolar(cx, cy, rO, a1);
+    const e  = donutPolar(cx, cy, rO, a2);
+    const si = donutPolar(cx, cy, rI, a2);
+    const ei = donutPolar(cx, cy, rI, a1);
+    const lg = (a2 - a1) > 180 ? 1 : 0;
+    const f  = v => v.toFixed(3);
+    return `M${f(s.x)},${f(s.y)} A${rO},${rO} 0 ${lg} 1 ${f(e.x)},${f(e.y)} L${f(si.x)},${f(si.y)} A${rI},${rI} 0 ${lg} 0 ${f(ei.x)},${f(ei.y)} Z`;
+}
+
+window.handleDonutClick = function(el) {
+    const stato = el.dataset.stato;
+    if (window.chartFilterState.activeChartType === 'stato' &&
+        window.chartFilterState.activeChartValue === stato) {
+        resetAllFiltersAndCharts();
+    } else {
+        window.chartFilterState.activeChartType = 'stato';
+        window.chartFilterState.activeChartValue = stato;
+        applyChartFilter('stato', stato);
+    }
+};
+
+function updateDonutChart() {
+    const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+    if (!statoKey) return;
+
+    const counts = {};
+    filteredData.forEach(item => {
+        const v = (item[statoKey] || '').trim();
+        if (v && v.toLowerCase() !== 'undefined' && v.toLowerCase() !== 'null') {
+            counts[v] = (counts[v] || 0) + 1;
+        }
+    });
+
+    const entries = Object.entries(counts).sort(([,a],[,b]) => b - a);
+    const total = entries.reduce((s,[,v]) => s + v, 0);
+
+    const donutTotalEl = document.getElementById('donutTotal');
+    if (donutTotalEl) donutTotalEl.textContent = total;
+
+    const svg = document.getElementById('donutSVG');
+    if (!svg) return;
+
+    if (total === 0) {
+        svg.innerHTML = `<circle cx="100" cy="100" r="72" fill="none" stroke="#e2e8f0" stroke-width="28"/>`;
+        return;
+    }
+
+    const cx = 100, cy = 100, rO = 86, rI = 58, gap = 1.5;
+    const activeStato = window.chartFilterState.activeChartType === 'stato'
+        ? window.chartFilterState.activeChartValue : null;
+    let angle = 0;
+
+    svg.innerHTML = entries.map(([stato, count]) => {
+        const sweep = (count / total) * 360;
+        const a1 = angle + gap / 2;
+        const a2 = angle + sweep - gap / 2;
+        angle += sweep;
+        if (sweep < 0.5) return '';
+
+        const color = modernChartColors.status[stato] ||
+            (stato.startsWith('Proroga') ? modernChartColors.status[Object.keys(modernChartColors.status).find(k => k.startsWith('Proroga'))] : '#94a3b8');
+        const display = stato.startsWith('Proroga e/o Monitoraggio') ? 'Proroga/Monitoraggio' : stato;
+        const pct = ((count / total) * 100).toFixed(1);
+        const dim = activeStato && activeStato !== stato;
+        const safe = stato.replace(/"/g, '&quot;');
+
+        return `<path d="${donutArcPath(cx, cy, rO, rI, a1, a2)}"
+                     fill="${color}"
+                     opacity="${dim ? '0.3' : '1'}"
+                     stroke="white" stroke-width="1.5"
+                     data-stato="${safe}"
+                     onclick="handleDonutClick(this)"
+                     style="cursor:pointer;transition:opacity .2s">
+                  <title>${display}: ${count} (${pct}%)</title>
+                </path>`;
+    }).join('');
+}
+
 function updateLegend() {
     const legend = document.getElementById('legend');
     if (!legend) return;
-    
-    legend.innerHTML = '';
-    
-    Object.entries(statusColors).forEach(([status, color]) => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center space-x-1';
-        div.innerHTML = `
-            <div class="w-3 h-3 rounded-full border border-white shadow-sm" style="background-color: ${color}"></div>
-            <span class="text-xs text-gray-600">${status}</span>
-        `;
-        legend.appendChild(div);
+
+    const statoKey = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes('stato'));
+    const counts = {};
+    filteredData.forEach(item => {
+        const stato = (item[statoKey] || '').trim();
+        if (stato && stato.toLowerCase() !== 'undefined' && stato.toLowerCase() !== 'null') {
+            counts[stato] = (counts[stato] || 0) + 1;
+        }
     });
+
+    // Includi tutti gli stati possibili (anche con 0)
+    Object.keys(modernChartColors.status).forEach(k => { if (counts[k] === undefined) counts[k] = 0; });
+
+    const activeFilter = window.chartFilterState.activeChartType === 'stato'
+        ? window.chartFilterState.activeChartValue : null;
+
+    const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a);
+
+    legend.innerHTML = sorted.map(([stato, count]) => {
+        const color = modernChartColors.status[stato] ||
+            (stato.startsWith('Proroga') ? modernChartColors.status['Proroga e/o Monitoraggio e valutazione dei risultati'] : '#94a3b8');
+        const displayLabel = stato.startsWith('Proroga e/o Monitoraggio') ? 'Proroga/Monitoraggio' : stato;
+        const isActive = activeFilter === stato;
+        const safeStato = stato.replace(/"/g, '&quot;');
+        return `<button class="legend-filter-btn${isActive ? ' active' : ''}"
+                        data-stato="${safeStato}"
+                        onclick="handleLegendFilterClick(this)"
+                        title="Filtra: ${safeStato}">
+            <span class="legend-dot" style="background:${color}"></span>
+            <span class="legend-name">${displayLabel}</span>
+            <span class="legend-count">${count}</span>
+        </button>`;
+    }).join('');
 }
+
+window.handleLegendFilterClick = function(btn) {
+    const stato = btn.dataset.stato;
+    if (window.chartFilterState.activeChartType === 'stato' &&
+        window.chartFilterState.activeChartValue === stato) {
+        resetAllFiltersAndCharts();
+    } else {
+        window.chartFilterState.activeChartType = 'stato';
+        window.chartFilterState.activeChartValue = stato;
+        applyChartFilter('stato', stato);
+    }
+};
 
 // Funzione per chiudere popup dalla mappa - esposta globalmente
 window.closeMainMapPopup = function() {
@@ -3180,6 +3265,68 @@ function animateCounter(element, targetValue) {
 // Inizializza quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeFullscreenModal, 500);
+});
+
+
+// ==========================================
+// MENÙ LINEARE PAGINE NELL'HEADER PRINCIPALE
+// ==========================================
+
+function initializePattoNav() {
+    const navBtns = document.querySelectorAll('.header-patto-tab');
+    const modal = document.getElementById('infoModal');
+    const modalBody = document.querySelector('.modal-fullscreen-body');
+    const modalTabs = document.querySelectorAll('.modal-tab');
+    const tabContents = document.querySelectorAll('.modal-tab-content');
+
+    if (!modal || navBtns.length === 0) return;
+
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-patto-tab');
+
+            // Apri modal
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // Aggiorna tab nel modal
+            modalTabs.forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            const targetModalTab = document.querySelector(`.modal-tab[data-tab="${targetTab}"]`);
+            if (targetModalTab) {
+                targetModalTab.classList.add('active');
+                targetModalTab.setAttribute('aria-selected', 'true');
+            }
+
+            const targetContent = document.getElementById(`tab-${targetTab}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+                if (modalBody) modalBody.scrollTop = 0;
+            }
+
+            // Marca attivo nel nav header
+            navBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            if (targetTab === 'about') setTimeout(updateAboutStats, 500);
+        });
+    });
+
+    // Rimuovi active dal nav header quando il modal si chiude
+    const closeBtn = document.getElementById('closeInfoModal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            navBtns.forEach(b => b.classList.remove('active'));
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initializePattoNav, 600);
 });
 
 
