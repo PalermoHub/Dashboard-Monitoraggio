@@ -578,3 +578,8 @@
     .pst-search-wrap { max-width: none; }
     .pst-results { display: none; }
 }
+
+@media (max-width: 480px) {
+    .pst-btn-table { display: none; }
+    .pst-btn { min-height: 44px; }
+}

@@ -464,7 +464,7 @@
         width: 50px;
         height: 50px;
         font-size: 20px;
-        bottom: 380px;
+        bottom: 20px;
         right: 20px;
     }
 
@@ -495,6 +495,9 @@
     .tabs-modal-content {
         padding: 16px;
     }
+
+    .ts-kpi-card { min-height: 44px; }
+    .legend-filter-btn { min-height: 44px; padding: 10px 8px; }
 }
 
 /* ==================== STATISTICHE & DATAVIZ REDESIGN ==================== */

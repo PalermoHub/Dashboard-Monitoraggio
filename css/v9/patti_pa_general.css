@@ -328,6 +328,17 @@ a.header-patto-tab {
     .nh-update     { display: none; }
 }
 
+@media (max-width: 640px) {
+    .nh-slim { display: none; }
+    .nh-main { padding: 6px 0; }
+    .nh-project { padding: 6px 0; }
+    .nh-org-title { font-size: 0.8rem; }
+    .header-patto-nav {
+        -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+        mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    }
+}
+
 
 /* Menù lineare pagine - parte bassa header principale */
 .header-patto-nav {
