@@ -5,8 +5,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var defaultBottom = 24;
 
+    // Individua il contenitore che scorre effettivamente
+    var scroller = null;
+    if (document.body.classList.contains('dashboard-app')) {
+        scroller = document.querySelector('.dashboard-main');
+    } else if (document.body.classList.contains('slim-active')) {
+        scroller = document.querySelector('.slim-scroll-wrap');
+    }
+
+    function getScrollY() {
+        return scroller ? scroller.scrollTop : window.scrollY;
+    }
+
     function update() {
-        var scrollY = window.scrollY;
+        var scrollY = getScrollY();
         btn.style.display = scrollY > 300 ? 'flex' : 'none';
 
         if (footer) {
@@ -20,10 +32,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    window.addEventListener('scroll', update);
+    if (scroller) {
+        scroller.addEventListener('scroll', update, { passive: true });
+    } else {
+        window.addEventListener('scroll', update, { passive: true });
+    }
     update();
 
     btn.addEventListener('click', function () {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (scroller) {
+            scroller.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     });
 });
