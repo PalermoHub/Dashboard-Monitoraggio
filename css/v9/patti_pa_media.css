@@ -2,19 +2,53 @@
 /* PATTI PA — MOBILE MEDIA QUERIES */
 /* =============================== */
 
+/* ── Nav tabs ≤640px: font ridotto ─────────────────────── */
 @media (max-width: 640px) {
     .header-patto-tab {
         padding: var(--space-2) var(--space-3);
         font-size: 0.78rem;
     }
-    .header-patto-tab i {
-        font-size: 0.85rem;
+    .header-patto-tab i { font-size: 0.85rem; }
+}
+
+/* ── Nav tabs ≤480px: solo icone, tutto visibile senza scroll ── */
+@media (max-width: 480px) {
+    .header-patto-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 6px;
+        gap: 0;
+        font-size: 0.73rem;
+        min-width: 0;
+    }
+    .header-patto-tab span { display: none; }
+    /* Rimuovi gradiente fade (non serve: tutto visibile) */
+    .header-patto-nav {
+        -webkit-mask-image: none;
+        mask-image: none;
     }
 }
 
-@media (max-width: 480px) {
-    .header-patto-tab {
-        padding: var(--space-2) var(--space-2);
-        font-size: 0.73rem;
+/* ── Modal statistiche ≤640px: header sempre visibile ─────── */
+/* nh-slim nascosto → header più corto → modal può salire meno */
+@media (max-width: 640px) {
+    .tabs-modal {
+        max-height: calc(100dvh - 120px) !important;
+    }
+}
+
+/* ── Content pages: prevenzione overflow testo ─────────────── */
+@media (max-width: 768px) {
+    .mkdocs-content,
+    .tab-content-inner,
+    .content-section,
+    .patto-page-main {
+        overflow-x: hidden;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    .mkdocs-content img,
+    .mkdocs-content table {
+        max-width: 100%;
     }
 }

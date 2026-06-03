@@ -573,10 +573,12 @@
 /* ── Mobile ────────────────────────────────────────────────── */
 @media (max-width: 640px) {
     .pst-btn span:not(.pst-badge) { display: none; }
-    .pst-btn { padding: 7px 8px 5px; }
+    .pst-btn { padding: 7px 8px 5px; min-height: 44px; }
     .pst-inner { gap: 3px; padding: 6px 8px; }
     .pst-search-wrap { max-width: none; }
     .pst-results { display: none; }
+    /* Dropdown ancorato a destra per non uscire dallo schermo */
+    .pst-dd { left: auto; right: 0; max-width: min(280px, 90vw); }
 }
 
 @media (max-width: 480px) {

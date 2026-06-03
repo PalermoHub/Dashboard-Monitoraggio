@@ -159,15 +159,25 @@
         padding: 5px 10px;
         gap: 1px;
     }
-
     .toolbar-zoom-slider,
     .toolbar-zoom-labels {
         width: 112px;
     }
-
     .toolbar-sep {
         margin: 0 4px;
     }
+}
+
+@media (max-width: 480px) {
+    .map-toolbar {
+        padding: 4px 8px;
+        gap: 0;
+    }
+    .toolbar-zoom-slider { width: 80px; }
+    .toolbar-zoom-labels,
+    .toolbar-zoom-value { display: none; }
+    .toolbar-zoom-icon { display: none; }
+    .toolbar-btn { width: 28px; height: 28px; }
 }
 
 /* ==========================================
