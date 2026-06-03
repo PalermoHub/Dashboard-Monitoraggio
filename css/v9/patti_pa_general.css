@@ -3379,7 +3379,7 @@ a.header-patto-tab {
     color: var(--color-accent);
 }
 
-.nh-back-top {
+.nh-back-top { 
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.8);
@@ -3391,6 +3391,7 @@ a.header-patto-tab {
     gap: 0.3rem;
     flex-shrink: 0;
     transition: color 0.2s;
+	display: none;
 }
 
 .nh-back-top:hover {
