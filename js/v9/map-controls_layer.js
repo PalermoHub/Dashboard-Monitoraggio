@@ -12,8 +12,8 @@ const MAP_LAYERS = {
     },
     satellite: {
         name: 'Satellite',
-        url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-        attribution: '&copy; Google Satellite - 2025',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         options: { maxZoom: 19 }
     }
 };
