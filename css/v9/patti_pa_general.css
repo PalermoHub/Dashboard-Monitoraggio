@@ -726,6 +726,7 @@ a.header-patto-tab {
     margin-left: calc(-1 * var(--space-4));
     margin-right: calc(-1 * var(--space-4));
     margin-bottom: calc(-1 * var(--space-4));
+    width: calc(100% + 2 * var(--space-4));
 }
 
 /* Map Container — contiene mappa (topbar + chips sono sopra, fuori) */
