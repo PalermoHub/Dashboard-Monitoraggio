@@ -573,10 +573,19 @@ function addSidePanelStyles() {
             .side-panel {
                 position: fixed;
                 width: 100%;
-                right: -100%;
+                left: 0;
+                right: auto;
                 top: 0;
                 bottom: 0;
                 max-width: none;
+                z-index: 9999;
+                transform: translateX(100%);
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .side-panel.open {
+                transform: translateX(0);
+                right: auto;
             }
         }
     `;
@@ -638,6 +647,12 @@ function openSidePanel(pattoId) {
     setupSidePanelListeners();
 
     const panel = document.getElementById('pattoSidePanel');
+
+    // Su mobile sposta nel body così position:fixed è relativo al viewport reale
+    if (window.innerWidth <= 768 && panel.parentElement !== document.body) {
+        document.body.appendChild(panel);
+    }
+
     panel.classList.add('open');
 
     if (window.map) {

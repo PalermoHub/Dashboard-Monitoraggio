@@ -1085,16 +1085,16 @@ function updateMap() {
         // ==========================================
         marker.on('click', function(e) {
             console.log('📍 Click su marker per patto:', patto[idKey]);
-            
+
             // 🔄 CHIUDI TUTTI GLI ALTRI POPUP PRIMA DI APRIRE QUESTO
             if (map && typeof map.closePopup === 'function') {
                 map.closePopup();
                 console.log('✅ Popup precedente chiuso');
             }
-            
+
             // Apri il popup di questo marker
             this.openPopup();
-            
+
             // Stop propagation per evitare conflitti
             L.DomEvent.stopPropagation(e);
         });
@@ -1107,7 +1107,6 @@ function updateMap() {
         // ==========================================
         marker.on('popupopen', function() {
             console.log('✨ Popup aperto per patto:', patto[idKey]);
-            
         });
         
         // ==========================================
