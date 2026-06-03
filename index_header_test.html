@@ -19,7 +19,6 @@
 	<link rel="stylesheet" href="css/v9/patti_pa_footer.css">
 	<link rel="stylesheet" href="css/v9/patti_pa_footer_media.css">
 	<link rel="stylesheet" href="css/v9/reg_att.css">
-	<link rel="stylesheet" href="css/v9/smart_topbar.css">
 
 
  <!--	   -->
@@ -57,9 +56,139 @@
   gtag('config', 'G-KHR1GHDRQS');
 </script>	
 	
+
+<style id="new-header-overrides">
+/* ── GRID: header row a altezza automatica ── */
+.dashboard-layout {
+    grid-template-rows: auto 1fr auto;
+}
+.dashboard-header {
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* ══ L1: SLIM BAR (sparisce) ══ */
+.nh-slim {
+    background: var(--color-primary, #00264b);
+    padding: 5px 0;
+    overflow: hidden;
+    max-height: 60px;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+.nh-slim.hidden {
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+}
+.nh-slim-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nh-slim-logo {
+    height: 38px;
+    width: auto;
+    display: block;
+}
+
+/* ══ L2: MAIN BAND (rimane) ══ */
+.nh-main {
+    background: linear-gradient(135deg, #00264b 0%, #003d7a 100%);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nh-main-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.nh-org { display: flex; flex-direction: column; gap: 1px; }
+.nh-org-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.3;
+}
+.nh-org-sub {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.7);
+    margin: 0;
+}
+
+/* ══ L3: PROJECT BAND — stesso colore di nh-main ══ */
+.nh-project {
+    background: linear-gradient(135deg, #00264b 0%, #003d7a 100%);
+    padding: 7px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+.nh-project-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.nh-project-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+}
+.nh-project-icon {
+    height: 22px;
+    width: auto;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1);
+}
+.nh-title-sep { opacity: 0.45; font-weight: 300; }
+.nh-title-full { font-weight: 400; opacity: 0.9; }
+.nh-update {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.nh-update i { opacity: 0.65; font-size: 0.65rem; }
+
+/* ══ L4: NAV TABS — stesso colore di nh-main ══ */
+.header-patto-nav {
+    background: linear-gradient(135deg, #00264b 0%, #003d7a 100%);
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .nh-org-sub   { display: none; }
+    .nh-title-full, .nh-title-sep { display: none; }
+    .nh-slim-logo  { height: 30px; }
+    .nh-org-title  { font-size: 0.85rem; }
+    .nh-update     { display: none; }
+}
+</style>
 </head>
 
-<body class="dashboard-layout dashboard-app">
+<body class="dashboard-layout">
 
 <!-- FILTERS POPUP -->
 <div id="filtersPopup" class="filters-popup">
@@ -88,7 +217,7 @@
         <div class="nh-slim-inner">
             <a href="https://www.comune.palermo.it/" target="_blank" rel="noopener"
                title="Sito Istituzionale Città di Palermo">
-                <img src="img/logo_pa_gb.svg" class="nh-slim-logo"
+                <img src="img/logo_pa.png" class="nh-slim-logo"
                      alt="Comune di Palermo">
             </a>
         </div>
@@ -189,133 +318,6 @@
         <div class="content-area">
 
 <!-- ══ PATTI SMART TOPBAR ══════════════════════════════════════ -->
-<div id="patti-smart-topbar">
-    <div class="pst-inner">
-        <!-- Smart Search -->
-        <div class="pst-search-wrap">
-            <div class="smart-search-container">
-                <div class="smart-search-input-wrapper">
-                    <span class="smart-search-icon">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                    </span>
-                    <input type="text"
-                           id="smartSearchInput"
-                           class="smart-search-input"
-                           placeholder="Cerca patti, proponenti, indirizzi..."
-                           autocomplete="off"
-                           aria-label="Ricerca intelligente">
-                    <button class="smart-search-clear" id="clearSmartSearch"
-                            title="Cancella ricerca" aria-label="Cancella ricerca" style="display:none">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="smart-search-suggestions hidden" id="smartSearchSuggestions"></div>
-            </div>
-        </div>
-
-        <!-- Stato -->
-        <div class="pst-btn-wrap">
-            <button id="pst-stato-btn" class="pst-btn" onclick="pstToggleStatoDD()">
-                <i class="fas fa-circle-half-stroke" aria-hidden="true"></i>
-                <span>Stato</span>
-                <span class="pst-badge" id="pst-stato-badge" style="display:none"></span>
-            </button>
-            <div class="pst-dd" id="pst-stato-dd">
-                <div class="pst-dd-header">Stato</div>
-                <div class="pst-dd-inner" id="pst-stato-dd-inner"></div>
-                <div class="pst-dd-footer">
-                    <button onclick="pattiSetFilter('filterStato',''); pstCloseDds();">
-                        <i class="fas fa-times"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ambiti -->
-        <div class="pst-btn-wrap">
-            <button id="pst-ambiti-btn" class="pst-btn" onclick="pstToggleAmbitiDD()">
-                <i class="fas fa-bullseye" aria-hidden="true"></i>
-                <span>Ambito</span>
-                <span class="pst-badge" id="pst-ambiti-badge" style="display:none"></span>
-            </button>
-            <div class="pst-dd" id="pst-ambiti-dd">
-                <div class="pst-dd-header">Ambito</div>
-                <div class="pst-dd-inner" id="pst-ambiti-dd-inner"></div>
-                <div class="pst-dd-footer">
-                    <button onclick="pattiSetFilter('filterAmbiti',''); pstCloseDds();">
-                        <i class="fas fa-times"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Territorio -->
-        <div class="pst-btn-wrap">
-            <button id="pst-geo-btn" class="pst-btn" onclick="pstOpenGeoDrawer()">
-                <i class="fas fa-map-location-dot" aria-hidden="true"></i>
-                <span>Territorio</span>
-                <span class="pst-badge" id="pst-geo-badge" style="display:none"></span>
-            </button>
-        </div>
-
-        <!-- Contatore risultati -->
-        <span class="pst-results" aria-live="polite">
-            <span id="pst-results-count">—</span>
-        </span>
-
-        <!-- Reset -->
-        <button class="pst-btn pst-btn-reset" onclick="resetAllFiltersAndCharts()" title="Reset tutti i filtri">
-            <i class="fas fa-rotate" aria-hidden="true"></i>
-            <span>Reset</span>
-        </button>
-
-        <!-- Tabella -->
-        <button id="showTableBtn" class="pst-btn pst-btn-table" title="Apri vista tabella">
-            <i class="fas fa-table" aria-hidden="true"></i>
-            <span>Tabella</span>
-        </button>
-    </div>
-    <!-- Chips filtri attivi -->
-    <div id="activeFilterChips" role="status" aria-live="polite"></div>
-</div>
-
-<!-- GEO DRAWER -->
-<div class="pst-drawer-overlay" id="pst-drawer-overlay" onclick="pstCloseGeoDrawer()"></div>
-<div class="pst-drawer" id="pst-geo-drawer" role="dialog" aria-modal="true" aria-label="Filtro Territorio">
-    <div class="pst-drawer-handle"></div>
-    <div class="pst-drawer-header">
-        <h3><i class="fas fa-map-location-dot" aria-hidden="true"></i> Filtro Territorio</h3>
-        <button class="pst-drawer-close" onclick="pstCloseGeoDrawer()" title="Chiudi" aria-label="Chiudi">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="pst-drawer-group">
-        <div class="pst-drawer-label"><span>Circoscrizione</span></div>
-        <select id="pst-vis-filterCircoscrizione" class="pst-drawer-select">
-            <option value="">Tutte le circoscrizioni</option>
-        </select>
-    </div>
-    <div class="pst-drawer-group">
-        <div class="pst-drawer-label"><span>Quartiere</span></div>
-        <select id="pst-vis-filterQuartiere" class="pst-drawer-select">
-            <option value="">Tutti i quartieri</option>
-        </select>
-    </div>
-    <div class="pst-drawer-group">
-        <div class="pst-drawer-label"><span>UPL</span></div>
-        <select id="pst-vis-filterUpl" class="pst-drawer-select">
-            <option value="">Tutte le UPL</option>
-        </select>
-    </div>
-    <div class="pst-drawer-footer">
-        <button class="pst-drawer-reset" onclick="pstResetGeo()">
-            <i class="fas fa-times"></i> Reset
-        </button>
-        <button class="pst-drawer-apply" onclick="pstApplyGeo()">
-            <i class="fas fa-check"></i> Applica
-        </button>
-    </div>
-</div>
 
 <!-- ══ MAP CONTAINER ═══════════════════════════════════════════ -->
 <section class="map-container"
@@ -525,6 +527,8 @@
 		  
 	  </div>
 
+    </main>
+
 <!-- NUOVO FOOTER AGID-COMPLIANT - LAYOUT A 5 COLONNE -->
 <footer class="dashboard-footer" role="contentinfo">
     
@@ -696,8 +700,6 @@
     </button>
 </footer>
 
-    </main>
-
 <!-- TABLE MODAL - Inserire prima degli script JS -->
 <div id="tableModal" class="modal" role="dialog" aria-labelledby="tableModalTitle" aria-modal="true">
     <div class="modal-content table-modal">
@@ -845,20 +847,114 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+<!-- ══ GEO DRAWER ══════════════════════════════════════════════ -->
+<div class="pst-drawer-overlay" id="pst-drawer-overlay" onclick="pstCloseGeoDrawer()"></div>
+<div class="pst-drawer" id="pst-geo-drawer" role="dialog" aria-label="Filtri geografici">
+  <div class="pst-drawer-handle"></div>
+  <div class="pst-drawer-header">
+    <h3><i class="fas fa-map-pin" style="color:var(--pst-accent)"></i> Localizzazione</h3>
+    <button class="pst-drawer-close" onclick="pstCloseGeoDrawer()" title="Chiudi">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="pst-drawer-group">
+    <label class="pst-drawer-label">
+      <span><i class="fas fa-map"></i> Circoscrizione</span>
+      <span class="pst-val-badge" id="pst-circ-val" style="display:none"></span>
+    </label>
+    <select class="pst-drawer-select" id="pst-vis-filterCircoscrizione"
+            onchange="document.getElementById('pst-circ-val').textContent=this.value||'';
+                      document.getElementById('pst-circ-val').style.display=this.value?'inline':'none';">
+      <option value="">Tutte le circoscrizioni</option>
+    </select>
+  </div>
+  <div class="pst-drawer-group">
+    <label class="pst-drawer-label">
+      <span><i class="fas fa-map-pin"></i> Quartiere</span>
+      <span class="pst-val-badge" id="pst-quart-val" style="display:none"></span>
+    </label>
+    <select class="pst-drawer-select" id="pst-vis-filterQuartiere"
+            onchange="document.getElementById('pst-quart-val').textContent=this.value||'';
+                      document.getElementById('pst-quart-val').style.display=this.value?'inline':'none';">
+      <option value="">Tutti i quartieri</option>
+    </select>
+  </div>
+  <div class="pst-drawer-group">
+    <label class="pst-drawer-label">
+      <span><i class="fas fa-map-location-dot"></i> UPL</span>
+      <span class="pst-val-badge" id="pst-upl-val" style="display:none"></span>
+    </label>
+    <select class="pst-drawer-select" id="pst-vis-filterUpl"
+            onchange="document.getElementById('pst-upl-val').textContent=this.value||'';
+                      document.getElementById('pst-upl-val').style.display=this.value?'inline':'none';">
+      <option value="">Tutte le UPL</option>
+    </select>
+  </div>
+  <div class="pst-drawer-footer">
+    <button class="pst-drawer-reset" onclick="pstResetGeo()">
+      <i class="fas fa-rotate-left"></i> Ripristina
+    </button>
+    <button class="pst-drawer-apply" onclick="pstApplyGeo()">
+      <i class="fas fa-check"></i> Applica
+    </button>
+  </div>
+</div>
+<!-- ═══════════════════════════════════════════════════════════ -->
 
     <!-- JavaScript -->
 	<script src="js/v9/monitoraggio_p1-v9.js"></script>
 	<script src="js/v9/side-panel.js"></script>
 	<script src="js/v9/map-controls_layer.js"></script>
+    <script src="js/v9/smart-search-v2.js"></script>
 
 	<script src="js/v9/monitoraggio_p2.js"></script>
 	<script src="js/v9/attiva_patto.js"></script>
 	<script src="js/v9/regolamento.js"></script>	
 	<!-- sidebar tab -->
 	<script src="js/v9/tab-modal.js"></script>
-	<script src="js/v9/smart-search-v2.js"></script>
-	<script src="js/v9/smart-topbar.js"></script>
 <script src="js/v9/back_to_top.js"></script>
-<script src="js/v9/slim-header.js"></script>
+<script>
+(function() {
+    const slim    = document.getElementById('nhSlim');
+    const header  = document.querySelector('.dashboard-header');
+    if (!slim || !header) return;
+
+    const THRESHOLD = 30;
+
+    /* Aggiorna --header-height con l'altezza reale dell'header
+       così filters-popup si posiziona correttamente */
+    function syncHeaderHeight() {
+        const h = header.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--header-height', h + 'px');
+    }
+
+    function onScroll(pos) {
+        if (pos > THRESHOLD) {
+            slim.classList.add('hidden');
+        } else {
+            slim.classList.remove('hidden');
+        }
+        // Ricalcola dopo la transizione CSS (0.35s)
+        setTimeout(syncHeaderHeight, 380);
+    }
+
+    // Sync iniziale e al resize
+    document.addEventListener('DOMContentLoaded', syncHeaderHeight);
+    window.addEventListener('resize', syncHeaderHeight, { passive: true });
+
+    // Scroll pagina
+    window.addEventListener('scroll', function() {
+        onScroll(window.scrollY);
+    }, { passive: true });
+
+    // Scroll pannello mappa (main ha overflow-y:auto)
+    const main = document.querySelector('.dashboard-main');
+    if (main) {
+        main.addEventListener('scroll', function() {
+            onScroll(main.scrollTop);
+        }, { passive: true });
+    }
+})();
+</script>
 </body>
 </html>

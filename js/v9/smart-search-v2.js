@@ -3,12 +3,19 @@
 // ==========================================
 
 // Variabili globali per la ricerca intelligente
+const FILTER_CATEGORY_MAP = {
+    stato:           'filterStato',
+    ambiti:          'filterAmbiti',
+    circoscrizione:  'filterCircoscrizione',
+    quartiere:       'filterQuartiere',
+    upl:             'filterUpl'
+};
+
 let smartSearchData = {
     titoli: [],
     proponenti: [],
     rappresentanti: [],
     indirizzi: [],
-    ambiti: [], // NUOVO
     combined: []
 };
 
@@ -37,7 +44,6 @@ function initializeSmartSearchIntegrated() {
         proponenti: smartSearchData.proponenti.length,
         rappresentanti: smartSearchData.rappresentanti.length,
         indirizzi: smartSearchData.indirizzi.length,
-        ambiti: smartSearchData.ambiti.length,
         totale: smartSearchData.combined.length
     });
 }
@@ -54,30 +60,31 @@ function findDataKeys() {
         proponente: Object.keys(firstItem).find(k => k.toLowerCase().includes('proponente')),
         rappresentante: Object.keys(firstItem).find(k => k.toLowerCase().includes('rappresentante')),
         indirizzo: Object.keys(firstItem).find(k => k.toLowerCase().includes('indirizzo')),
-        ambiti: Object.keys(firstItem).find(k => k.toLowerCase().includes('ambiti')), // NUOVO
-        stato: Object.keys(firstItem).find(k => k.toLowerCase().includes('stato'))
+        ambiti: Object.keys(firstItem).find(k => k.toLowerCase().includes('ambiti')),
+        stato: Object.keys(firstItem).find(k => k.toLowerCase().includes('stato')),
+        circoscrizione: Object.keys(firstItem).find(k => k.toLowerCase().includes('circoscrizione')),
+        quartiere: Object.keys(firstItem).find(k => k.toLowerCase().includes('quartiere')),
+        upl: Object.keys(firstItem).find(k => k.toLowerCase() === 'upl')
     };
 }
 
 /**
- * Costruisce i dati per la ricerca intelligente
+ * Costruisce i dati per la ricerca intelligente (solo campi testo libero)
+ * Le categorie filtro (stato/ambiti/geo) vengono generate dinamicamente da filteredData
  */
 function buildSmartSearchData() {
     const keys = findDataKeys();
-    
+
     smartSearchData.titoli = extractUniqueValues(keys.titolo, 'titolo');
     smartSearchData.proponenti = extractUniqueValues(keys.proponente, 'proponente');
     smartSearchData.rappresentanti = extractUniqueValues(keys.rappresentante, 'rappresentante');
     smartSearchData.indirizzi = extractUniqueValues(keys.indirizzo, 'indirizzo');
-    smartSearchData.ambiti = extractUniqueValues(keys.ambiti, 'ambiti'); // NUOVO
-    
-    // Combina tutti i dati con metadati
+
     smartSearchData.combined = [
         ...smartSearchData.titoli,
         ...smartSearchData.proponenti,
         ...smartSearchData.rappresentanti,
-        ...smartSearchData.indirizzi,
-        ...smartSearchData.ambiti // NUOVO
+        ...smartSearchData.indirizzi
     ].sort((a, b) => a.text.localeCompare(b.text));
 }
 
@@ -108,33 +115,45 @@ function extractUniqueValues(fieldKey, category) {
  */
 function getCategoryLabel(category) {
     const labels = {
-        'titolo': 'Titoli Progetti',
-        'proponente': 'Proponenti',
-        'rappresentante': 'Rappresentanti',
-        'indirizzo': 'Indirizzi',
-        'ambiti': 'Ambiti di Azione' // NUOVO
+        'titolo':          'Titoli Progetti',
+        'proponente':      'Proponenti',
+        'rappresentante':  'Rappresentanti',
+        'indirizzo':       'Indirizzi',
+        'ambiti':          'Ambiti di Azione',
+        'stato':           'Stato di Avanzamento',
+        'circoscrizione':  'Circoscrizione',
+        'quartiere':       'Quartiere',
+        'upl':             'UPL'
     };
     return labels[category] || category;
 }
 
 function getCategoryIcon(category) {
     const icons = {
-        'titolo': 'file-text',
-        'proponente': 'building-2',
-        'rappresentante': 'user-check',
-        'indirizzo': 'map-pin',
-        'ambiti': 'target' // NUOVO
+        'titolo':          'fa-file-alt',
+        'proponente':      'fa-building',
+        'rappresentante':  'fa-user-check',
+        'indirizzo':       'fa-map-marker-alt',
+        'ambiti':          'fa-bullseye',
+        'stato':           'fa-circle-half-stroke',
+        'circoscrizione':  'fa-map',
+        'quartiere':       'fa-map-pin',
+        'upl':             'fa-location-dot'
     };
-    return icons[category] || 'circle';
+    return icons[category] || 'fa-circle';
 }
 
 function getCategoryColor(category) {
     const colors = {
-        'titolo': '#3b82f6',
-        'proponente': '#10b981',
-        'rappresentante': '#f59e0b',
-        'indirizzo': '#ef4444',
-        'ambiti': '#8b5cf6' // NUOVO - viola
+        'titolo':          '#3b82f6',
+        'proponente':      '#10b981',
+        'rappresentante':  '#f59e0b',
+        'indirizzo':       '#ef4444',
+        'ambiti':          '#8b5cf6',
+        'stato':           '#0ea5e9',
+        'circoscrizione':  '#14b8a6',
+        'quartiere':       '#06b6d4',
+        'upl':             '#0284c7'
     };
     return colors[category] || '#6b7280';
 }
@@ -205,7 +224,7 @@ function setupSmartSearchEventListeners() {
 function performSmartSearchIntegrated(query) {
     const startTime = performance.now();
     
-    if (query.length < 2) {
+    if (query.length < 1) {
         hideSuggestions();
         resetSmartSearchStats();
         currentSmartSearchQuery = '';
@@ -355,6 +374,43 @@ function executeSmartSearchOnFilteredData(query, filteredDataToSearch) {
         });
     });
     
+    // Suggerimenti per categorie filtro (stato, ambiti, geo) — derivati da filteredDataToSearch
+    const filterFields = [
+        { key: keys.stato,          category: 'stato' },
+        { key: keys.ambiti,         category: 'ambiti' },
+        { key: keys.circoscrizione, category: 'circoscrizione' },
+        { key: keys.quartiere,      category: 'quartiere' },
+        { key: keys.upl,            category: 'upl' }
+    ];
+
+    filterFields.forEach(({ key, category }) => {
+        if (!key) return;
+        const activeVal = document.getElementById(FILTER_CATEGORY_MAP[category])?.value?.trim() || '';
+        const uniqueVals = [...new Set(
+            filteredDataToSearch.map(i => i[key]).filter(Boolean).map(v => v.trim())
+        )];
+        uniqueVals.forEach(val => {
+            const valLower = val.toLowerCase();
+            let score = 0;
+            if (valLower === lowerQuery) score = 100;
+            else if (valLower.startsWith(lowerQuery)) score = 80;
+            else if (valLower.includes(lowerQuery)) score = 60;
+            if (score > 0 && val !== activeVal) {
+                results.push({
+                    text: val,
+                    category,
+                    categoryLabel: getCategoryLabel(category),
+                    icon: getCategoryIcon(category),
+                    color: getCategoryColor(category),
+                    score,
+                    originalQuery: query,
+                    searchableText: valLower,
+                    dataItem: null
+                });
+            }
+        });
+    });
+
     // Rimuovi duplicati e ordina
     const uniqueResults = [];
     const seen = new Set();
@@ -367,13 +423,21 @@ function executeSmartSearchOnFilteredData(query, filteredDataToSearch) {
         }
     });
     
+    // Calcola conteggio record per ogni risultato
+    uniqueResults.forEach(r => {
+        const fieldKey = keys[r.category];
+        r.count = fieldKey
+            ? filteredDataToSearch.filter(i => i[fieldKey]?.trim() === r.text.trim()).length
+            : 1;
+    });
+
     return uniqueResults
         .sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
             if (a.text.length !== b.text.length) return a.text.length - b.text.length;
             return a.text.localeCompare(b.text);
         })
-        .slice(0, 12);
+        .slice(0, 50);
 }
 
 /**
@@ -421,48 +485,38 @@ function displaySmartSearchResults(suggestions, quickResults, filteredDataCount)
     
     if (suggestions.length > 0) {
         suggestionsContainer.innerHTML = suggestions.map(group => `
-            <div class="suggestion-category">
-                ${group.showCategory ? `
-                    <div class="suggestion-category-header">
-                        <i data-lucide="${group.icon}" class="category-icon" style="color: ${group.color};"></i>
-                        <span>${group.categoryLabel}</span>
-                        ${group.totalItems > group.items.length ? `<span class="more-count">+${group.totalItems - group.items.length}</span>` : ''}
+            <div class="pss-group">
+                <div class="pss-cat-header">${group.categoryLabel}</div>
+                ${group.items.map(item => `
+                    <div class="pss-item"
+                         data-text="${item.text.replace(/"/g, '&quot;')}"
+                         data-category="${item.category}"
+                         data-lat="${item.dataItem?.lat || ''}"
+                         data-lng="${item.dataItem?.lng || ''}">
+                        <i class="fas ${item.icon} pss-item-icon" style="color:${item.color}"></i>
+                        <span class="pss-item-text">${highlightQuery(item.text, item.originalQuery)}</span>
+                        <span class="pss-item-count">(${item.count || 1})</span>
+                        <span class="pss-item-badge" style="background:${item.color}">${item.categoryLabel}</span>
                     </div>
-                ` : ''}
-                <div class="suggestion-items">
-                    ${group.items.map(item => `
-                        <div class="smart-suggestion-item" 
-                             data-text="${item.text}" 
-                             data-category="${item.category}"
-                             data-lat="${item.dataItem ? item.dataItem.lat : ''}"
-                             data-lng="${item.dataItem ? item.dataItem.lng : ''}">
-                            <div class="suggestion-content">
-                                <div class="suggestion-text">${highlightQuery(item.text, item.originalQuery)}</div>
-                                ${!group.showCategory ? `<span class="suggestion-category-label" style="color: ${item.color};">${item.categoryLabel}</span>` : ''}
-                            </div>
-                            <div class="suggestion-score">${Math.round(item.score)}</div>
-                        </div>
-                    `).join('')}
-                </div>
+                `).join('')}
+                ${group.totalItems > group.items.length
+                    ? `<div class="pss-more">+${group.totalItems - group.items.length} altri…</div>`
+                    : ''}
             </div>
         `).join('');
-        
+
         suggestionsContainer.classList.remove('hidden');
-        
-        // Event listeners per selezione
-        suggestionsContainer.querySelectorAll('.smart-suggestion-item').forEach(item => {
+
+        suggestionsContainer.querySelectorAll('.pss-item').forEach(item => {
             item.addEventListener('click', () => {
-                const text = item.dataset.text;
-                const category = item.dataset.category;
-                const lat = parseFloat(item.dataset.lat);
-                const lng = parseFloat(item.dataset.lng);
-                selectSmartSearchSuggestionWithCentering(text, category, lat, lng);
+                selectSmartSearchSuggestionWithCentering(
+                    item.dataset.text,
+                    item.dataset.category,
+                    parseFloat(item.dataset.lat),
+                    parseFloat(item.dataset.lng)
+                );
             });
         });
-        
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
     } else {
         suggestionsContainer.classList.add('hidden');
     }
@@ -493,30 +547,47 @@ function displaySmartSearchResults(suggestions, quickResults, filteredDataCount)
  * Selezione con centering automatico della mappa
  */
 function selectSmartSearchSuggestionWithCentering(text, category, lat, lng) {
+    const filterId = FILTER_CATEGORY_MAP[category];
+
+    if (filterId) {
+        // Azzera smart search PRIMA che pattiSetFilter scatti applyFiltersUnified
+        currentSmartSearchQuery = '';
+        const inputEl = document.getElementById('smartSearchInput');
+        if (inputEl) inputEl.value = '';
+        const clearBtn = document.getElementById('clearSmartSearch');
+        if (clearBtn) clearBtn.style.display = 'none';
+
+        if (typeof pattiSetFilter === 'function') {
+            pattiSetFilter(filterId, text);
+        } else {
+            const sel = document.getElementById(filterId);
+            if (sel) {
+                sel.value = text;
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        hideSuggestions();
+        smartSearchCache.clear();
+        if (typeof syncTopbarFromSelects === 'function') syncTopbarFromSelects();
+        return;
+    }
+
+    // Categoria testo → comportamento originale
     const input = document.getElementById('smartSearchInput');
     input.value = text;
     currentSmartSearchQuery = text;
-    
+
     hideSuggestions();
     applyFiltersUnified();
-    
+
     if (window.map && !isNaN(lat) && !isNaN(lng)) {
-        console.log(`Centrando mappa su: ${lat}, ${lng} per "${text}"`);
-        
-        map.setView([lat, lng], 17, { 
-            animate: true,
-            duration: 1
-        });
-        
-        setTimeout(() => {
-            highlightMarkerOnMap(lat, lng);
-        }, 500);
-        
+        map.setView([lat, lng], 17, { animate: true, duration: 1 });
+        setTimeout(() => { highlightMarkerOnMap(lat, lng); }, 500);
         if (typeof showNotification === 'function') {
             showNotification(`Mappa centrata su: ${text}`, 'info');
         }
     }
-    
+
     input.focus();
 }
 
@@ -603,7 +674,7 @@ function applyFiltersUnified() {
         }
         
         let smartSearchMatch = true;
-        if (filters.smartSearch && filters.smartSearch.length >= 2) {
+        if (filters.smartSearch && filters.smartSearch.length >= 1) {
             const exactMatch = document.getElementById('exactMatchOption')?.checked || false;
             const caseSensitive = document.getElementById('caseSensitiveOption')?.checked || false;
             
@@ -763,7 +834,7 @@ function clearSmartSearchCompletely() {
  */
 function handleSmartSearchKeydown(e) {
     const suggestions = document.getElementById('smartSearchSuggestions');
-    const suggestionItems = suggestions.querySelectorAll('.smart-suggestion-item');
+    const suggestionItems = suggestions.querySelectorAll('.pss-item');
     
     switch(e.key) {
         case 'ArrowDown':
@@ -799,11 +870,7 @@ function handleSmartSearchKeydown(e) {
  */
 function updateSmartSuggestionHighlight(suggestionItems) {
     suggestionItems.forEach((item, index) => {
-        if (index === currentSmartSuggestionIndex) {
-            item.classList.add('highlighted');
-        } else {
-            item.classList.remove('highlighted');
-        }
+        item.classList.toggle('highlighted', index === currentSmartSuggestionIndex);
     });
 }
 
@@ -815,7 +882,7 @@ function hideSuggestions() {
 function updateSmartSearchBadge(query) {
     const badge = document.getElementById('smart-search-badge');
     if (badge) {
-        if (query && query.trim().length >= 2) {
+        if (query && query.trim().length >= 1) {
             badge.textContent = '1';
             badge.style.display = 'block';
         } else {

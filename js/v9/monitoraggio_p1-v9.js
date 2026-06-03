@@ -44,6 +44,7 @@ console.log('✅ chartFilterState inizializzato');
 
 // Coordinate precise di Palermo 38.11703022953232, 13.373426145815962
 const PALERMO_CENTER = [38.1516, 13.3617]; // allineato al pulsante Home
+const UFFICIO_COORDS = [38.116946349854494, 13.37317517969414];
 const PALERMO_BOUNDS = [
     [37.96, 13.20], // Sud-Ovest — confine Comune di Palermo
     [38.26, 13.50]  // Nord-Est  — confine Comune di Palermo
@@ -627,7 +628,7 @@ map = L.map('map', {
         markersLayer = L.layerGroup().addTo(map);
         map.setMaxBounds(PALERMO_BOUNDS);
         
-        const centerMarker = L.marker(PALERMO_CENTER, {
+        const centerMarker = L.marker(UFFICIO_COORDS, {
             icon: L.divIcon({
                 className: 'center-palermo-marker',
                 html: '<div class="center-marker-icon">🏛️</div>',
@@ -638,11 +639,11 @@ map = L.map('map', {
         }).addTo(map);
         
         centerMarker
-            .bindPopup('<b>Ufficio Rigenerazione Urbana</b><br>Ex Noviziato dei Crociferi<br><small>Click per centrare qui</small>')
+            .bindPopup('<b>Ufficio Rigenerazione Urbana</b><br>Ex Noviziato dei Crociferi<br><small><a href="https://maps.app.goo.gl/LrNfzsmP9t1RhMzs5" target="_blank" rel="noopener noreferrer" style="color:#3b82f6;">📍 Click per ottenere il percorso</a></small>')
             .bindTooltip('Ufficio Rigenerazione Urbana', {permanent: false, direction: 'top'});
-        
+
         centerMarker.on('click', function() {
-            centerMapOnPalermo();
+            window.open('https://maps.app.goo.gl/LrNfzsmP9t1RhMzs5', '_blank', 'noopener,noreferrer');
         });
         
         currentMapLayer = 'standard';
@@ -977,7 +978,11 @@ function applyFilters() {
         const proponenteKey = Object.keys(item).find(k => k.toLowerCase().includes('proponente'));
         
         // ✅ TUTTI i filtri devono matchare (logica AND)
-        const statoMatch = !filters.stato || (item[statoKey] && item[statoKey].trim() === filters.stato);
+        const statoMatch = !filters.stato || (item[statoKey] && (
+            filters.stato.startsWith('Proroga')
+                ? item[statoKey].trim().startsWith('Proroga')
+                : item[statoKey].trim() === filters.stato
+        ));
         const uplMatch = !filters.upl || (item[uplKey] && item[uplKey].trim() === filters.upl);
         const quartiereMatch = !filters.quartiere || (item[quartiereKey] && item[quartiereKey].trim() === filters.quartiere);
         const circoscrizioneMatch = !filters.circoscrizione || (item[circoscrizioneKey] && item[circoscrizioneKey].trim() === filters.circoscrizione);
@@ -1537,6 +1542,32 @@ window.handleRankClick = function(el) {
     applyChartFilter(type, value);
 };
 
+window.handleKpiCardClick = function(el) {
+    const type = el.dataset.type;
+    const value = el.dataset.value;
+    if (window.chartFilterState.activeChartType === type &&
+        window.chartFilterState.activeChartValue === value) {
+        resetAllFiltersAndCharts();
+        return;
+    }
+    window.chartFilterState.activeChartType = type;
+    window.chartFilterState.activeChartValue = value;
+    syncKpiCardState(value);
+    applyChartFilter(type, value);
+};
+
+function syncKpiCardState(activeValue) {
+    document.querySelectorAll('.ts-kpi-card[data-type="stato"]').forEach(card => {
+        const matches = activeValue
+            ? (activeValue.startsWith('Proroga')
+                ? card.dataset.value.startsWith('Proroga')
+                : card.dataset.value === activeValue)
+            : false;
+        card.classList.toggle('active', matches);
+        card.classList.toggle('dimmed', activeValue ? !matches : false);
+    });
+}
+
 function resetAllFiltersAndCharts() {
     console.log('🔄 RESET TOTALE - Filtri + Grafici + Stato (IMPROVED)');
     
@@ -1546,7 +1577,12 @@ function resetAllFiltersAndCharts() {
     window.chartFilterState.isUpdating = false;
     window.chartFilterState.lastUpdateTime = 0;
     console.log('✅ Stato grafici resettato');
-    
+
+    // Reset KPI card visual state
+    document.querySelectorAll('.ts-kpi-card[data-type="stato"]').forEach(c => {
+        c.classList.remove('active', 'dimmed');
+    });
+
     // 2️⃣ Reset input filtri - TUTTI gli ID
     const filterIds = [
         'filterStato', 
@@ -1628,10 +1664,14 @@ function updateAllChartsSynchronized() {
 // ✅ NUOVO: Applica filtro dal grafico + aggiorna altri grafici
 function applyChartFilter(chartType, value) {
     console.log(`🔧 FILTER APPLICATION [${chartType}]: "${value}"`);
-    
+
     if (!value || value.trim() === '') {
         console.warn('⚠️ Valore filtro vuoto, skip');
         return;
+    }
+
+    if (chartType === 'stato') {
+        syncKpiCardState(value);
     }
     
     // Mappa tipo grafico → ID filtro
@@ -1743,7 +1783,7 @@ function updateProponenteChart(canvasId = 'rankList2') {
     const data = sortedProponenti.map(([,count]) => count);
     const fullLabels = sortedProponenti.map(([fullLabel]) => fullLabel);
     
-    const colors = generateIntelligentColors(data.length, 220);
+    const colors = Array(data.length).fill('#3B82F6');
     createRankingList(canvasId, labels, data, colors, 'proponente', fullLabels);
 }
 
@@ -1762,7 +1802,7 @@ function updateCircoscrizioneChart(canvasId = 'rankList4') {
     const labels = sorted.map(([l]) => l.length > 25 ? l.substring(0, 22) + '...' : l);
     const data = sorted.map(([,c]) => c);
     const fullLabels = sorted.map(([l]) => l);
-    const colors = generateIntelligentColors(data.length, 190);
+    const colors = Array(data.length).fill('#10B981');
     createRankingList(canvasId, labels, data, colors, 'circoscrizione', fullLabels);
 }
 
@@ -1780,7 +1820,7 @@ function updateQuartiereChart(canvasId = 'rankList5') {
     const labels = sorted.map(([l]) => l.length > 25 ? l.substring(0, 22) + '...' : l);
     const data = sorted.map(([,c]) => c);
     const fullLabels = sorted.map(([l]) => l);
-    const colors = generateIntelligentColors(data.length, 140);
+    const colors = Array(data.length).fill('#8B5CF6');
     createRankingList(canvasId, labels, data, colors, 'quartiere', fullLabels);
 }
 
@@ -1818,7 +1858,7 @@ function updateAmbitiChart(canvasId = 'rankList3') {
     const data = sortedAmbiti.map(([,count]) => count);
     const fullLabels = sortedAmbiti.map(([fullLabel]) => fullLabel);
     
-    const colors = generateIntelligentColors(data.length, 160);
+    const colors = Array(data.length).fill('#F97316');
     createRankingList(canvasId, labels, data, colors, 'ambiti', fullLabels);
 }
 

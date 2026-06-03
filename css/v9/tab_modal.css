@@ -561,6 +561,18 @@
     transform: translateY(-1px);
 }
 
+.ts-kpi-card.active {
+    border-bottom-width: 4px;
+    background: color-mix(in srgb, var(--c, var(--color-accent)) 12%, var(--color-white));
+    box-shadow: 0 0 0 2px var(--c, var(--color-accent)), var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.ts-kpi-card.dimmed {
+    opacity: 0.4;
+    filter: grayscale(0.4);
+}
+
 .ts-kpi-icon {
     font-size: 14px;
     color: var(--c, var(--color-accent));

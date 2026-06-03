@@ -28,15 +28,40 @@
 <body class="dashboard-layout mkdocs-page">
 
 <header class="dashboard-header" role="banner">
-    <div class="header-top">
-        <div class="header-brand">
-            <img src="img/logo_test.png" class="logo_test" title="Comune di Palermo - Area Urbanistica e della Rigenerazione Urbana, della mobilità e del centro storico" alt="Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare">
-            <div>
-                <p class="tt">Report interattivo di monitoraggio<br> Patti di Collaborazione</p>
+
+    <!-- L1: SLIM BAR -->
+    <div class="nh-slim" id="nhSlim">
+        <div class="nh-slim-inner">
+            <a href="https://www.comune.palermo.it/" target="_blank" rel="noopener"
+               title="Sito Istituzionale Città di Palermo">
+                <img src="img/logo_pa.png" class="nh-slim-logo" alt="Comune di Palermo">
+            </a>
+        </div>
+    </div>
+
+    <!-- L2: MAIN BAND -->
+    <div class="nh-main">
+        <div class="nh-main-inner">
+            <div class="nh-org">
+                <h1 class="nh-org-title">Area Urbanistica della Rigenerazione Urbana</h1>
+                <p class="nh-org-sub">Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</p>
             </div>
         </div>
-        <div class="header-actions"></div>
     </div>
+
+    <!-- L3: PROJECT BAND -->
+    <div class="nh-project">
+        <div class="nh-project-inner">
+            <h2 class="nh-project-title">
+                <img src="img/patti.png" alt="" class="nh-project-icon">
+                <span>Report di monitoraggio</span>
+                <span class="nh-title-sep">·</span>
+                <span class="nh-title-full">Patti di Collaborazione</span>
+            </h2>
+        </div>
+    </div>
+
+    <!-- L4: NAV TABS -->
     <nav class="header-patto-nav" aria-label="Sezioni Patto di Collaborazione">
         <a href="index.html" class="header-patto-tab">
             <i data-lucide="layout-dashboard" class="h-4 w-4" aria-hidden="true"></i>
@@ -677,5 +702,5 @@
 
 <script src="js/v9/regolamento.js"></script>
 <script src="js/v9/back_to_top.js"></script>
-</body>
+<script src="js/v9/slim-header.js"></script></body>
 </html>
