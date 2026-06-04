@@ -503,7 +503,7 @@ code {
         <span class="issue-tag badge-red">critico</span>
       </div>
       <div class="issue-body">
-        <div class="issue-desc">Se cambia un recapito telefonico, il nome di un funzionario o un link social, va editato a mano in tutti e 8 i file. Già oggi il footer contiene un typo (<em>"Rigenerazione Ubana"</em>) che compare su tutte le pagine perché copiato identico.</div>
+        <div class="issue-desc">Se cambia un recapito telefonico, il nome di un funzionario o un link social, va editato a mano in tutti e 8 i file. Già oggi il footer contiene un typo (<em>"Rigenerazione Urbana"</em>) che compare su tutte le pagine perché copiato identico.</div>
         <div class="issue-cols">
           <div class="issue-box box-problem"><strong>Problema</strong>~230 righe HTML replicate × 8 file = 1 840 righe di codice ridondante. Ogni modifica richiede 8 edit sincronizzati.</div>
           <div class="issue-box box-fix"><strong>Soluzione</strong>Creare <code>components.js</code> con funzioni <code>renderHeader()</code> e <code>renderFooter()</code>. Ogni pagina include lo script e chiama le funzioni in 2 righe.</div>
@@ -1044,14 +1044,14 @@ code {
       <div class="issue-header">
         <div class="issue-severity sev-medium"></div>
         <div>
-          <div class="issue-title">C2 — Typo "Rigenerazione Ubana" ripetuto su tutte le pagine</div>
+          <div class="issue-title">C2 — Typo "Rigenerazione Urbana" ripetuto su tutte le pagine</div>
           <div class="issue-subtitle">Manca la 'r' — compare nel footer di ogni pagina e nell'intestazione dell'ufficio</div>
         </div>
         <span class="issue-tag badge-amber">medio</span>
       </div>
       <div class="issue-body">
-        <div class="issue-desc">Il testo "Area Urbanistica della Rigenerazione <strong>Ubana</strong>" (invece di "Urbana") appare nel footer di tutte e 8 le pagine, due volte per footer (nella descrizione dell'ufficio e in quella dell'area). Essendo duplicato in ogni file, si è propagato ovunque. Questo è esattamente il tipo di errore che si eliminerebbe con un componente footer centralizzato (cfr. A1).</div>
-        <div class="issue-box box-fix" style="margin-top:0"><strong>Fix immediato</strong>Cerca-e-sostituisci "Rigenerazione Ubana" → "Rigenerazione Urbana" in tutti i file HTML. Fix definitivo: centralizzare il footer (A1) così non si ripete.</div>
+        <div class="issue-desc">Il testo "Area Urbanistica della Rigenerazione <strong>Urbana</strong>" (invece di "Urbana") appare nel footer di tutte e 8 le pagine, due volte per footer (nella descrizione dell'ufficio e in quella dell'area). Essendo duplicato in ogni file, si è propagato ovunque. Questo è esattamente il tipo di errore che si eliminerebbe con un componente footer centralizzato (cfr. A1).</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Fix immediato</strong>Cerca-e-sostituisci "Rigenerazione Urbana" → "Rigenerazione Urbana" in tutti i file HTML. Fix definitivo: centralizzare il footer (A1) così non si ripete.</div>
       </div>
     </div>
 
@@ -1104,7 +1104,7 @@ code {
           <div class="matrix-label" style="color:var(--c-red)">🔴 Sprint 1 — Quick wins (1–2 giorni)</div>
           <div class="matrix-items">
             <div class="matrix-item">Rimuovere Tailwind CSS dal <code>&lt;link&gt;</code> (A3, P1) — 15 min</div>
-            <div class="matrix-item">Fix typo "Rigenerazione Ubana" in tutti i file (C2) — 10 min</div>
+            <div class="matrix-item">Fix typo "Rigenerazione Urbana" in tutti i file (C2) — 10 min</div>
             <div class="matrix-item">Aggiungere <code>loading="lazy"</code> alle immagini footer (P4) — 10 min</div>
             <div class="matrix-item">Copyright anno dinamico (C3) — 20 min</div>
             <div class="matrix-item">Aggiungere <code>defer</code> agli script non critici (P3) — 30 min</div>
