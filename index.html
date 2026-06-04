@@ -10,9 +10,9 @@
     <title>Ufficio Rigenerazione Urbana | Patti di Collaborazione | Dashboard di monitoraggio</title>
     
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
- <script src="js/components.js"></script>
+ <script defer src="js/components.js"></script>
+ <script src="js/logger.js"></script>
 	
-    <!-- CSS --> <!-- -->
 	<link rel="stylesheet" href="css/patti_pa_general.css"> 
 	<link rel="stylesheet" href="css/tab_modal.css"> 
 	<link rel="stylesheet" href="css/patti_pa_media.css"> 
@@ -57,6 +57,70 @@
   gtag('config', 'G-KHR1GHDRQS');
 </script>	
 	
+<style>
+/* ── U6: Map loading / error overlays ──────────────────────── */
+.map-loading-overlay,
+.map-error-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.map-loading-overlay { background: rgba(245,247,252,.85); }
+.map-error-overlay   { background: rgba(245,247,252,.92); display: none; }
+.map-error-overlay.visible { display: flex; }
+.map-loading-inner,
+.map-error-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 28px 32px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.10);
+}
+.map-loading-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid #e4e8f0;
+    border-top-color: #00264b;
+    border-radius: 50%;
+    animation: map-spin .75s linear infinite;
+}
+@keyframes map-spin { to { transform: rotate(360deg); } }
+.map-loading-text,
+.map-error-text {
+    font-size: .84rem;
+    color: #4a5568;
+    font-family: 'Titillium Web', sans-serif;
+    line-height: 1.5;
+}
+.map-error-icon {
+    font-size: 1.8rem;
+    color: #ef4444;
+}
+.map-error-retry {
+    background: #00264b;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 22px;
+    font-size: .84rem;
+    font-family: 'Titillium Web', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background .15s;
+}
+.map-error-retry:hover { background: #00396e; }
+</style>
 </head>
 
 <body class="dashboard-layout dashboard-app">
@@ -81,83 +145,7 @@
     </button>
 </div>
 <!-- HEADER -->
-<div id="app-header">
-<header class="dashboard-header" role="banner">
-
-    <!-- L1: SLIM BAR — logo comune, sparisce allo scroll, riappare in cima -->
-    <div class="nh-slim" id="nhSlim">
-        <div class="nh-slim-inner">
-            <a href="https://www.comune.palermo.it/" target="_blank" rel="noopener"
-               title="Sito Istituzionale Città di Palermo">
-                <img src="img/logo_pa_gb.svg" class="nh-slim-logo"
-                     alt="Comune di Palermo">
-            </a>
-        </div>
-    </div>
-
-    <!-- L2: MAIN BAND — nome ufficio -->
-    <div class="nh-main">
-        <div class="nh-main-inner">
-            <div class="nh-org">
-                <h1 class="nh-org-title">Area Urbanistica della Rigenerazione Urbana</h1>
-                <p class="nh-org-sub">Ufficio per la Rigenerazione Urbana<span class="nh-org-sub-detail"> e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</span></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- L3: PROJECT BAND — titolo webapp + aggiornamento -->
-    <div class="nh-project">
-        <div class="nh-project-inner">
-            <h2 class="nh-project-title">
-                <img src="img/patti.png" alt="" class="nh-project-icon">
-                <span>Patti di Collaborazione</span>
-                <span class="nh-title-sep">·</span>
-                <span class="nh-title-full">Report di monitoraggio</span>
-            </h2>
-            <div class="nh-update" role="status" aria-live="polite">
-                <i class="fas fa-rotate" aria-hidden="true"></i>
-                <span>Aggiornamento: <time id="lastUpdate">Caricamento...</time></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- L4: NAV TABS -->
-    <nav class="header-patto-nav" aria-label="Sezioni Patto di Collaborazione">
-	        <a href="index.html" class="header-patto-tab active" aria-current="page">
-             <i class="fas fa-map-marked-alt"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="normativi.html" class="header-patto-tab">
-            <i class="fas fa-book-open" aria-hidden="true"></i>
-            <span>Riferimenti Normativi</span>
-        </a>
-        <a href="faq.html" class="header-patto-tab">
-            <i class="fas fa-handshake" aria-hidden="true"></i>
-            <span>FAQ</span>
-        </a>
-        <a href="attiva.html" class="header-patto-tab">
-            <i class="fas fa-rocket" aria-hidden="true"></i>
-            <span>Attiva un Patto!</span>
-        </a>
-        <a href="modulistica.html" class="header-patto-tab">
-            <i class="fas fa-file-lines" aria-hidden="true"></i>
-            <span>Modulistica</span>
-        </a>
-        <a href="laboratori.html" class="header-patto-tab">
-            <i class="fas fa-users" aria-hidden="true"></i>
-            <span>Laboratori di Quartiere</span>
-        </a>
-        <a href="about.html" class="header-patto-tab">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-            <span>About</span>
-        </a>
-        <a href="info.html" class="header-patto-tab">
-            <i class="fas fa-circle-question" aria-hidden="true"></i>
-            <span>Info App</span>
-        </a>
-    </nav>
-</header>
-</div>
+<div id="app-header"></div>
 
     <!-- MAIN CONTENT -->
     <main class="dashboard-main" role="main">
@@ -489,6 +477,26 @@
 </div>
 
 <div id="map" class="map-area">
+
+    <!-- U6: LOADING OVERLAY -->
+    <div id="mapLoadingOverlay" class="map-loading-overlay" role="status" aria-live="polite">
+        <div class="map-loading-inner">
+            <div class="map-loading-spinner" aria-hidden="true"></div>
+            <p class="map-loading-text">Caricamento dati in corso&hellip;</p>
+        </div>
+    </div>
+
+    <!-- U6: ERROR OVERLAY -->
+    <div id="mapErrorOverlay" class="map-error-overlay" role="alert" aria-live="assertive">
+        <div class="map-error-inner">
+            <i class="fas fa-exclamation-triangle map-error-icon" aria-hidden="true"></i>
+            <p class="map-error-text">Impossibile caricare i dati.<br>Controlla la connessione e riprova.</p>
+            <button class="map-error-retry" onclick="window.retryLoadData && window.retryLoadData()">
+                <i class="fas fa-redo"></i> Riprova
+            </button>
+        </div>
+    </div>
+
     <!-- MAP TOOLBAR -->
     <div class="map-toolbar" id="mapToolbar">
         <button class="toolbar-btn" id="toolbarHome" title="Centra su Palermo" aria-label="Centra la mappa su Palermo">
@@ -520,177 +528,7 @@
 	  </div>
 
 <!-- NUOVO FOOTER AGID-COMPLIANT - LAYOUT A 5 COLONNE -->
-<div id="app-footer">
-<footer class="dashboard-footer" role="contentinfo">
-    
-    <!-- SEZIONE SUPERIORE: Organizzazione e Loghi -->
-    <div class="footer-top-section">
-        <div class="footer-org-box"> 
-            <div class="footer-org-icon">
-                <img src="img/logo_pa_01.png" alt="Logo Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali" class="footer-logo">
-            </div>
-            <div class="footer-org-text">
-                <div class="footer-org-title">Città di Palermo</div>
-                <div class="footer-org-description">
-                    <span>Area Urbanistica della Rigenerazione Urbana, della mobilità e del centro storico</span>
-                    <span>Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</span>
-                </div>
-            </div>
-        </div>
-        <div class="footer-loghi-placeholder">
-            <!-- Inserisci qui i tuoi loghi/marchi -->
-        </div>
-    </div>
-
-    <!-- SEZIONE CONTATTI: 5 Colonne -->
-    <div class="footer-contacts-section">
-        
-        <!-- Colonna 1: Ufficio Rigenerazione Urbana -->
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Ufficio Rigenerazione Urbana</h4>
-            <div class="footer-column-content">
-                <div class="footer-address">
-                    <strong>Ex Noviziato dei Crociferi - II° piano</strong><br>
-                    <a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" title="Il nostro indirizzo" target="_blank">Foro Umberto I, 14</a><br>
-                    90133 Palermo PA - Italia
-                </div>
-                <div class="footer-hours-label">Orari ricevimento:</div>
-                <div class="footer-hours-box">
-                    <span>Lunedì 10-13</span>
-                    <span>Mercoledì 16-17:30</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Colonna 2: Corrispondenza -->
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Corrispondenza</h4>
-            <div class="footer-column-content">
-                <div class="footer-address">
-                    <strong><a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" title="Il nostro indirizzo" target="_blank">Foro Umberto I, 14</a></strong><br>
-                    90133 Palermo PA - Italia
-                </div>
-            </div>
-        </div>
-
-        <!-- Colonna 3: Indirizzi di Posta Elettronica -->
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Indirizzi di posta elettronica</h4>
-            <div class="footer-column-content">
-                <div class="footer-contact-row">
-                    <span class="footer-label">Assessore al ramo:</span>
-                    <a href="mailto:m.carta@comune.palermo.it" class="footer-link">Maurizio Carta</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Capo Area:</span>
-                    <a href="mailto:m.ciralli@comune.palermo.it" class="footer-link">Marco Ciralli</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Dirigente:</span>
-                    <a href="mailto:a.s.difrancisca@comune.palermo.it" class="footer-link">Adriano Salvatore Di Francisca</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Funzionario:</span>
-                    <a href="mailto:paolo.porretto@comune.palermo.it" class="footer-link">Paolo Porretto</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Funzionario:</span>
-                    <a href="mailto:p.caselli@comune.palermo.it" class="footer-link">Paola Caselli</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">PEC:</span>
-                    <a href="mailto:cittastorica@cert.comune.palermo.it" class="footer-link">cittastorica@cert.comune.palermo.it</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Email:</span>
-                    <a href="mailto:rigenerazioneurbana@comune.palermo.it" class="footer-link">Ufficio rigenerazione urbana</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Colonna 4: Recapiti Telefonici -->
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Recapiti telefonici</h4>
-            <div class="footer-column-content">
-                <div class="footer-contact-row">
-                    <span class="footer-label">Capo Area:</span>
-                    <a href="tel:+390917406803" class="footer-link">091 7406803</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Segr. Capo Area:</span>
-                    <a href="tel:+390917406802" class="footer-link">091 7406802</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Dirigente:</span>
-                    <a href="tel:+390917406837" class="footer-link">091 7406837</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Segr. Dirigente:</span>
-                    <a href="tel:+390917406844" class="footer-link">091 7406844</a>
-                </div>
-                <div class="footer-contact-row">
-                    <span class="footer-label">Centralino:</span>
-                    <a href="tel:+390917401111" class="footer-link">091 7401111</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Colonna 5: Social e Info -->
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Seguici su</h4>
-            <div class="footer-column-content">
-                <div class="footer-social-links">
-                    <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter" aria-label="X/Twitter">
-                        <i class="fab fa-x-twitter"></i>
-                    </a>
-                    <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube" aria-label="YouTube">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                    <a href="#" class="footer-social-link" title="RSS Feed" aria-label="RSS Feed">
-                        <i class="fas fa-rss"></i>
-                    </a>
-                </div>
-                
-                <!-- Immagine centrata sotto i social -->
-                <div class="footer-logo-bottom">
-                    <img src="img/s_rosalia_white.png" 
-                         alt="Logo Santa Rosalia" 
-                         title="400+1 Festino Santa Rosalia 1624-2025">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SEZIONE BASSA: Copyright e Links -->
-    <div class="footer-bottom">
-        <div class="footer-bottom-left">
-            <div class="footer-copyright">© 2025 Comune di Palermo - Tutti i diritti riservati</div>
-            <div class="footer-credits">
-                <span>Sviluppo & Rielaborazione dataset by 
-                <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank" rel="noopener noreferrer">@gbvitrano</a></span>
-                <span>|</span>
-                <span><a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span>
-            </div>
-        </div>
-        <div class="footer-bottom-right">
-            <a href="#" title="Privacy Policy">Privacy policy</a>
-            <span class="separator">•</span>
-            <a href="#" title="Cookie Policy">Cookie</a>
-            <span class="separator">•</span>
-            <a href="#" title="Accessibilità">Accessibilità</a>
-        </div>
-    </div>
-    <button id="backToTop" class="back-to-top" title="Torna in cima" aria-label="Torna in cima">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-</footer>
-</div>
+<div id="app-footer"></div>
 
     </main>
 
@@ -715,14 +553,14 @@
                 <table class="data-table">
                     <thead>
                         <tr id="tableHeader">
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="tbl-th">
                                 Caricamento...
                             </th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td class="px-3 py-4 text-center text-gray-500">
+                            <td class="tbl-empty">
                                 Caricamento dati in corso...
                             </td>
                         </tr>
@@ -836,7 +674,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <!-- Contenuto dettagli -->
             <div id="pattoDetailsContent">
-                <p class="text-center text-gray-500">Caricamento dettagli...</p>
+                <p class="tbl-empty">Caricamento dettagli...</p>
             </div>
         </div>
     </div>
@@ -856,9 +694,71 @@ document.addEventListener('DOMContentLoaded', function() {
 	<script src="js/tab-modal.js"></script>
 	<script src="js/smart-search-v2.js"></script>
 	<script src="js/smart-topbar.js"></script>
-<script src="js/back_to_top.js"></script>
-<script src="js/mobile-nav.js"></script>
-<script src="js/slim-header.js"></script>
-<script src="js/url-routing.js"></script>
+<script defer src="js/back_to_top.js"></script>
+<script defer src="js/mobile-nav.js"></script>
+<script defer src="js/slim-header.js"></script>
+<script defer src="js/url-routing.js"></script>
+<script defer src="js/focus-trap.js"></script>
+
+<!-- ── DISCLAIMER POPUP ─────────────────────────────────────── -->
+<div id="disclaimerOverlay" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle"
+     style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,18,38,.72);backdrop-filter:blur(3px);padding:16px;">
+  <div style="background:#fff;border-radius:10px;max-width:560px;width:100%;
+              box-shadow:0 8px 40px rgba(0,0,0,.35);overflow:hidden;font-family:'Titillium Web',sans-serif;">
+    <!-- header -->
+    <div style="background:#00264b;padding:18px 24px 16px;display:flex;align-items:center;gap:12px;">
+      <i class="fas fa-shield-halved" style="color:#f59e0b;font-size:1.25rem;" aria-hidden="true"></i>
+      <h2 id="disclaimerTitle" style="color:#fff;font-size:1rem;font-weight:700;margin:0;line-height:1.3;">
+        Nota informativa — Versione dimostrativa
+      </h2>
+    </div>
+    <!-- body -->
+    <div style="padding:22px 24px;font-size:.88rem;color:#2d3748;line-height:1.7;display:flex;flex-direction:column;gap:12px;">
+      <p>I contenuti presenti in questa webapp, compresi testi ed elementi grafici, hanno carattere puramente <strong>informativo e divulgativo</strong>.</p>
+      <p>Non sono presenti dati personali o sensibili. Si precisa che questi materiali <strong>non costituiscono documenti ufficiali</strong> né hanno alcun valore legale.<br>
+      Per consultare la documentazione ufficiale e legalmente vincolante, si prega di fare riferimento agli atti definitivi allegati alle relative deliberazioni degli organi competenti.</p>
+      <p style="background:#fefce8;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:4px;margin:0;">
+        <strong>Spazio riservato al gruppo di lavoro interno.</strong><br>
+        Stiamo verificando i contenuti, testando le funzionalità e raccogliendo feedback prima del rilascio ufficiale.
+      </p>
+    </div>
+    <!-- footer -->
+    <div style="padding:14px 24px 20px;display:flex;justify-content:flex-end;">
+      <button id="disclaimerClose"
+              style="background:#00264b;color:#fff;border:none;border-radius:6px;
+                     padding:10px 28px;font-size:.88rem;font-weight:600;cursor:pointer;
+                     font-family:'Titillium Web',sans-serif;transition:background .15s;"
+              onmouseover="this.style.background='#003d75'"
+              onmouseout="this.style.background='#00264b'">
+        Ho capito
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'disclaimer_seen_v1';
+  var overlay = document.getElementById('disclaimerOverlay');
+  var closeBtn = document.getElementById('disclaimerClose');
+  // Mostra ogni sessione (sessionStorage si azzera alla chiusura del tab)
+  if (sessionStorage.getItem(KEY)) {
+    overlay.style.display = 'none';
+  } else {
+    // Sposta focus sul bottone per accessibilità
+    setTimeout(function () { if (closeBtn) closeBtn.focus(); }, 100);
+  }
+  function dismiss() {
+    sessionStorage.setItem(KEY, '1');
+    overlay.style.display = 'none';
+  }
+  if (closeBtn) closeBtn.addEventListener('click', dismiss);
+  // Chiude anche con Escape
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.style.display !== 'none') dismiss();
+  });
+}());
+</script>
 </body>
 </html>

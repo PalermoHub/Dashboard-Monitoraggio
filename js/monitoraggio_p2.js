@@ -162,11 +162,14 @@ function showPattoDetailsEnhanced(pattoId) {
         
         // Status color mapping
         const statusColors = {
-            'Istruttoria in corso': '#ffdb4d',
-            'Respinta': '#ff6b6b',
-            'Patto stipulato': '#8fd67d',
-            'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
-            'In attesa di integrazione': '#b3e6ff'
+            'Istruttoria in corso':     '#f59e0b',  // var(--status-istruttoria)
+            'Respinta':                 '#ef4444',  // var(--status-respinto)
+            'Patto stipulato':          '#10b981',  // var(--status-stipulato)
+            'Proroga e/o Monitoraggio': '#8b5cf6',  // var(--status-monitoraggio)
+            'Proroga e/o Monitoraggio e valutazione dei risultati': '#8b5cf6',
+            'In attesa di integrazione':'#f97316',  // var(--status-integrazione)
+            'Archiviata':               '#64748b',  // var(--status-archiviato)
+            'Archiviato':               '#64748b'
         };
         
         const statusColor = statusColors[statoText] || '#6b7280';
@@ -368,11 +371,14 @@ function initializeMiniMapEnhanced(patto, keys) {
         
         // Get status color
         const statusColorMap = {
-            'Istruttoria in corso': '#ffdb4d',
-            'Respinta': '#ff6b6b',
-            'Patto stipulato': '#8fd67d',
-            'Proroga e/o Monitoraggio e valutazione dei risultati': '#9b59b6',
-            'In attesa di integrazione': '#b3e6ff'
+            'Istruttoria in corso':     '#f59e0b',  // var(--status-istruttoria)
+            'Respinta':                 '#ef4444',  // var(--status-respinto)
+            'Patto stipulato':          '#10b981',  // var(--status-stipulato)
+            'Proroga e/o Monitoraggio': '#8b5cf6',  // var(--status-monitoraggio)
+            'Proroga e/o Monitoraggio e valutazione dei risultati': '#8b5cf6',
+            'In attesa di integrazione':'#f97316',  // var(--status-integrazione)
+            'Archiviata':               '#64748b',  // var(--status-archiviato)
+            'Archiviato':               '#64748b'
         };
         
         const currentStatus = patto[keys.stato] || 'Non specificato';

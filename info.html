@@ -7,7 +7,7 @@
     <link rel="shortcut icon" href="img/favicon.ico"/>
     <link rel="icon" href="img/favicon.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="js/components.js"></script>
+    <script defer src="js/components.js"></script>
     <link rel="stylesheet" href="css/patti_pa_general.css">
     <link rel="stylesheet" href="css/tab_modal.css">
     <link rel="stylesheet" href="css/patti_pa_media.css">
@@ -27,78 +27,7 @@
 </head>
 <body class="dashboard-layout">
 
-<div id="app-header">
-<header class="dashboard-header" role="banner">
-
-    <!-- L1: SLIM BAR -->
-    <div class="nh-slim" id="nhSlim">
-        <div class="nh-slim-inner">
-            <a href="https://www.comune.palermo.it/" target="_blank" rel="noopener"
-               title="Sito Istituzionale Città di Palermo">
-                <img src="img/logo_pa_gb.svg" class="nh-slim-logo" alt="Comune di Palermo">
-            </a>
-        </div>
-    </div>
-
-    <!-- L2: MAIN BAND -->
-    <div class="nh-main">
-        <div class="nh-main-inner">
-            <div class="nh-org">
-                <h1 class="nh-org-title">Area Urbanistica della Rigenerazione Urbana</h1>
-                <p class="nh-org-sub">Ufficio per la Rigenerazione Urbana<span class="nh-org-sub-detail"> e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</span></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- L3: PROJECT BAND -->
-    <div class="nh-project">
-        <div class="nh-project-inner">
-            <h2 class="nh-project-title">
-                <img src="img/patti.png" alt="" class="nh-project-icon">
-                <span>Patti di Collaborazione</span>
-                <span class="nh-title-sep">·</span>
-                <span class="nh-title-full">Report di monitoraggio</span>
-            </h2>
-        </div>
-    </div>
-
-    <!-- L4: NAV TABS -->
-    <nav class="header-patto-nav" aria-label="Sezioni Patto di Collaborazione">
-        <a href="index.html" class="header-patto-tab">
-             <i class="fas fa-map-marked-alt"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="normativi.html" class="header-patto-tab">
-            <i class="fas fa-book-open" aria-hidden="true"></i>
-            <span>Riferimenti Normativi</span>
-        </a>
-        <a href="faq.html" class="header-patto-tab">
-            <i class="fas fa-handshake" aria-hidden="true"></i>
-            <span>FAQ</span>
-        </a>
-        <a href="attiva.html" class="header-patto-tab">
-            <i class="fas fa-rocket" aria-hidden="true"></i>
-            <span>Attiva un Patto!</span>
-        </a>
-        <a href="modulistica.html" class="header-patto-tab">
-            <i class="fas fa-file-lines" aria-hidden="true"></i>
-            <span>Modulistica</span>
-        </a>
-        <a href="laboratori.html" class="header-patto-tab">
-            <i class="fas fa-users" aria-hidden="true"></i>
-            <span>Laboratori di Quartiere</span>
-        </a>
-        <a href="about.html" class="header-patto-tab">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-            <span>About</span>
-        </a>
-        <a href="info.html" class="header-patto-tab active" aria-current="page">
-            <i class="fas fa-circle-question" aria-hidden="true"></i>
-            <span>Info App</span>
-        </a>
-    </nav>
-</header>
-</div>
+<div id="app-header"></div>
 
 <main class="patto-page-main" role="main">
     <div class="tab-content-inner">
@@ -193,6 +122,31 @@
             </div>
         </section>
 
+        
+        <section class="content-section">
+            <h4 class="section-subtitle">Licenza</h4>
+            <div class="intro-text">
+                <p>
+                    I dati e i contenuti di questa dashboard sono rilasciati con licenza
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.it"
+                       target="_blank" rel="noopener noreferrer"
+                       title="Creative Commons Attribuzione 4.0 Internazionale">
+                        <strong>Creative Commons Attribution 4.0 International (CC BY 4.0)</strong></a>.
+                    È consentito condividere e adattare il materiale per qualsiasi scopo, anche commerciale,
+                    a condizione di attribuire adeguatamente la fonte.
+                </p>
+                <p style="margin-top:10px">
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.it"
+                       target="_blank" rel="noopener noreferrer"
+                       style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+                        <img src="https://licensebuttons.net/l/by/4.0/88x31.png"
+                             alt="Licenza Creative Commons CC BY 4.0"
+                             style="height:31px;border:0;"
+                             loading="lazy">
+                    </a>
+                </p>
+            </div>
+        </section>
         <div class="content-section highlight-section">
             <i class="fas fa-lightbulb"></i>
             <div>
@@ -203,102 +157,10 @@
     </div>
 </main>
 
-<div id="app-footer">
-<footer class="dashboard-footer" role="contentinfo">
-    <div class="footer-top-section">
-        <div class="footer-org-box">
-            <div class="footer-org-icon">
-                <img src="img/logo_pa_01.png" alt="Logo Ufficio per la Rigenerazione Urbana" class="footer-logo">
-            </div>
-            <div class="footer-org-text">
-                <div class="footer-org-title">Città di Palermo</div>
-                <div class="footer-org-description">
-                    <span>Area Urbanistica della Rigenerazione Urbana, della mobilità e del centro storico</span>
-                    <span>Ufficio per la Rigenerazione Urbana e la qualità dello spazio pubblico e dell'abitare - aree monumentali e pedonali</span>
-                </div>
-            </div>
-        </div>
-        <div class="footer-loghi-placeholder"></div>
-    </div>
-    <div class="footer-contacts-section">
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Ufficio Rigenerazione Urbana</h4>
-            <div class="footer-column-content">
-                <div class="footer-address"><strong>Ex Noviziato dei Crociferi - II° piano</strong><br>
-                    <a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" target="_blank">Foro Umberto I, 14</a><br>90133 Palermo PA - Italia</div>
-                <div class="footer-hours-label">Orari ricevimento:</div>
-                <div class="footer-hours-box"><span>Lunedì 10-13</span><span>Mercoledì 16-17:30</span></div>
-            </div>
-        </div>
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Corrispondenza</h4>
-            <div class="footer-column-content">
-                <div class="footer-address"><strong><a href="https://maps.app.goo.gl/Sr8z5ftNV8wWGdAT6" target="_blank">Foro Umberto I, 14</a></strong><br>90133 Palermo PA - Italia</div>
-            </div>
-        </div>
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Indirizzi di posta elettronica</h4>
-            <div class="footer-column-content">
-                <div class="footer-contact-row"><span class="footer-label">Assessore al ramo:</span><a href="mailto:m.carta@comune.palermo.it" class="footer-link">Maurizio Carta</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Capo Area:</span><a href="mailto:m.ciralli@comune.palermo.it" class="footer-link">Marco Ciralli</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Dirigente:</span><a href="mailto:a.s.difrancisca@comune.palermo.it" class="footer-link">Adriano Salvatore Di Francisca</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Funzionario:</span><a href="mailto:paolo.porretto@comune.palermo.it" class="footer-link">Paolo Porretto</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Funzionario:</span><a href="mailto:p.caselli@comune.palermo.it" class="footer-link">Paola Caselli</a></div>
-                <div class="footer-contact-row"><span class="footer-label">PEC:</span><a href="mailto:cittastorica@cert.comune.palermo.it" class="footer-link">cittastorica@cert.comune.palermo.it</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Email:</span><a href="mailto:rigenerazioneurbana@comune.palermo.it" class="footer-link">Ufficio rigenerazione urbana</a></div>
-            </div>
-        </div>
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Recapiti telefonici</h4>
-            <div class="footer-column-content">
-                <div class="footer-contact-row"><span class="footer-label">Capo Area:</span><a href="tel:+390917406803" class="footer-link">091 7406803</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Segr. Capo Area:</span><a href="tel:+390917406802" class="footer-link">091 7406802</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Dirigente:</span><a href="tel:+390917406837" class="footer-link">091 7406837</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Segr. Dirigente:</span><a href="tel:+390917406844" class="footer-link">091 7406844</a></div>
-                <div class="footer-contact-row"><span class="footer-label">Centralino:</span><a href="tel:+390917401111" class="footer-link">091 7401111</a></div>
-            </div>
-        </div>
-        <div class="footer-contact-column">
-            <h4 class="footer-column-title">Seguici su</h4>
-            <div class="footer-column-content">
-                <div class="footer-social-links">
-                    <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter"><i class="fab fa-x-twitter"></i></a>
-                    <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="footer-social-link" title="RSS Feed"><i class="fas fa-rss"></i></a>
-                </div>
-                <div class="footer-logo-bottom">
-                    <img src="img/s_rosalia_white.png" alt="Logo Santa Rosalia" title="400+1 Festino Santa Rosalia 1624-2025">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div class="footer-bottom-left">
-            <div class="footer-copyright">© 2025 Comune di Palermo - Tutti i diritti riservati</div>
-            <div class="footer-credits">
-                <span>Sviluppo & Rielaborazione dataset by <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank" rel="noopener noreferrer">@gbvitrano</a></span>
-                <span>|</span>
-                <span><a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span>
-            </div>
-        </div>
-        <div class="footer-bottom-right">
-            <a href="#" title="Privacy Policy">Privacy policy</a>
-            <span class="separator">•</span>
-            <a href="#" title="Cookie Policy">Cookie</a>
-            <span class="separator">•</span>
-            <a href="#" title="Accessibilità">Accessibilità</a>
-        </div>
-    </div>
-    <button id="backToTop" class="back-to-top" title="Torna in cima" aria-label="Torna in cima">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-</footer>
-</div>
+<div id="app-footer"></div>
 
-<script src="js/back_to_top.js"></script>
-<script src="js/mobile-nav.js"></script>
-<script src="js/slim-header.js"></script>
-</script></body>
+<script defer src="js/back_to_top.js"></script>
+<script defer src="js/mobile-nav.js"></script>
+<script defer src="js/slim-header.js"></script>
+</body>
 </html>

@@ -21,12 +21,13 @@
     };
 
     // ─── CONFIGURAZIONE NAV TABS ──────────────────────────────
+    // U7: riordinato per audience — "Attiva un Patto!" in 2ª posizione + stile CTA
     const NAV_TABS = [
         { id: 'dashboard',   href: 'index.html',       icon: 'fas fa-map-marked-alt',  label: 'Dashboard' },
-        { id: 'normativi',   href: 'normativi.html',   icon: 'fas fa-book-open',        label: 'Riferimenti Normativi' },
+        { id: 'attiva',      href: 'attiva.html',      icon: 'fas fa-rocket',           label: 'Attiva un Patto!', cta: true },
         { id: 'faq',         href: 'faq.html',         icon: 'fas fa-handshake-angle',  label: 'FAQ' },
-        { id: 'attiva',      href: 'attiva.html',      icon: 'fas fa-rocket',           label: 'Attiva un Patto!' },
         { id: 'modulistica', href: 'modulistica.html', icon: 'fas fa-file-lines',       label: 'Modulistica' },
+        { id: 'normativi',   href: 'normativi.html',   icon: 'fas fa-book-open',        label: 'Riferimenti Normativi' },
         { id: 'laboratori',  href: 'laboratori.html',  icon: 'fas fa-users',            label: 'Laboratori di Quartiere' },
         { id: 'about',       href: 'about.html',       icon: 'fas fa-heart',            label: 'About' },
         { id: 'info',        href: 'info.html',        icon: 'fas fa-circle-question',  label: 'Info App' },
@@ -46,7 +47,8 @@
             const isActive = tab.id === activePage;
             const activeAttr  = isActive ? ' active' : '';
             const currentAttr = isActive ? ' aria-current="page"' : '';
-            return `<a href="${tab.href}" class="header-patto-tab${activeAttr}"${currentAttr}>
+            const ctaAttr     = tab.cta  ? ' header-patto-tab--cta' : '';
+            return `<a href="${tab.href}" class="header-patto-tab${ctaAttr}${activeAttr}"${currentAttr}>
                 <i class="${tab.icon}" aria-hidden="true"></i>
                 <span>${tab.label}</span>
             </a>`;
@@ -68,6 +70,7 @@
                title="Sito Istituzionale Città di Palermo">
                 <img src="img/logo_pa_gb.svg" class="nh-slim-logo" alt="Comune di Palermo">
             </a>
+            <span class="nh-demo-badge" aria-label="Versione dimostrativa">DEMO</span>
         </div>
     </div>
 

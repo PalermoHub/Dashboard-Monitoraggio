@@ -421,6 +421,24 @@ a.header-patto-tab {
     opacity: 1;
 }
 
+/* U7: "Attiva un Patto!" — tab visivamente prioritario */
+.header-patto-tab--cta {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 5px;
+    margin: 5px 6px 5px 2px;
+    padding-left: 14px;
+    padding-right: 14px;
+    background: rgba(255, 255, 255, 0.08);
+}
+.header-patto-tab--cta:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.55);
+}
+.header-patto-tab--cta.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
 
 /* ==================== */
 /* PULSANTE INFO CON PULSE ANIMATION POTENZIATO */
@@ -3508,4 +3526,82 @@ a.header-patto-tab {
     border-radius: 12px;
     font-size: 0.75rem;
     margin: 2px;
+}
+
+
+/* ══ A3: classi tabella + popup — sostituiscono utility Tailwind ══ */
+.tbl-th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: .72rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+.tbl-td {
+    padding: 8px 12px;
+    font-size: .78rem;
+    color: #111827;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+.tbl-td-action {
+    padding: 8px 12px;
+    font-size: .78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+.tbl-empty {
+    padding: 16px 12px;
+    text-align: center;
+    color: #6b7280;
+    font-size: .84rem;
+}
+.map-popup-card  { padding: 8px; max-width: 280px; }
+.map-popup-title { font-weight: 600; font-size: .78rem; margin-bottom: 6px; }
+.map-popup-meta  { font-size: .78rem; display: flex; flex-direction: column; gap: 3px; }
+.map-popup-btn {
+    display: block; width: 100%; margin-top: 8px;
+    background: #2563eb; color: #fff;
+    padding: 5px 8px; border-radius: 4px; border: none;
+    font-size: .78rem; cursor: pointer;
+    transition: background .15s; text-align: center;
+    font-family: 'Titillium Web', sans-serif;
+}
+.map-popup-btn:hover { background: #1d4ed8; }
+.tbl-btn-detail {
+    color: #2563eb; background: #eff6ff;
+    padding: 4px 8px; border-radius: 4px; border: none;
+    font-size: .72rem; cursor: pointer;
+    transition: background .15s, color .15s;
+    font-family: 'Titillium Web', sans-serif;
+}
+.tbl-btn-detail:hover { background: #dbeafe; color: #1e3a8a; }
+.filter-select--active {
+    border-color: #3b82f6 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 0 0 1px #bfdbfe;
+    font-weight: 600;
+}
+
+/* ── DEMO badge (nh-slim) ────────────────────────────────── */
+.nh-demo-badge {
+    font-family: var(--font-mono, 'Courier New', monospace);
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #00264b;
+    background: #f59e0b;
+    padding: 3px 9px;
+    border-radius: 3px;
+    user-select: none;
+    flex-shrink: 0;
 }

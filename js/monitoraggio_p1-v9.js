@@ -248,11 +248,6 @@ function initializeFiltersPopup() {
     addCloseButtonToFiltersPopup();
     setupFiltersPopupEventListeners();
     
-  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-  //      setTimeout(() => {
-  //          lucide.createIcons();
-  //      }, 100);
-  //  }
     
 }
 
@@ -325,9 +320,6 @@ function highlightPalermoCenter() {
 document.addEventListener('DOMContentLoaded', async function() {
     
     
-  //  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-   //     lucide.createIcons();
-  //  }
     
     initializeMap();
     
@@ -421,13 +413,20 @@ map = L.map('map', {
 // CARICAMENTO E PARSING DATI
 // ==========================================
 async function loadData() {
+    // U6 — overlay caricamento
+    const loadingOverlay = document.getElementById('mapLoadingOverlay');
+    const errorOverlay   = document.getElementById('mapErrorOverlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (errorOverlay)   errorOverlay.classList.remove('visible');
+
     try {
         const response = await fetch('dati/monit_patti_pa.csv');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const csvText = await response.text();
         
         allData = parseCSV(csvText);
-        window.allData = allData; // ✅ AGGIUNGI QUESTA RIGA
-        window.filteredData = [...allData]; // ✅ AGGIUNGI QUESTA RIGA
+        window.allData = allData;
+        window.filteredData = [...allData];
         filteredData = [...allData];
         
         setupAutocomplete();
@@ -436,21 +435,28 @@ async function loadData() {
         // Al primo caricamento usa sempre il centro standard (uguale al pulsante Home)
         map.setView(PALERMO_CENTER, 13);
         updateStatistics();
-updateChartDual();
+        updateChartDual();
         updateLegend();
         updateLastUpdate();
         updateTable();
         
         hideFiltersPopup();
-        
-        console.log('✅ Dati caricati:', allData.length, 'patti'); // ✅ AGGIUNGI LOG
+
+        // Nasconde overlay al termine
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+
+        console.log('✅ Dati caricati:', allData.length, 'patti');
         document.dispatchEvent(new CustomEvent('patti:dataLoaded'));
 
     } catch (error) {
         console.error('Errore nel caricamento dei dati:', error);
-        showError('Errore nel caricamento dei dati. Riprova più tardi.');
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (errorOverlay)   errorOverlay.classList.add('visible');
     }
 }
+
+// Espone la funzione per il bottone "Riprova" (U6)
+window.retryLoadData = loadData;
 
 
 
@@ -646,13 +652,9 @@ function updateFilters() {
 
 function updateFilterAppearance(selectElement, value) {
     if (value && value.trim() !== '') {
-        selectElement.classList.remove('border-gray-300');
-        selectElement.classList.add('border-blue-500', 'bg-blue-50', 'ring-1', 'ring-blue-200');
-        selectElement.style.fontWeight = '600';
+        selectElement.classList.add('filter-select--active');
     } else {
-        selectElement.classList.remove('border-blue-500', 'bg-blue-50', 'ring-1', 'ring-blue-200');
-        selectElement.classList.add('border-gray-300');
-        selectElement.style.fontWeight = 'normal';
+        selectElement.classList.remove('filter-select--active');
     }
 }
 
@@ -757,9 +759,9 @@ function updateMap() {
         // CONTENUTO DEL POPUP
         // ==========================================
         const popupContent = `
-            <div class="p-2 max-w-xs">
-                <h3 class="font-semibold text-xs mb-2">${titolo}</h3>
-                <div class="text-xs space-y-1">
+            <div class="map-popup-card">
+                <h3 class="map-popup-title">${titolo}</h3>
+                <div class="map-popup-meta">
                     <p><strong>Proponente:</strong> ${patto[proponenteKey] || 'N/A'}</p>
                     <p><strong>UPL:</strong> ${patto[uplKey] || 'N/A'}</p>
                     <p><strong>Quartiere:</strong> ${patto[quartiereKey] || 'N/A'}</p>
@@ -770,7 +772,7 @@ function updateMap() {
                         </span>
                     </p>
                 </div>
-                <button onclick="closeMapPopupAndOpenPanel('${patto[idKey]}');" class="mt-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors w-full">
+                <button onclick="closeMapPopupAndOpenPanel('${patto[idKey]}');" class="map-popup-btn">
                     Vedi dettagli
                 </button>
             </div>
@@ -1537,7 +1539,7 @@ function updateTable() {
             const tableBody = document.getElementById('tableBody');
             
             if (tableCount) tableCount.textContent = '0';
-            if (tableHeader) tableHeader.innerHTML = '<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nessun dato disponibile</th>';
+            if (tableHeader) tableHeader.innerHTML = '<th class="tbl-th">Nessun dato disponibile</th>';
             if (tableBody) tableBody.innerHTML = '';
             
             return;
@@ -1607,13 +1609,13 @@ function updateTable() {
             
             orderedKeys.forEach(key => {
                 const th = document.createElement('th');
-                th.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.className = 'tbl-th';
                 th.textContent = key;
                 tableHeader.appendChild(th);
             });
 
             const actionTh = document.createElement('th');
-            actionTh.className = 'px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            actionTh.className = 'tbl-th';
             actionTh.textContent = 'Azioni';
             tableHeader.appendChild(actionTh);
             
@@ -1631,7 +1633,7 @@ function updateTable() {
 
                     orderedKeys.forEach(key => {
                         const td = document.createElement('td');
-                        td.className = 'px-3 py-2 whitespace-nowrap text-xs text-gray-900';
+                        td.className = 'tbl-td';
                         
                         let value = item[key] || 'N/A';
                         
@@ -1645,7 +1647,7 @@ function updateTable() {
                             if (value && value.trim() !== '' && value !== 'N/A') {
                                 const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
                                 const pattoId = item[idKey] || 'XX';
-                                const color = statusColors['Patto stipulato'] || '#8fd67d';
+                                const color = statusColors['Patto stipulato'] || '#10b981';
                                 
                                 td.innerHTML = `
                                     <a href="${value.trim()}" 
@@ -1688,12 +1690,12 @@ function updateTable() {
 
                     // === AZIONI ===
                     const actionTd = document.createElement('td');
-                    actionTd.className = 'px-3 py-2 whitespace-nowrap text-xs font-medium';
+                    actionTd.className = 'tbl-td-action';
                     
                     const idKey = Object.keys(item).find(k => k.toLowerCase() === 'id');
                     actionTd.innerHTML = `
                         <button onclick="showPattoDetails('${item[idKey]}')" 
-                                class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors">
+                                class="tbl-btn-detail">
                             <i data-lucide="eye" class="h-3 w-3 inline mr-1"></i>
                             Dettagli
                         </button>
@@ -2364,26 +2366,35 @@ function showNotification(message, type = 'info') {
     }
     
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-[11000] fade-in text-sm ${
-        type === 'error' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
-    }`;
+    const bg = type === 'error' ? '#ef4444' : '#f59e0b';
+    notification.style.cssText = [
+        'position:fixed','top:16px','right:16px',
+        `background:${bg}`,'color:#fff',
+        'padding:10px 18px','border-radius:8px',
+        'box-shadow:0 4px 16px rgba(0,0,0,.2)',
+        'z-index:11000','font-size:.84rem',
+        "font-family:'Titillium Web',sans-serif",
+        'max-width:320px','line-height:1.4'
+    ].join(';');
     notification.textContent = message;
     document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 function showError(message) {
     const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 fade-in text-sm';
+    toast.style.cssText = [
+        'position:fixed', 'top:16px', 'right:16px',
+        'background:#ef4444', 'color:#fff',
+        'padding:10px 18px', 'border-radius:8px',
+        'box-shadow:0 4px 16px rgba(0,0,0,.2)',
+        'z-index:9999', 'font-size:.84rem',
+        "font-family:'Titillium Web',sans-serif",
+        'max-width:320px', 'line-height:1.4'
+    ].join(';');
     toast.textContent = message;
     document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 4000);
+    setTimeout(() => toast.remove(), 4500);
 }
 
 // Funzione globale per mostrare dettagli (chiamata dai popup)
