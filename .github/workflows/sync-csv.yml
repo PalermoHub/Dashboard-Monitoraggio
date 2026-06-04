@@ -122,17 +122,25 @@ jobs:
         
         echo "✅ Modifiche salvate su main"
 
-    # ─── NUOVO STEP: copia dati/ su gh-pages ──────────────────────────────────
+    - name: No changes
+      if: steps.changes.outputs.changes == 'false'
+      run: |
+        echo "ℹ️ Nessuna modifica da salvare"
+        rm -f new_monit_patti_pa.csv
+
+    # ── Sempre eseguito: sincronizza dati/ su gh-pages ──────────────────────
     - name: Deploy dati/ to gh-pages
-      if: steps.changes.outputs.changes == 'true'
       run: |
         echo "🚀 Sincronizzazione cartella dati/ su gh-pages..."
 
-        # Salva i file aggiornati in una directory temporanea fuori dal repo
+        # Salva il contenuto aggiornato di dati/ fuori dal repo
         mkdir -p /tmp/dati_deploy
         cp -r dati/. /tmp/dati_deploy/
 
-        # Fetch e checkout del branch gh-pages
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Fetch e checkout di gh-pages
         git fetch origin gh-pages
         git checkout gh-pages
 
@@ -140,22 +148,17 @@ jobs:
         mkdir -p dati
         cp -r /tmp/dati_deploy/. dati/
 
-        # Commit e push solo se ci sono differenze
         git add dati/
-        if git diff --cached --quiet; then
-          echo "ℹ️ Nessuna differenza su gh-pages, nulla da pushare"
-        else
+
+        # Commit solo se ci sono effettive differenze (funziona anche al primo deploy)
+        if [ -n "$(git status --porcelain dati/)" ]; then
           git commit -m "🔄 Sync dati/ da main $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push origin gh-pages
           echo "✅ Cartella dati/ aggiornata su gh-pages"
+        else
+          echo "ℹ️ Nessuna differenza su gh-pages, nulla da pushare"
         fi
 
-        # Torna su main per sicurezza
+        # Torna su main
         git checkout main
-    # ──────────────────────────────────────────────────────────────────────────
-
-    - name: No changes
-      if: steps.changes.outputs.changes == 'false'
-      run: |
-        echo "ℹ️ Nessuna modifica da salvare"
-        rm -f new_monit_patti_pa.csv
+    # ────────────────────────────────────────────────────────────────────────
