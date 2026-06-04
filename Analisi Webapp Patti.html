@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisi Webapp — Patti di Collaborazione</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f7f6f3;
+  --surface:   #ffffff;
+  --border:    #e4e2dc;
+  --ink:       #1a1916;
+  --ink-2:     #5a5851;
+  --ink-3:     #9a9890;
+
+  --c-red:     oklch(52% 0.18 22);
+  --c-red-bg:  oklch(97% 0.03 22);
+  --c-amber:   oklch(62% 0.16 70);
+  --c-amber-bg:oklch(97% 0.03 70);
+  --c-blue:    oklch(52% 0.16 248);
+  --c-blue-bg: oklch(97% 0.03 248);
+  --c-green:   oklch(52% 0.14 160);
+  --c-green-bg:oklch(97% 0.03 160);
+
+  --r: 8px;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; line-height: 1.65; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  padding: 0 0 80px;
+}
+
+/* ─── COVER ─────────────────────────────────────────────── */
+.cover {
+  background: #00264b;
+  color: #fff;
+  padding: 56px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cover-eyebrow {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .55;
+  font-family: var(--mono);
+}
+.cover h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 680px;
+}
+.cover-sub {
+  font-size: 1rem;
+  opacity: .72;
+  max-width: 600px;
+  font-weight: 300;
+}
+.cover-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.cover-meta-item { font-size: .8rem; opacity: .6; font-family: var(--mono); }
+.cover-meta-item strong { color: #fff; opacity: 1; }
+
+/* ─── TOC ────────────────────────────────────────────────── */
+.toc-wrap {
+  max-width: 900px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+}
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 32px;
+}
+.toc-title {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  margin-bottom: 12px;
+  grid-column: 1 / -1;
+}
+.toc a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink-2);
+  font-size: .84rem;
+  padding: 5px 0;
+  border-bottom: 1px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.toc a:hover { color: var(--ink); border-color: var(--border); }
+.toc-num {
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--ink-3);
+  min-width: 22px;
+}
+.toc-badge {
+  margin-left: auto;
+  font-size: .62rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.badge-red   { background: var(--c-red-bg);   color: var(--c-red); }
+.badge-amber { background: var(--c-amber-bg); color: var(--c-amber); }
+.badge-blue  { background: var(--c-blue-bg);  color: var(--c-blue); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.body-wrap {
+  max-width: 900px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* ─── SECTION ────────────────────────────────────────────── */
+.section { display: flex; flex-direction: column; gap: 14px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--ink);
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: .05em;
+}
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.section-category {
+  margin-left: auto;
+  font-size: .65rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ─── ISSUE CARD ─────────────────────────────────────────── */
+.issue {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.issue-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px 14px;
+}
+.issue-severity {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+.sev-high   { background: var(--c-red); }
+.sev-medium { background: var(--c-amber); }
+.sev-low    { background: var(--c-blue); }
+
+.issue-title { font-size: .95rem; font-weight: 600; line-height: 1.4; }
+.issue-subtitle { font-size: .8rem; color: var(--ink-2); margin-top: 2px; }
+
+.issue-tag {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: .6rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .06em;
+}
+
+.issue-body {
+  padding: 0 20px 18px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.issue-desc {
+  font-size: .84rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+.issue-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.issue-box {
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: .8rem;
+  line-height: 1.55;
+}
+.issue-box strong {
+  display: block;
+  font-size: .65rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 5px;
+}
+
+.box-problem { background: var(--c-red-bg); color: #3a1a1a; }
+.box-problem strong { color: var(--c-red); }
+.box-fix     { background: var(--c-green-bg); color: #0f2a1a; }
+.box-fix strong { color: var(--c-green); }
+.box-note    { background: var(--c-blue-bg); color: #0d1f3a; }
+.box-note strong { color: var(--c-blue); }
+.box-amber   { background: var(--c-amber-bg); color: #2a1c0a; }
+.box-amber strong { color: var(--c-amber); }
+
+/* code inline */
+code {
+  font-family: var(--mono);
+  font-size: .82em;
+  background: #eeece7;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+
+/* ─── MINI TABLE ─────────────────────────────────────────── */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+  margin: 0;
+}
+.mini-table th {
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  padding: 7px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.mini-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--ink-2);
+}
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table code { font-size: .78em; }
+
+/* ─── PRIORITY MATRIX ────────────────────────────────────── */
+.matrix {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.matrix-cell {
+  padding: 20px 18px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.matrix-cell:nth-child(3n) { border-right: none; }
+.matrix-cell:nth-child(n+7) { border-bottom: none; }
+.matrix-label {
+  font-size: .62rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 10px;
+}
+.matrix-items { display: flex; flex-direction: column; gap: 6px; }
+.matrix-item {
+  font-size: .78rem;
+  color: var(--ink-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+}
+.matrix-item::before {
+  content: '→';
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+/* ─── SUMMARY BAR ────────────────────────────────────────── */
+.summary-bar {
+  background: #00264b;
+  color: #fff;
+  border-radius: var(--r);
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.summary-stat { text-align: center; }
+.summary-num {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.summary-lbl {
+  font-size: .72rem;
+  opacity: .6;
+  margin-top: 4px;
+}
+.summary-num.num-red   { color: oklch(75% 0.18 22); }
+.summary-num.num-amber { color: oklch(82% 0.16 70); }
+.summary-num.num-blue  { color: oklch(75% 0.14 248); }
+
+/* ─── DIVIDER ────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+@media (max-width: 640px) {
+  .cover { padding: 36px 20px 32px; }
+  .cover h1 { font-size: 1.5rem; }
+  .toc { grid-template-columns: 1fr; }
+  .issue-cols { grid-template-columns: 1fr; }
+  .matrix-grid { grid-template-columns: 1fr; }
+  .summary-bar { grid-template-columns: 1fr 1fr; }
+  .body-wrap { padding: 0 16px; }
+  .toc-wrap { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Report di Analisi Tecnica</div>
+  <h1>Patti di Collaborazione<br>Dashboard — Analisi approfondita</h1>
+  <p class="cover-sub">Revisione dell'architettura, UX, performance, accessibilità e manutenibilità della webapp del Comune di Palermo.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><strong>Pagine analizzate</strong><br>8 HTML (index + 7 secondarie)</div>
+    <div class="cover-meta-item"><strong>File CSS</strong><br>7 fogli di stile (≈4 500 righe)</div>
+    <div class="cover-meta-item"><strong>File JS</strong><br>14 script (≈6 000+ righe)</div>
+    <div class="cover-meta-item"><strong>Data</strong><br>Giugno 2026</div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <div class="toc">
+    <div class="toc-title">Indice</div>
+    <a href="#s1"><span class="toc-num">01</span>Riepilogo esecutivo<span class="toc-badge badge-red">critico</span></a>
+    <a href="#s2"><span class="toc-num">02</span>Architettura & codice<span class="toc-badge badge-red">8 issue</span></a>
+    <a href="#s3"><span class="toc-num">03</span>UX & interfaccia<span class="toc-badge badge-amber">7 issue</span></a>
+    <a href="#s4"><span class="toc-num">04</span>Performance<span class="toc-badge badge-amber">5 issue</span></a>
+    <a href="#s5"><span class="toc-num">05</span>Accessibilità<span class="toc-badge badge-amber">4 issue</span></a>
+    <a href="#s6"><span class="toc-num">06</span>Manutenibilità<span class="toc-badge badge-blue">4 issue</span></a>
+    <a href="#s7"><span class="toc-num">07</span>Contenuto & dati<span class="toc-badge badge-blue">4 issue</span></a>
+    <a href="#s8"><span class="toc-num">08</span>Piano d'azione prioritario</a>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <!-- SUMMARY BAR -->
+  <div class="summary-bar">
+    <div class="summary-stat">
+      <div class="summary-num num-red">9</div>
+      <div class="summary-lbl">Problemi critici</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num num-amber">14</div>
+      <div class="summary-lbl">Problemi medi</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num num-blue">9</div>
+      <div class="summary-lbl">Miglioramenti minori</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num">32</div>
+      <div class="summary-lbl">Issue totali</div>
+    </div>
+  </div>
+
+  <!-- ─── S1 RIEPILOGO ─────────────────────────────────── -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Riepilogo esecutivo</span>
+    </div>
+
+    <p style="font-size:.88rem;color:var(--ink-2);line-height:1.7;">
+      La webapp è funzionalmente solida e visivamente coerente — l'header istituzionale a 4 livelli, la smart topbar con filtri e URL routing, il pannello statistiche con donut chart e KPI card mostrano un lavoro di buona qualità. Tuttavia, anni di sviluppo incrementale hanno lasciato un debito tecnico significativo: <strong>due librerie di icone caricate insieme</strong>, <strong>Tailwind caricato per poche utility class</strong>, un <strong>file JS principale da 3 371 righe</strong>, e soprattutto <strong>header e footer duplicati su tutte le 8 pagine</strong>. I problemi più urgenti sono di performance (pagina pesante a causa di CSS inutilizzato) e manutenibilità (ogni modifica ai contatti richiede di editare 8 file separati).
+    </p>
+
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">I 3 interventi più urgenti</div>
+          <div class="issue-subtitle">Massimo impatto, minimo rischio</div>
+        </div>
+      </div>
+      <div class="issue-body">
+        <table class="mini-table">
+          <thead><tr><th>#</th><th>Intervento</th><th>Impatto</th><th>Stima</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>1</code></td>
+              <td>Rimuovere Tailwind CSS dal <code>index.html</code> e sostituire le poche utility usate con classi custom</td>
+              <td>−2,9 MB CSS, caricamento significativamente più veloce</td>
+              <td>2–3h</td>
+            </tr>
+            <tr>
+              <td><code>2</code></td>
+              <td>Unificare le icone su Font Awesome (già installato) ed eliminare Lucide + script di migrazione</td>
+              <td>−60 KB JS, eliminazione di codice fragile e console clutter</td>
+              <td>3–4h</td>
+            </tr>
+            <tr>
+              <td><code>3</code></td>
+              <td>Estrarre header e footer in un include JS (<code>components.js</code>) caricato su ogni pagina</td>
+              <td>Elimina 700+ righe di HTML duplicato, manutenzione centralizzata</td>
+              <td>4–6h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S2 ARCHITETTURA ──────────────────────────────── -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Architettura & Codice</span>
+      <span class="section-category badge-red">8 issue</span>
+    </div>
+
+    <!-- A1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">A1 — Header e footer duplicati su tutte le 8 pagine</div>
+          <div class="issue-subtitle">Ogni pagina HTML contiene l'intero blocco header (4 livelli, ~100 righe) e footer (5 colonne, ~130 righe) copiato identico</div>
+        </div>
+        <span class="issue-tag badge-red">critico</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Se cambia un recapito telefonico, il nome di un funzionario o un link social, va editato a mano in tutti e 8 i file. Già oggi il footer contiene un typo (<em>"Rigenerazione Ubana"</em>) che compare su tutte le pagine perché copiato identico.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Problema</strong>~230 righe HTML replicate × 8 file = 1 840 righe di codice ridondante. Ogni modifica richiede 8 edit sincronizzati.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Creare <code>components.js</code> con funzioni <code>renderHeader()</code> e <code>renderFooter()</code>. Ogni pagina include lo script e chiama le funzioni in 2 righe.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">A2 — Due librerie di icone caricate insieme (Font Awesome + Lucide)</div>
+          <div class="issue-subtitle"><code>lucide_to_fontawesome_migration.js</code> converte a runtime i <code>data-lucide</code> in classi FA</div>
+        </div>
+        <span class="issue-tag badge-red">critico</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">L'app carica sia Font Awesome 6.5.1 (~400 KB CSS) sia Lucide via script di migrazione. Il file <code>lucide_to_fontawesome_migration.js</code> rimappa ogni icona Lucide in un'icona FA equivalente a runtime — un bridge fragile che deve essere aggiornato ogni volta che si aggiunge una nuova icona. Nella navbar le icone Dashboard usano <code>fas fa-map-marked-alt</code> direttamente, le altre usano <code>data-lucide</code>, creando incoerenza nella sorgente.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Problema</strong>Doppio caricamento, script di migrazione da mantenere, <code>console.log</code> di debug visibili in produzione, icone che potrebbero non renderizzarsi se lo script non è ancora eseguito.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Standardizzare tutto su Font Awesome (già caricato). Sostituire ogni <code>data-lucide="x"</code> con la classe FA equivalente. Rimuovere Lucide e <code>lucide_to_fontawesome_migration.js</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">A3 — Tailwind CSS 2.2.19 caricato ma quasi inutilizzato</div>
+          <div class="issue-subtitle">3 MB di CSS per una manciata di utility class sulle celle della tabella modale</div>
+        </div>
+        <span class="issue-tag badge-red">critico</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Tailwind 2.2.19 viene caricato da CDN su <code>index.html</code>. Le uniche classi effettivamente usate sono poche utility su <code>&lt;th&gt;</code> e <code>&lt;td&gt;</code> nella tabella modale (<code>px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider</code>). L'intero sistema CSS custom usa variabili e classi proprietarie — Tailwind è un residuo di una vecchia fase di sviluppo.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Costo</strong>~2,9 MB di CSS inutilizzato scaricato ad ogni caricamento. Con connessioni lente (es. utenti da mobile) questo è il rallentamento principale della pagina.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Rimuovere il tag <code>&lt;link&gt;</code> Tailwind. Aggiungere 5 righe di CSS custom per le celle tabella. Fine.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">A4 — File JS monolitico da 3 371 righe</div>
+          <div class="issue-subtitle"><code>monitoraggio_p1-v9.js</code> gestisce mappa, dati, filtri, grafici, statistiche, popup, autocomplete e molto altro</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il file principale JS mescola inizializzazione mappa Leaflet, parsing CSV, logica filtri con cascata, rendering grafici SVG, gestione popup, sistema autocomplete, stili iniettati dinamicamente, e configurazione tooltip. Identificare e isolare un bug in questo contesto è costoso. Sono presenti anche blocchi <code>// lucide.createIcons()</code> commentati lasciati in produzione.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Problema</strong>Difficoltà nel debugging e nel testing. Blocchi di codice commentato (<code>lucide.createIcons()</code> appare 3 volte commentato). Decine di <code>console.log</code> con emoji visibili in produzione.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Separare almeno in: <code>map.js</code>, <code>data.js</code>, <code>filters.js</code>, <code>charts.js</code>. Rimuovere codice commentato e console.log in produzione.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A5 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">A5 — Variabili CSS duplicate e inconsistenti tra file</div>
+          <div class="issue-subtitle"><code>patti_pa_general.css</code> e <code>smart_topbar.css</code> definiscono variabili parallele con nomi diversi per gli stessi colori</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">
+          <code>--color-primary: #00264b</code> in <code>general.css</code> è identico a <code>--pst-blue: #00264b</code> in <code>smart_topbar.css</code>. Stesso per molti altri colori. Questo significa che se si vuole cambiare il blu istituzionale bisogna aggiornare entrambe le variabili, in due file diversi.
+          <br><br>
+          Stesso problema con i colori degli stati: nel CSS sono definiti come <code>--status-stipulato: #10b981</code>, ma nel JS i marker sulla mappa usano <code>'Patto stipulato': '#8fd67d'</code> — un verde diverso e più chiaro. La legenda mostra un colore, i pin sulla mappa ne mostrano un altro.
+        </div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Consolidare tutto in un unico <code>:root</code> in <code>general.css</code>. Referenziare le stesse variabili nel JS via <code>getComputedStyle(document.documentElement).getPropertyValue('--status-stipulato')</code>. Un solo punto di verità per i colori.</div>
+      </div>
+    </div>
+
+    <!-- A6 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">A6 — Stili iniettati dinamicamente via JavaScript</div>
+          <div class="issue-subtitle"><code>addFiltersPopupStyles()</code> crea un tag <code>&lt;style&gt;</code> nel <code>&lt;head&gt;</code> a runtime</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">La funzione <code>addFiltersPopupStyles()</code> in <code>monitoraggio_p1-v9.js</code> inietta dinamicamente le regole CSS per <code>.filters-popup-close</code> e <code>.filters-popup-reset</code>. Questo significa che questi stili non esistono nei file CSS, sono invisibili agli strumenti di sviluppo sotto "Styles", e potrebbero confliggere con overrides futuri.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Problema</strong>Stili invisibili nel sorgente CSS, difficili da trovare e sovrascrivere. Anti-pattern consolidato.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Spostare quelle 20 righe di CSS nel file <code>patti_pa_general.css</code> e rimuovere la funzione <code>addFiltersPopupStyles()</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A7 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">A7 — Elementi nascosti nel DOM come "strato di compatibilità"</div>
+          <div class="issue-subtitle">Il <code>#hidden-filter-selects</code> mantiene <code>&lt;select&gt;</code> invisibili come interfaccia di stato</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">In <code>index.html</code> c'è un intero blocco <code>&lt;div id="hidden-filter-selects" style="display:none"&gt;</code> con 5 select, 3 checkbox, 4 span e 2 input nascosti. Questi elementi fungono da "stato condiviso" tra i vari script JS — ogni modulo legge e scrive su questi select per sincronizzarsi. È un sistema fragile: basta un <code>getElementById</code> che fallisce per rompere silenziosamente la logica dei filtri.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione a lungo termine</strong>Centralizzare lo stato dei filtri in un semplice oggetto JS (<code>window.filterState = {stato:'', ambiti:'', ...}</code>) e far sì che ogni modulo legga/scriva lì direttamente, eliminando il DOM come meccanismo di IPC tra script.</div>
+      </div>
+    </div>
+
+    <!-- A8 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">A8 — Versioning per cartella (<code>/v9/</code>) anziché con git</div>
+          <div class="issue-subtitle">Tutti i CSS e JS vivono in sottocartelle <code>/css/v9/</code> e <code>/js/v9/</code></div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Implica che esistono (o sono esistite) versioni v1–v8. Questo approccio porta a accumulare cartelle obsolete nel repo, difficoltà nel capire "quale è l'ultima versione" senza guardare il codice, e impossibilità di confrontare le diff tra versioni. Git è lo strumento corretto per questo.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Rinominare i path in <code>/css/</code> e <code>/js/</code> (senza suffisso versione). Usare commit git con messaggi descrittivi e tag di release per tracciare le versioni.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S3 UX ──────────────────────────────────────────── -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">UX & Interfaccia</span>
+      <span class="section-category badge-amber">7 issue</span>
+    </div>
+
+    <!-- U1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">U1 — Header a 4 livelli: troppo spazio sottratto alla mappa</div>
+          <div class="issue-subtitle">Su un laptop da 768px di altezza, l'header occupa ~130px (17%) prima ancora che la topbar filtri conti</div>
+        </div>
+        <span class="issue-tag badge-red">critico UX</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il livello L2 ("Area Urbanistica della Rigenerazione Urbana") e il livello L3 ("Patti di Collaborazione · Report di monitoraggio") trasmettono informazioni quasi identiche e sono visibili contemporaneamente. Il livello L1 (logo Comune con slim-bar) poi sparisce allo scroll — ma solo su <code>index.html</code> che ha la mappa a schermo fisso. Il risultato è che la mappa — cuore dell'app — riceve pochissimo spazio verticale su schermi medi.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Effetto</strong>Su 1366×768 (laptop più diffuso in Italia): header ~140px + topbar ~48px + chip bar potenziale ~30px = la mappa inizia a 218px dal top. Solo il 60% dello schermo è mappa.</div>
+          <div class="issue-box box-fix"><strong>Suggerimento</strong>Fondere L2 e L3 in un unico band. Spostare il nome dell'ufficio in un tooltip o in un <code>title</code> del logo. Guadagno stimato: 35–45px di altezza mappa.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- U2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">U2 — Statistiche e KPI nascosti in un pannello accessibile solo tramite click</div>
+          <div class="issue-subtitle">Il pannello "Statistiche & Grafici" è una modale/sidebar chiusa di default — i KPI principali non sono visibili al primo colpo d'occhio</div>
+        </div>
+        <span class="issue-tag badge-red">critico UX</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Per una dashboard di monitoraggio, i numeri chiave (totale patti, quanti stipulati, quanti in istruttoria) dovrebbero essere immediatamente visibili. Il donut chart e le 6 KPI card sono magnificamente realizzati — ma sono nascosti. L'utente che apre l'app vede solo la mappa e deve scoprire da solo che esiste un pannello statistiche.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-note"><strong>Opzione A (leggera)</strong>Mostrare una barra KPI sottile (5–6 numeri in orizzontale) sopra la mappa, sempre visibile. Il pannello completo rimane accessibile per i dettagli.</div>
+          <div class="issue-box box-fix"><strong>Opzione B (consigliata)</strong>Su desktop, aprire il pannello statistiche di default come sidebar fissa a destra. La mappa occupa il 65–70% della larghezza, le stats il restante 30–35%.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- U3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">U3 — Legenda colori marker assente sulla mappa</div>
+          <div class="issue-subtitle">I pin colorati sulla mappa non hanno una legenda inline visibile</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Un utente che apre la mappa per la prima volta vede pin di 6 colori diversi (verde, giallo, arancione, viola, rosso, grigio) senza capire cosa significano. La legenda è dentro il pannello statistiche, che è chiuso. Il controllo di layering nella mappa in basso a sinistra non chiarisce i colori degli stati.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Aggiungere una piccola legenda <em>floating</em> sovrapposta alla mappa (angolo in basso a sinistra, sopra i controlli zoom), con 6 pallini colorati e le etichette degli stati. Collassabile su mobile. Massimo 120×160px.</div>
+      </div>
+    </div>
+
+    <!-- U4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">U4 — Flusso di 2 click per accedere ai dettagli di un patto dalla mappa</div>
+          <div class="issue-subtitle">Click marker → popup → click "Vedi dettagli" → side panel</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il popup del marker mostra titolo, stato e un pulsante "Dettagli" che apre il side panel. Il side panel è ricco di informazioni (mini-mappa, tutti i campi, PDF). Il passaggio in due step crea attrito, specialmente su mobile dove ogni click richiede attenzione precisa sul marker.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-note"><strong>Alternativa 1</strong>Click su marker apre direttamente il side panel (eliminare il popup intermedio). Il popup è un residuo del pattern Leaflet standard, ma il side panel è più ricco e va in quella direzione.</div>
+          <div class="issue-box box-fix"><strong>Alternativa 2</strong>Mantenere il popup ma renderlo più ricco (aggiungere i campi principali) così da ridurre la necessità di aprire il pannello dettagli per la maggior parte degli utenti.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- U5 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">U5 — Tabella dati senza ordinamento colonne né export</div>
+          <div class="issue-subtitle">La modale "Vista Tabella" mostra i dati ma non permette di ordinarli per colonna né di esportarli</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Utenti tecnici (giornalisti, ricercatori, funzionari di altre circoscrizioni) che aprono la vista tabella vogliono tipicamente ordinare per stato o per quartiere, o scaricare i dati per analisi esterne. Nessuna delle due funzionalità è presente. I dati vengono già filtrati correttamente — manca solo l'output.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Aggiungere click-to-sort sulle intestazioni (<code>&lt;th&gt;</code>) con frecce di direzione. Aggiungere un pulsante "Scarica CSV" che usa <code>Blob + URL.createObjectURL</code> per generare il file lato client dai dati già in memoria — nessuna dipendenza server.</div>
+      </div>
+    </div>
+
+    <!-- U6 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">U6 — Loading state della mappa non comunicato</div>
+          <div class="issue-subtitle">Prima che i dati CSV arrivino da GitHub, la mappa è vuota e il contatore risultati mostra "—"</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il fetch del CSV da GitHub Raw può richiedere 1–3 secondi su connessioni lente. In quel lasso di tempo la mappa è vuota di marker, i KPI mostrano tutti "0", e il contatore risultati mostra "—". Un utente inesperto potrebbe pensare che l'app sia rotta o che non ci siano dati.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Aggiungere uno stato di caricamento visibile: spinner o skeleton sui KPI card, overlay sulla mappa con messaggio "Caricamento dati in corso…", e gestione esplicita dell'errore (se il fetch fallisce, mostrare un messaggio chiaro con il tasto "Riprova").</div>
+      </div>
+    </div>
+
+    <!-- U7 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">U7 — "Attiva un Patto" è la pagina più utile per i cittadini, ma è al 4° posto nella nav</div>
+          <div class="issue-subtitle">L'ordine dei tab non rispecchia l'importanza dei contenuti per il pubblico target</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il tab "Attiva un Patto!" — che contiene le istruzioni operative, la guida passo-passo e i contatti per procedere — è il quarto link nella navigazione. Per un cittadino che non conosce il sistema, questa è la pagina più importante. Dashboard e Riferimenti Normativi sono più utili per funzionari che già conoscono il sistema.</div>
+        <div class="issue-box box-note" style="margin-top:0"><strong>Suggerimento</strong>Valutare di riordinare i tab per audience: <em>Dashboard → Attiva un Patto! → FAQ → Modulistica → Normativi → Laboratori → About → Info</em>. In alternativa, evidenziare "Attiva un Patto!" con uno stile diverso (es. pulsante accentato) per renderlo visivamente prioritario.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S4 PERFORMANCE ───────────────────────────────────── -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Performance</span>
+      <span class="section-category badge-amber">5 issue</span>
+    </div>
+
+    <!-- P1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">P1 — Peso complessivo CSS stimato: ~3,4 MB (di cui ~97% inutilizzato)</div>
+          <div class="issue-subtitle">Tailwind 2.2.19 CDN: ~2,9 MB · Font Awesome: ~400 KB · CSS custom: ~110 KB</div>
+        </div>
+        <span class="issue-tag badge-red">critico</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il CSS totale scaricato su <code>index.html</code> è dominato da Tailwind (non purgato) e Font Awesome (tutte le 2 000+ icone, mentre ne vengono usate circa 30). Su una connessione 3G tipica (1,5 Mbps), solo il CSS richiede ~18 secondi di download.</div>
+        <table class="mini-table" style="margin-top:4px">
+          <thead><tr><th>Fonte</th><th>Dimensione</th><th>Utilizzo effettivo</th><th>Azione</th></tr></thead>
+          <tbody>
+            <tr><td>Tailwind 2.2.19 CDN</td><td>~2,9 MB</td><td>&lt;1%</td><td>Rimuovere</td></tr>
+            <tr><td>Font Awesome 6.5.1</td><td>~400 KB</td><td>~1,5%</td><td>Subset o self-host</td></tr>
+            <tr><td>CSS custom (7 file)</td><td>~110 KB</td><td>~70%</td><td>Consolidare</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- P2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">P2 — Nessuna strategia di caching per i dati CSV</div>
+          <div class="issue-subtitle">I dati vengono rifetchati da GitHub Raw ad ogni caricamento pagina</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il CSV viene scaricato con un semplice <code>fetch()</code> senza header di cache. Ogni apertura della pagina recupera l'intero file. Se GitHub è temporaneamente irraggiungibile, l'app si rompe completamente — nessun fallback.</div>
+        <div class="issue-cols">
+          <div class="issue-box box-problem"><strong>Rischio</strong>Dipendenza da GitHub Raw come CDN dati. Un downtime di GitHub (raro ma possibile) rende l'app inutilizzabile.</div>
+          <div class="issue-box box-fix"><strong>Soluzione</strong>Aggiungere <code>Cache-Control</code> via Service Worker o usare <code>localStorage</code> come cache con TTL (es. 1 ora). In alternativa, ospitare il CSV sullo stesso dominio dell'app.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">P3 — 14 script JS caricati sequenzialmente in fondo al body</div>
+          <div class="issue-subtitle">Nessun attributo <code>defer</code> o <code>async</code> sugli script non critici</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Gli script sono caricati nel corretto ordine di dipendenza, ma senza ottimizzazioni di caricamento. Script come <code>back_to_top.js</code>, <code>mobile-nav.js</code>, <code>slim-header.js</code> potrebbero essere caricati con <code>defer</code> senza impatti.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione rapida</strong>Aggiungere <code>defer</code> ai 5–6 script non dipendenti dal DOM iniziale (<code>back_to_top.js</code>, <code>mobile-nav.js</code>, <code>slim-header.js</code>, <code>url-routing.js</code>). Il browser li scarica in parallelo e li esegue solo dopo il parsing HTML.</div>
+      </div>
+    </div>
+
+    <!-- P4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">P4 — Immagini del footer non ottimizzate né lazy-loaded</div>
+          <div class="issue-subtitle"><code>logo_pa_01.png</code>, <code>s_rosalia_white.png</code> e altri asset del footer si caricano subito</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il footer compare solo dopo lo scroll. Le immagini che contiene vengono però scaricate immediatamente. Su <code>index.html</code> (dove la mappa è a schermo pieno e il footer è fuori dal viewport) questo è spreco puro.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Aggiungere <code>loading="lazy"</code> alle immagini del footer. Due parole di HTML, zero impatto funzionale, caricamento differito finché l'utente non scrolla.</div>
+      </div>
+    </div>
+
+    <!-- P5 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">P5 — Decine di <code>console.log</code> con emoji in produzione</div>
+          <div class="issue-subtitle">"✅ chartFilterState inizializzato", "🔍— Ricerca intelligente unificata inizializzata…" e molti altri</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">I file JS di produzione contengono decine di <code>console.log</code>, <code>console.warn</code> e <code>console.error</code> lasciati dal debugging. Non impattano significativamente le performance, ma inquinano la console del browser (visibile a chiunque apra i DevTools), rivelano dettagli implementativi, e creano un'impressione di scarsa pulizia del codice.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Creare un wrapper <code>logger</code> che attiva i log solo se <code>location.hostname === 'localhost'</code> oppure se è impostato un flag <code>DEBUG=true</code> in localStorage. Sostituire tutti i <code>console.log</code> con <code>logger.log</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S5 ACCESSIBILITÀ ─────────────────────────────────── -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Accessibilità</span>
+      <span class="section-category badge-amber">4 issue</span>
+    </div>
+
+    <!-- AC1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-high"></div>
+        <div>
+          <div class="issue-title">AC1 — Focus trap mancante nei modali</div>
+          <div class="issue-subtitle">I 3 modali (<code>#pattoModal</code>, <code>#tableModal</code>, <code>#tabsModal</code>) hanno <code>role="dialog"</code> ma nessun trap del focus</div>
+        </div>
+        <span class="issue-tag badge-red">critico a11y</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Quando un modale è aperto, premere Tab dovrebbe mantenere il focus all'interno del modale (focus trap). Senza di questo, un utente che naviga da tastiera o con screen reader uscirà dal modale e interagirà con elementi sottostanti, che è un comportamento confusionario e contro le WCAG 2.1 AA (criterio 2.1.2).</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Implementare focus trap: all'apertura, salvare l'elemento che aveva il focus; intercettare Tab/Shift+Tab per ciclare solo tra elementi focusable dentro il modale; a chiusura, ripristinare il focus sull'elemento originale. ~30 righe di JS vanilla, riusabile per tutti i modali.</div>
+      </div>
+    </div>
+
+    <!-- AC2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">AC2 — FAQ realizzate con <code>&lt;div&gt;</code> invece di <code>&lt;details&gt;/&lt;summary&gt;</code></div>
+          <div class="issue-subtitle">I 8 item FAQ in <code>faq.html</code> usano <code>.step-item</code> statici, non espandibili e non accessibili da tastiera</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Gli item FAQ sono attualmente tutti aperti simultaneamente in una lista numerata statica. Non c'è interazione, non c'è accordion. Un utente che naviga da mobile deve scorrere 8 risposte complete. L'elemento HTML nativo <code>&lt;details&gt;/&lt;summary&gt;</code> è accessibile, espandibile, e non richiede JavaScript.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Wrappare ogni FAQ in <code>&lt;details&gt;&lt;summary&gt;Domanda&lt;/summary&gt;Risposta...&lt;/details&gt;</code>. Zero JavaScript richiesto. Accessibilità nativa. Stile personalizzabile con CSS su <code>details[open]</code>.</div>
+      </div>
+    </div>
+
+    <!-- AC3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">AC3 — Struttura heading non corretta in <code>attiva.html</code></div>
+          <div class="issue-subtitle">I capitoli dei contenuti usano <code>&lt;h1&gt;</code> annidati dentro il <code>&lt;main&gt;</code> che già ha un <code>&lt;h3&gt;</code> come titolo sezione</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">In <code>attiva.html</code>, i capitoli del regolamento usano <code>&lt;h1&gt;</code> per i titoli interni (es. "L'amministrazione condivisa dei beni comuni") mentre il titolo di pagina visibile è marcato come <code>&lt;h3&gt;</code>. Un screen reader annuncierà un <code>&lt;h1&gt;</code> dentro un <code>&lt;h3&gt;</code> come struttura incoerente, rendendo la navigazione per heading confusionaria.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Applicare una gerarchia corretta: <code>&lt;h1&gt;</code> per il titolo pagina (che esiste già nell'header istituzionale), <code>&lt;h2&gt;</code> per i capitoli, <code>&lt;h3&gt;</code> per le sezioni interne, <code>&lt;h4&gt;</code> per le sottosezioni.</div>
+      </div>
+    </div>
+
+    <!-- AC4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">AC4 — Link nel footer puntano a <code>#</code> (Privacy, Cookie, Accessibilità)</div>
+          <div class="issue-subtitle">Tre link nel footer bottom indicano pagine inesistenti o non ancora create</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">I link <em>Privacy policy</em>, <em>Cookie</em> e <em>Accessibilità</em> in ogni footer puntano a <code>href="#"</code>. Per un sito di un ente pubblico, la dichiarazione di accessibilità è obbligatoria per legge (D.Lgs. 106/2018 che recepisce la Direttiva UE 2016/2102). Anche la privacy policy è un obbligo GDPR.</div>
+        <div class="issue-box box-note" style="margin-top:0"><strong>Azione richiesta</strong>Creare le pagine <code>privacy.html</code>, <code>cookie.html</code>, <code>accessibilita.html</code> e aggiornare gli href. La dichiarazione di accessibilità può usare il template AGID disponibile su <code>form.agid.gov.it/accessibilita</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S6 MANUTENIBILITÀ ────────────────────────────────── -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Manutenibilità</span>
+      <span class="section-category badge-blue">4 issue</span>
+    </div>
+
+    <!-- M1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">M1 — CSS eccessivamente frammentato in 7 file (3 400+ righe nel principale)</div>
+          <div class="issue-subtitle"><code>patti_pa_general.css</code> è 3 404 righe; <code>patti_pa_media.css</code> è solo 50 righe</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">La frammentazione non segue una logica coerente: <code>patti_pa_media.css</code> ha 50 righe di media query che potrebbero stare alla fine di <code>general.css</code>, mentre <code>smart_topbar.css</code> è correttamente separato perché è un componente autonomo. Il file da 3 404 righe non ha un sommario/indice — trovare una regola specifica richiede Ctrl+F.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Suggerimento</strong>Consolidare <code>patti_pa_media.css</code> e <code>patti_pa_footer_media.css</code> nei rispettivi file principali (le media query stanno bene alla fine del file che descrivono). Aggiungere un indice commentato all'inizio di <code>general.css</code> con i numeri di riga delle sezioni principali.</div>
+      </div>
+    </div>
+
+    <!-- M2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">M2 — Codice commentato e commenti "TODO" abbandonati nel sorgente</div>
+          <div class="issue-subtitle">Blocchi <code>lucide.createIcons()</code> commentati 3 volte, comment block <code><!-- --></code> vuoti, vecchie versioni di funzioni</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">In <code>monitoraggio_p1-v9.js</code>: <code>// lucide.createIcons()</code> compare 3 volte come codice commentato. In <code>index.html</code>: il commento <code>&lt;!-- CSS --> &lt;!-- --&gt;</code> sulla riga 16 è un artefatto vuoto. In <code>tab-modal.js</code> e <code>side-panel.js</code> ci sono probabilmente altri residui (non letti per brevità). Il codice commentato crea rumore cognitivo e fa sorgere dubbi ("perché è commentato? va decommentato?").</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Azione</strong>Fare un passaggio di pulizia: eliminare tutto il codice commentato che non serve, rimuovere i console.log diagnostici, togliere i commenti TODO risolti. Git preserverà la storia del codice rimosso — non serve tenerlo inline.</div>
+      </div>
+    </div>
+
+    <!-- M3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">M3 — <code>window.*</code> usato come sistema di state management</div>
+          <div class="issue-subtitle"><code>window.allData</code>, <code>window.filteredData</code>, <code>window.chartFilterState</code>, <code>window.getProponenteFilter</code>…</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Lo stato dell'app è distribuito su variabili globali, hidden select nel DOM, <code>window.*</code> properties, e lo URL. Questo rende il debugging difficile ("dove è settato questo valore?") e fragile (qualsiasi script esterno potrebbe sovrascrivere <code>window.allData</code>).</div>
+        <div class="issue-box box-note" style="margin-top:0"><strong>Obiettivo a lungo termine</strong>Centralizzare tutto in un unico oggetto <code>AppState</code> con getter/setter espliciti. Non è urgente — ma ogni nuova feature dovrebbe usare questo pattern per ridurre gradualmente il debito.</div>
+      </div>
+    </div>
+
+    <!-- M4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">M4 — Nessun README tecnico per gli sviluppatori</div>
+          <div class="issue-subtitle">Il <code>README.md</code> spiega l'app agli utenti, non agli sviluppatori</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il README descrive cosa sono i patti e come usare la dashboard — ottimo per gli utenti. Ma non documenta: come aggiornare il CSV dei dati, quali campi del CSV sono attesi, come aggiungere una nuova pagina, cosa fa ciascun file JS, come testare in locale.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Suggerimento</strong>Aggiungere una sezione "Sviluppo" al README con: struttura file, come fare girare in locale (es. <code>npx serve .</code>), come aggiornare i dati, formato CSV atteso con descrizione campi.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S7 CONTENUTO & DATI ──────────────────────────────── -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Contenuto & Dati</span>
+      <span class="section-category badge-blue">4 issue</span>
+    </div>
+
+    <!-- C1 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">C1 — Colori degli stati inconsistenti tra CSS e JavaScript</div>
+          <div class="issue-subtitle">La legenda mostra <code>#10b981</code> (verde intenso) ma i marker sulla mappa usano <code>#8fd67d</code> (verde più chiaro)</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">In <code>patti_pa_general.css</code>: <code>--status-stipulato: #10b981</code>. In <code>monitoraggio_p1-v9.js</code> (oggetto <code>statusColors</code>): <code>'Patto stipulato': '#8fd67d'</code>. Sono due verdi visibilmente diversi. Un utente che guarda la legenda nel pannello statistiche vedrà un verde, ma i marker sulla mappa avranno un altro verde. Stessa incongruenza per gli altri stati.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione</strong>Come indicato in A5: usare un unico punto di verità. Nel JS, leggere i colori dalle variabili CSS: <code>getComputedStyle(document.documentElement).getPropertyValue('--status-stipulato').trim()</code>. Eliminare l'oggetto <code>statusColors</code> hardcoded.</div>
+      </div>
+    </div>
+
+    <!-- C2 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-medium"></div>
+        <div>
+          <div class="issue-title">C2 — Typo "Rigenerazione Ubana" ripetuto su tutte le pagine</div>
+          <div class="issue-subtitle">Manca la 'r' — compare nel footer di ogni pagina e nell'intestazione dell'ufficio</div>
+        </div>
+        <span class="issue-tag badge-amber">medio</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il testo "Area Urbanistica della Rigenerazione <strong>Ubana</strong>" (invece di "Urbana") appare nel footer di tutte e 8 le pagine, due volte per footer (nella descrizione dell'ufficio e in quella dell'area). Essendo duplicato in ogni file, si è propagato ovunque. Questo è esattamente il tipo di errore che si eliminerebbe con un componente footer centralizzato (cfr. A1).</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Fix immediato</strong>Cerca-e-sostituisci "Rigenerazione Ubana" → "Rigenerazione Urbana" in tutti i file HTML. Fix definitivo: centralizzare il footer (A1) così non si ripete.</div>
+      </div>
+    </div>
+
+    <!-- C3 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">C3 — Copyright "© 2025" e riferimento "1624-2025" non aggiornati</div>
+          <div class="issue-subtitle">Il footer mostra l'anno scorso; il sottotitolo del logo S. Rosalia riferisce il 2025</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">Il copyright è statico nel sorgente HTML: <code>© 2025</code>. Siamo nel 2026. Il riferimento "400+1 Festino Santa Rosalia 1624-2025" si riferisce a un evento del 2025 ormai passato — probabilmente il logo andrebbe rimosso o aggiornato.</div>
+        <div class="issue-box box-fix" style="margin-top:0"><strong>Soluzione copyright</strong>Rendere l'anno dinamico: <code>&lt;span id="footer-year"&gt;&lt;/span&gt;</code> + <code>document.getElementById('footer-year').textContent = new Date().getFullYear()</code> nel footer JS. Zero manutenzione futura.</div>
+      </div>
+    </div>
+
+    <!-- C4 -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">C4 — <code>footer-loghi-placeholder</code> vuoto su tutte le pagine</div>
+          <div class="issue-subtitle">Un <code>&lt;div class="footer-loghi-placeholder"&gt;&lt;/div&gt;</code> è presente ma privo di contenuto</div>
+        </div>
+        <span class="issue-tag badge-blue">basso</span>
+      </div>
+      <div class="issue-body">
+        <div class="issue-desc">La struttura del footer prevede una sezione per loghi/marchi partner nell'area superiore destra, ma è rimasta vuota. Se i loghi non ci sono, il <code>&lt;div&gt;</code> vuoto andrebbe rimosso per non occupare spazio inutile nel layout e nel DOM.</div>
+        <div class="issue-box box-note" style="margin-top:0"><strong>Azione</strong>Decidere: inserire i loghi previsti (OpenDataSicilia? partner istituzionali?) oppure rimuovere completamente il div placeholder e le sue regole CSS associate.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── S8 PIANO D'AZIONE ────────────────────────────────── -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">Piano d'azione prioritario</span>
+    </div>
+
+    <p style="font-size:.85rem;color:var(--ink-2);line-height:1.7;">Organizzato in 3 sprint progressivi. Ogni sprint è indipendente e produce valore anche se gli altri non vengono eseguiti.</p>
+
+    <div class="matrix">
+      <div class="matrix-grid">
+
+        <div class="matrix-cell">
+          <div class="matrix-label" style="color:var(--c-red)">🔴 Sprint 1 — Quick wins (1–2 giorni)</div>
+          <div class="matrix-items">
+            <div class="matrix-item">Rimuovere Tailwind CSS dal <code>&lt;link&gt;</code> (A3, P1) — 15 min</div>
+            <div class="matrix-item">Fix typo "Rigenerazione Ubana" in tutti i file (C2) — 10 min</div>
+            <div class="matrix-item">Aggiungere <code>loading="lazy"</code> alle immagini footer (P4) — 10 min</div>
+            <div class="matrix-item">Copyright anno dinamico (C3) — 20 min</div>
+            <div class="matrix-item">Aggiungere <code>defer</code> agli script non critici (P3) — 30 min</div>
+            <div class="matrix-item">Spostare stili inline JS in CSS (A6) — 45 min</div>
+          </div>
+        </div>
+
+        <div class="matrix-cell">
+          <div class="matrix-label" style="color:var(--c-amber)">🟡 Sprint 2 — Refactoring medio (3–5 giorni)</div>
+          <div class="matrix-items">
+            <div class="matrix-item">Unificare icone su FA, rimuovere Lucide + migration script (A2) — 4h</div>
+            <div class="matrix-item">Centralizzare header e footer in <code>components.js</code> (A1) — 6h</div>
+            <div class="matrix-item">Aggiungere focus trap ai 3 modali (AC1) — 3h</div>
+            <div class="matrix-item">Convertire FAQ in <code>&lt;details&gt;/&lt;summary&gt;</code> (AC2) — 1h</div>
+            <div class="matrix-item">Legenda colori inline sulla mappa (U3) — 2h</div>
+            <div class="matrix-item">Sort colonne + export CSV nella tabella (U5) — 3h</div>
+            <div class="matrix-item">Unificare variabili colore CSS↔JS (A5, C1) — 2h</div>
+          </div>
+        </div>
+
+        <div class="matrix-cell">
+          <div class="matrix-label" style="color:var(--c-blue)">🔵 Sprint 3 — Miglioramenti UX (1–2 settimane)</div>
+          <div class="matrix-items">
+            <div class="matrix-item">KPI bar sempre visibile sopra la mappa (U2) — 1 giorno</div>
+            <div class="matrix-item">Ridurre header a 3 livelli, guadagnare spazio verticale (U1) — 4h</div>
+            <div class="matrix-item">Cache dati CSV con localStorage + TTL (P2) — 4h</div>
+            <div class="matrix-item">Loading state e gestione errori dati (U6) — 4h</div>
+            <div class="matrix-item">Rimuovere console.log in produzione (P5) — 2h</div>
+            <div class="matrix-item">Pulire codice commentato e dead code (M2) — 2h</div>
+            <div class="matrix-item">Creare pagine Privacy / Cookie / Accessibilità (AC4) — 1 giorno</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NOTE FINALI -->
+    <div class="issue">
+      <div class="issue-header">
+        <div class="issue-severity sev-low"></div>
+        <div>
+          <div class="issue-title">Punti di forza — cosa funziona bene e va preservato</div>
+        </div>
+      </div>
+      <div class="issue-body">
+        <table class="mini-table">
+          <thead><tr><th>Componente</th><th>Nota</th></tr></thead>
+          <tbody>
+            <tr><td><strong>URL Routing</strong></td><td>Filtri riflessi nell'URL con <code>history.replaceState</code> — condivisibile e bookmarkable. Ottimo.</td></tr>
+            <tr><td><strong>Smart Search</strong></td><td>Autocomplete multi-categoria (titoli, proponenti, indirizzi, geo) con highlight e keyboard navigation. Ben progettato.</td></tr>
+            <tr><td><strong>Geo Drawer mobile</strong></td><td>Il filtro territorio come bottom sheet su mobile è una scelta UX moderna e corretta per dispositivi touch.</td></tr>
+            <tr><td><strong>Filter Chips</strong></td><td>I chip attivi con animazione <code>chipIn</code> e rimozione singola danno un feedback chiaro dei filtri applicati.</td></tr>
+            <tr><td><strong>Slim Header</strong></td><td>Il collasso del logo Comune allo scroll su <code>index.html</code> è una feature elegante che massimizza lo spazio mappa.</td></tr>
+            <tr><td><strong>Titillium Web</strong></td><td>Font istituzionale corretto per un sito della PA italiana (linee guida AGID). Buona scelta.</td></tr>
+            <tr><td><strong>Design System CSS</strong></td><td>L'uso di <code>:root</code> con variabili CSS per colori, spaziature, ombre e tipografia è solido e professionale.</td></tr>
+            <tr><td><strong>Struttura semantica HTML</strong></td><td><code>role="banner"</code>, <code>role="main"</code>, <code>role="contentinfo"</code>, <code>aria-label</code> sui nav: buona base ARIA.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+// Smooth scroll per i link TOC
+document.querySelectorAll('.toc a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

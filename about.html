@@ -7,13 +7,13 @@
     <link rel="shortcut icon" href="img/favicon.ico"/>
     <link rel="icon" href="img/favicon.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="js/v9/lucide_to_fontawesome_migration.js"></script>
-    <link rel="stylesheet" href="css/v9/patti_pa_general.css">
-    <link rel="stylesheet" href="css/v9/tab_modal.css">
-    <link rel="stylesheet" href="css/v9/patti_pa_media.css">
-    <link rel="stylesheet" href="css/v9/patti_pa_footer.css">
-    <link rel="stylesheet" href="css/v9/patti_pa_footer_media.css">
-    <link rel="stylesheet" href="css/v9/reg_att.css">
+    <script src="js/components.js"></script>
+    <link rel="stylesheet" href="css/patti_pa_general.css">
+    <link rel="stylesheet" href="css/tab_modal.css">
+    <link rel="stylesheet" href="css/patti_pa_media.css">
+    <link rel="stylesheet" href="css/patti_pa_footer.css">
+    <link rel="stylesheet" href="css/patti_pa_footer_media.css">
+    <link rel="stylesheet" href="css/reg_att.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
 </head>
 <body class="dashboard-layout">
 
+<div id="app-header">
 <header class="dashboard-header" role="banner">
 
     <!-- L1: SLIM BAR -->
@@ -68,40 +69,41 @@
             <span>Dashboard</span>
         </a>
         <a href="normativi.html" class="header-patto-tab">
-            <i data-lucide="book-open" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-book-open" aria-hidden="true"></i>
             <span>Riferimenti Normativi</span>
         </a>
         <a href="faq.html" class="header-patto-tab">
-            <i data-lucide="heart-handshake" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-handshake" aria-hidden="true"></i>
             <span>FAQ</span>
         </a>
         <a href="attiva.html" class="header-patto-tab">
-            <i data-lucide="rocket" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-rocket" aria-hidden="true"></i>
             <span>Attiva un Patto!</span>
         </a>
         <a href="modulistica.html" class="header-patto-tab">
-            <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-file-lines" aria-hidden="true"></i>
             <span>Modulistica</span>
         </a>
         <a href="laboratori.html" class="header-patto-tab">
-            <i data-lucide="users" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-users" aria-hidden="true"></i>
             <span>Laboratori di Quartiere</span>
         </a>
         <a href="about.html" class="header-patto-tab active" aria-current="page">
-            <i data-lucide="heart" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-heart" aria-hidden="true"></i>
             <span>About</span>
         </a>
         <a href="info.html" class="header-patto-tab">
-            <i data-lucide="help-circle" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-circle-question" aria-hidden="true"></i>
             <span>Info App</span>
         </a>
     </nav>
 </header>
+</div>
 
 <main class="patto-page-main" role="main">
     <div class="tab-content-inner">
         <h3 class="tab-title">
-            <i data-lucide="heart" class="h-6 w-6"></i>
+            <i class="fas fa-heart"></i>
             About - Ufficio Rigenerazione Urbana
         </h3>
 
@@ -124,7 +126,7 @@
             <h4 class="section-subtitle">About</h4>
             <div class="info-card">
                 <div class="info-card-header">
-                    <i data-lucide="landmark" class="h-5 w-5"></i>
+                    <i class="fas fa-landmark"></i>
                     <strong>Ufficio Rigenerazione Urbana</strong>
                 </div>
                 <p>Assessore al ramo: <a href="mailto:m.carta@comune.palermo.it" title="Maurizio Carta">Maurizio Carta</a><br>
@@ -137,7 +139,7 @@
 
             <div class="info-card">
                 <div class="info-card-header">
-                    <i data-lucide="book-marked" class="h-5 w-5"></i>
+                    <i class="fas fa-bookmark"></i>
                     <strong>Attività e responsabilità legate alla rigenerazione urbana e alla gestione dei beni comuni, approvate con la deliberazione di C. C. n.31/2023.</strong>
                 </div>
                 <ul>
@@ -173,7 +175,7 @@
 
             <div class="info-card">
                 <div class="info-card-header">
-                    <i data-lucide="book-user" class="h-5 w-5"></i>
+                    <i class="fas fa-book-open-reader"></i>
                     <strong>Orari di ricevimento al pubblico e Contatti</strong>
                 </div>
                 <p>Lunedì 10-13 - Mercoledì 16-17,30</p>
@@ -185,6 +187,7 @@
     </div>
 </main>
 
+<div id="app-footer">
 <footer class="dashboard-footer" role="contentinfo">
     <div class="footer-top-section">
         <div class="footer-org-box">
@@ -243,11 +246,11 @@
             <h4 class="footer-column-title">Seguici su</h4>
             <div class="footer-column-content">
                 <div class="footer-social-links">
-                    <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter"><i data-lucide="twitter" class="h-5 w-5"></i></a>
-                    <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook"><i data-lucide="facebook" class="h-5 w-5"></i></a>
-                    <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram"><i data-lucide="instagram" class="h-5 w-5"></i></a>
-                    <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube"><i data-lucide="youtube" class="h-5 w-5"></i></a>
-                    <a href="#" class="footer-social-link" title="RSS Feed"><i data-lucide="rss" class="h-5 w-5"></i></a>
+                    <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="footer-social-link" title="RSS Feed"><i class="fas fa-rss"></i></a>
                 </div>
                 <div class="footer-logo-bottom">
                     <img src="img/s_rosalia_white.png" alt="Logo Santa Rosalia" title="400+1 Festino Santa Rosalia 1624-2025">
@@ -273,12 +276,13 @@
         </div>
     </div>
     <button id="backToTop" class="back-to-top" title="Torna in cima" aria-label="Torna in cima">
-        <i data-lucide="chevron-up" class="h-5 w-5"></i>
+        <i class="fas fa-chevron-up"></i>
     </button>
 </footer>
+</div>
 
-<script src="js/v9/back_to_top.js"></script>
-<script src="js/v9/mobile-nav.js"></script>
-<script src="js/v9/slim-header.js"></script>
+<script src="js/back_to_top.js"></script>
+<script src="js/mobile-nav.js"></script>
+<script src="js/slim-header.js"></script>
 </script></body>
 </html>

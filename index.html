@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -10,16 +10,16 @@
     <title>Ufficio Rigenerazione Urbana | Patti di Collaborazione | Dashboard di monitoraggio</title>
     
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
- <script src="js/v9/lucide_to_fontawesome_migration.js"></script>
+ <script src="js/components.js"></script>
 	
     <!-- CSS --> <!-- -->
-	<link rel="stylesheet" href="css/v9/patti_pa_general.css"> 
-	<link rel="stylesheet" href="css/v9/tab_modal.css"> 
-	<link rel="stylesheet" href="css/v9/patti_pa_media.css"> 
-	<link rel="stylesheet" href="css/v9/patti_pa_footer.css">
-	<link rel="stylesheet" href="css/v9/patti_pa_footer_media.css">
-	<link rel="stylesheet" href="css/v9/reg_att.css">
-	<link rel="stylesheet" href="css/v9/smart_topbar.css">
+	<link rel="stylesheet" href="css/patti_pa_general.css"> 
+	<link rel="stylesheet" href="css/tab_modal.css"> 
+	<link rel="stylesheet" href="css/patti_pa_media.css"> 
+	<link rel="stylesheet" href="css/patti_pa_footer.css">
+	<link rel="stylesheet" href="css/patti_pa_footer_media.css">
+	<link rel="stylesheet" href="css/reg_att.css">
+	<link rel="stylesheet" href="css/smart_topbar.css">
 
 
  <!--	   -->
@@ -30,9 +30,9 @@
     <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="js/v9/leaflet-hash.js"></script>
-    <link rel="stylesheet" href="css/v9/map_control.css">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="js/leaflet-hash.js"></script>
+    <link rel="stylesheet" href="css/map_control.css">
+    <link rel="stylesheet" href="css/side_panel.css">
  
     <!-- Meta tags per social sharing -->
     <meta property="og:url" content="https://palermohub.github.io/Dashboard-Monitoraggio/">
@@ -64,7 +64,7 @@
 <!-- FILTERS POPUP -->
 <div id="filtersPopup" class="filters-popup">
     <div class="filters-popup-icon">
-        <i data-lucide="filter" class="h-4 w-4" aria-hidden="true"></i>
+        <i class="fas fa-filter" aria-hidden="true"></i>
     </div>
     <div class="filters-popup-content">
         <p class="filters-popup-title" id="filtersPopupTitle">Sono state selezionate 0 richieste</p>
@@ -76,11 +76,12 @@
             id="filtersPopupReset"
             title="Reset tutti i filtri"
             aria-label="Reset tutti i filtri">
-        <i data-lucide="refresh-cw" class="h-3 w-3" aria-hidden="true"></i>
+        <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
         Reset
     </button>
 </div>
 <!-- HEADER -->
+<div id="app-header">
 <header class="dashboard-header" role="banner">
 
     <!-- L1: SLIM BAR — logo comune, sparisce allo scroll, riappare in cima -->
@@ -127,41 +128,42 @@
             <span>Dashboard</span>
         </a>
         <a href="normativi.html" class="header-patto-tab">
-            <i data-lucide="book-open" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-book-open" aria-hidden="true"></i>
             <span>Riferimenti Normativi</span>
         </a>
         <a href="faq.html" class="header-patto-tab">
-            <i data-lucide="heart-handshake" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-handshake" aria-hidden="true"></i>
             <span>FAQ</span>
         </a>
         <a href="attiva.html" class="header-patto-tab">
-            <i data-lucide="rocket" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-rocket" aria-hidden="true"></i>
             <span>Attiva un Patto!</span>
         </a>
         <a href="modulistica.html" class="header-patto-tab">
-            <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-file-lines" aria-hidden="true"></i>
             <span>Modulistica</span>
         </a>
         <a href="laboratori.html" class="header-patto-tab">
-            <i data-lucide="users" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-users" aria-hidden="true"></i>
             <span>Laboratori di Quartiere</span>
         </a>
         <a href="about.html" class="header-patto-tab">
-            <i data-lucide="heart" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-heart" aria-hidden="true"></i>
             <span>About</span>
         </a>
         <a href="info.html" class="header-patto-tab">
-            <i data-lucide="help-circle" class="h-4 w-4" aria-hidden="true"></i>
+            <i class="fas fa-circle-question" aria-hidden="true"></i>
             <span>Info App</span>
         </a>
     </nav>
 </header>
+</div>
 
     <!-- MAIN CONTENT -->
     <main class="dashboard-main" role="main">
 
         <!-- HIDDEN FILTER SELECTS — mantenuti nel DOM per compatibilità JS -->
-        <div id="hidden-filter-selects" style="display:none" aria-hidden="true">
+        <div id="hidden-filter-selects" style="display:none" aria-hidden="true" data-note="Stato filtri condiviso — vedi window.AppState">
             <select id="filterStato"><option value="">Tutti gli stati disponibili</option></select>
             <select id="filterAmbiti"><option value="">Tutti gli ambiti</option></select>
             <select id="filterCircoscrizione"><option value="">Tutte le circoscrizioni</option></select>
@@ -169,9 +171,6 @@
             <select id="filterUpl"><option value="">Tutte le UPL</option></select>
             <!-- Badge refs usati da smart-search-v2.js -->
             <span id="smart-search-badge" style="display:none"></span>
-            <span id="status-badge" style="display:none"></span>
-            <span id="ambiti-badge" style="display:none"></span>
-            <span id="geo-badge" style="display:none"></span>
             <!-- Opzioni avanzate smart search -->
             <input type="checkbox" id="exactMatchOption">
             <input type="checkbox" id="caseSensitiveOption">
@@ -180,9 +179,6 @@
             <span id="searchResultsCount">0</span>
             <span id="searchTimeMs">0ms</span>
             <span id="searchCategoriesFound">0</span>
-            <!-- Risultati count (non referenziato da JS) -->
-            <span id="resultsCount"></span>
-            <span id="activeFiltersCount"></span>
         </div>
 
         <!-- CONTENT AREA -->
@@ -524,6 +520,7 @@
 	  </div>
 
 <!-- NUOVO FOOTER AGID-COMPLIANT - LAYOUT A 5 COLONNE -->
+<div id="app-footer">
 <footer class="dashboard-footer" role="contentinfo">
     
     <!-- SEZIONE SUPERIORE: Organizzazione e Loghi -->
@@ -644,19 +641,19 @@
             <div class="footer-column-content">
                 <div class="footer-social-links">
                     <a href="http://twitter.com/ComunePalermo/" class="footer-social-link" title="X/Twitter" aria-label="X/Twitter">
-                        <i data-lucide="twitter" class="h-5 w-5"></i>
+                        <i class="fab fa-x-twitter"></i>
                     </a>
                     <a href="http://www.facebook.com/ComunediPalermo/" class="footer-social-link" title="Facebook" aria-label="Facebook">
-                        <i data-lucide="facebook" class="h-5 w-5"></i>
+                        <i class="fab fa-facebook-f"></i>
                     </a>
                     <a href="https://www.instagram.com/comunepalermo/" class="footer-social-link" title="Instagram" aria-label="Instagram">
-                        <i data-lucide="instagram" class="h-5 w-5"></i>
+                        <i class="fab fa-instagram"></i>
                     </a>
                     <a href="https://www.youtube.com/user/ComunediPalermo1/" class="footer-social-link" title="YouTube" aria-label="YouTube">
-                        <i data-lucide="youtube" class="h-5 w-5"></i>
+                        <i class="fab fa-youtube"></i>
                     </a>
                     <a href="#" class="footer-social-link" title="RSS Feed" aria-label="RSS Feed">
-                        <i data-lucide="rss" class="h-5 w-5"></i>
+                        <i class="fas fa-rss"></i>
                     </a>
                 </div>
                 
@@ -690,9 +687,10 @@
         </div>
     </div>
     <button id="backToTop" class="back-to-top" title="Torna in cima" aria-label="Torna in cima">
-        <i data-lucide="chevron-up" class="h-5 w-5"></i>
+        <i class="fas fa-chevron-up"></i>
     </button>
 </footer>
+</div>
 
     </main>
 
@@ -702,13 +700,13 @@
         <div class="modal-header">
             <h3 id="tableModalTitle" class="modal-title">
                  <span>    <img src="img/patti.png" alt="Logo Patti di Collaborazione" style="height: 32px;" class="side-panel-logo" title="Patti di Collaborazione"></span>
-                Vista Tabella - <span id="tableCount">0</span> risultati   <i data-lucide="table" class="h-5 w-5" aria-hidden="true"></i>
+                Vista Tabella - <span id="tableCount">0</span> risultati   <i class="fas fa-table" aria-hidden="true"></i>
             </h3>
             <button id="closeTableModal" 
                     class="modal-close" 
                     title="Chiudi tabella"
                     aria-label="Chiudi tabella">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
+                <i class="fas fa-xmark" aria-hidden="true"></i>
             </button>
         </div>
         
@@ -819,14 +817,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-content">
         <div class="modal-header">
             <h3 id="pattoModalTitle" class="modal-title">
-                <i data-lucide="file-text" class="h-5 w-5" aria-hidden="true"></i>
+                <i class="fas fa-file-lines" aria-hidden="true"></i>
                 Dettagli Patto di Collaborazione
             </h3>
             <button id="closeModal" 
                     class="modal-close" 
                     title="Chiudi dettagli"
                     aria-label="Chiudi dettagli">
-                <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
+                <i class="fas fa-xmark" aria-hidden="true"></i>
             </button>
         </div>
         
@@ -845,19 +843,22 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
     <!-- JavaScript -->
-	<script src="js/v9/monitoraggio_p1-v9.js"></script>
-	<script src="js/v9/side-panel.js"></script>
-	<script src="js/v9/map-controls_layer.js"></script>
+	<script src="js/chart-config.js"></script>
+	<script src="js/csv-parser.js"></script>
+	<script src="js/monitoraggio_p1-v9.js"></script>
+	<script src="js/side-panel.js"></script>
+	<script src="js/map-controls_layer.js"></script>
 
-	<script src="js/v9/monitoraggio_p2.js"></script>
-	<script src="js/v9/attiva_patto.js"></script>
-	<script src="js/v9/regolamento.js"></script>	
+	<script src="js/monitoraggio_p2.js"></script>
+	<script src="js/attiva_patto.js"></script>
+	<script src="js/regolamento.js"></script>	
 	<!-- sidebar tab -->
-	<script src="js/v9/tab-modal.js"></script>
-	<script src="js/v9/smart-search-v2.js"></script>
-	<script src="js/v9/smart-topbar.js"></script>
-<script src="js/v9/back_to_top.js"></script>
-<script src="js/v9/mobile-nav.js"></script>
-<script src="js/v9/slim-header.js"></script>
+	<script src="js/tab-modal.js"></script>
+	<script src="js/smart-search-v2.js"></script>
+	<script src="js/smart-topbar.js"></script>
+<script src="js/back_to_top.js"></script>
+<script src="js/mobile-nav.js"></script>
+<script src="js/slim-header.js"></script>
+<script src="js/url-routing.js"></script>
 </body>
 </html>

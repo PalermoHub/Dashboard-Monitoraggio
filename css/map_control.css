@@ -1,0 +1,189 @@
+/* ==========================================
+   MAP TOOLBAR - Barra orizzontale controlli mappa
+   ========================================== */
+
+/* Nasconde zoom nativo Leaflet (gestito dalla toolbar) */
+.leaflet-control-zoom {
+    display: none !important;
+}
+
+/* Toolbar principale */
+.map-toolbar {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 30px;
+    padding: 5px 14px;
+    box-shadow: 0 3px 14px rgba(0, 38, 75, 0.22), 0 1px 4px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0, 38, 75, 0.10);
+    backdrop-filter: blur(6px);
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+/* Pulsanti toolbar */
+.toolbar-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 13px;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+    flex-shrink: 0;
+}
+
+.toolbar-btn:hover {
+    background: rgba(0, 38, 75, 0.08);
+    color: #00264b;
+    transform: scale(1.1);
+}
+
+.toolbar-btn.active {
+    color: #3b82f6;
+}
+
+.toolbar-btn.active:hover {
+    background: rgba(59, 130, 246, 0.10);
+    color: #1d4ed8;
+}
+
+/* Separatore verticale */
+.toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: rgba(0, 38, 75, 0.15);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* Icona zoom (lente) */
+.toolbar-zoom-icon {
+    font-size: 12px;
+    color: #64748b;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* Contenitore slider zoom */
+.toolbar-zoom-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+}
+
+/* Slider zoom */
+.toolbar-zoom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 154px;
+    height: 4px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+}
+
+.toolbar-zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.45);
+    transition: transform 0.15s;
+}
+
+.toolbar-zoom-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.toolbar-zoom-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(59, 130, 246, 0.45);
+}
+
+/* Etichette zoom sotto lo slider */
+.toolbar-zoom-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 154px;
+    font-size: 9px;
+    color: #94a3b8;
+    pointer-events: none;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+/* Valore zoom corrente */
+.toolbar-zoom-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #00264b;
+    min-width: 20px;
+    text-align: center;
+    margin-left: 8px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   RESPONSIVE - MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+    .map-toolbar {
+        top: 8px;
+        padding: 5px 10px;
+        gap: 1px;
+    }
+    .toolbar-zoom-slider,
+    .toolbar-zoom-labels {
+        width: 112px;
+    }
+    .toolbar-sep {
+        margin: 0 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-toolbar {
+        padding: 4px 8px;
+        gap: 0;
+    }
+    .toolbar-zoom-slider { width: 80px; }
+    .toolbar-zoom-labels,
+    .toolbar-zoom-value { display: none; }
+    .toolbar-zoom-icon { display: none; }
+    .toolbar-btn { width: 28px; height: 28px; }
+}
+
+/* ==========================================
+   PRINT
+   ========================================== */
+
+@media print {
+    .map-toolbar { display: none !important; }
+}

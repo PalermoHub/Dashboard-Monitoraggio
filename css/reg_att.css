@@ -1,0 +1,705 @@
+/* ==================== */
+/* UNIFIED CSS FOR TABS */
+/* Regolamento + Attiva Patto */
+/* ==================== */
+
+/* ==================== */
+/* BASE STYLES - COMMON */
+/* ==================== */
+
+/* Container comune per entrambi i tab */
+#tab-normativi .container,
+#tab-attiva .container {
+    margin-bottom: var(--space-6);
+}
+
+/* Header styles - comune */
+#tab-normativi .header,
+#tab-attiva .header {
+    background: linear-gradient(135deg, #00264b 0%, #00264bd1 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#tab-normativi .header h1,
+#tab-attiva .header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* ==================== */
+/* TOC - TABLE OF CONTENTS */
+/* ==================== */
+
+#tab-normativi .toc,
+#tab-attiva .toc {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+#tab-normativi .toc h2,
+#tab-attiva .toc h2 {
+    font-size: 1.5rem;
+    color: #00264b;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+}
+
+#tab-normativi .toc ul,
+#tab-attiva .toc ul {
+    list-style: none;
+    padding: 0;
+}
+
+#tab-normativi .toc ul li,
+#tab-attiva .toc ul li {
+    margin-bottom: 0.75rem;
+}
+
+#tab-normativi .toc ul ul,
+#tab-attiva .toc ul ul {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+#tab-normativi .toc a,
+#tab-attiva .toc a {
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+#tab-normativi .toc a:hover,
+#tab-attiva .toc a:hover {
+    color: #60a5fa;
+}
+
+/* ==================== */
+/* NAVIGATION DROPDOWNS */
+/* ==================== */
+
+#tab-normativi .navigation-dropdowns,
+#tab-attiva .navigation-dropdowns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+#tab-normativi .dropdown-group,
+#tab-attiva .dropdown-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#tab-normativi .dropdown-label,
+#tab-attiva .dropdown-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+#tab-normativi .dropdown-label svg,
+#tab-attiva .dropdown-label svg {
+    color: #3b82f6;
+}
+
+#tab-normativi .nav-select,
+#tab-attiva .nav-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #334155;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Titillium Web', sans-serif;
+}
+
+#tab-normativi .nav-select:hover,
+#tab-attiva .nav-select:hover {
+    border-color: #3b82f6;
+}
+
+#tab-normativi .nav-select:focus,
+#tab-attiva .nav-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ==================== */
+/* CONTENT AREA */
+/* ==================== */
+
+#tab-normativi .content,
+#tab-attiva .content1 {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+/* ==================== */
+/* SECTIONS - REGOLAMENTO (CAPO) */
+/* ==================== */
+
+#tab-normativi .capo {
+    margin-bottom: 3rem;
+}
+
+#tab-normativi .capo.hidden {
+    display: none !important;
+}
+
+#tab-normativi .capo.visible {
+    display: block !important;
+}
+
+#tab-normativi .capo h1 {
+    font-size: 1.875rem;
+    color: #00264b;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #3b82f6;
+}
+
+#tab-normativi .articolo {
+    margin-bottom: 2rem;
+}
+
+#tab-normativi .articolo h2 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+#tab-normativi .articolo ol,
+#tab-normativi .articolo ul {
+    margin-left: 1.5rem;
+}
+
+#tab-normativi .articolo li {
+    margin-bottom: 0.75rem;
+}
+
+/* ==================== */
+/* SECTIONS - ATTIVA PATTO */
+/* ==================== */
+
+#tab-attiva .section {
+    display: none;
+}
+
+#tab-attiva .section.active {
+    display: block;
+}
+
+#tab-attiva .section h1 {
+    font-size: 1.875rem;
+    color: #00264b;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #3b82f6;
+}
+
+#tab-attiva .section h2 {
+    font-size: 1.5rem;
+    color: #003d82;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+#tab-attiva .section h3 {
+    font-size: 1.25rem;
+    color: #555;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+#tab-attiva .section h4 {
+    font-size: 1.1rem;
+    color: #555;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+#tab-attiva .section ul,
+#tab-attiva .section ol {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+}
+
+#tab-attiva .section li {
+    margin: 0.75rem 0;
+}
+
+#tab-attiva .section p {
+    margin: 1rem 0;
+}
+
+#tab-attiva .subsection {
+    display: none;
+}
+
+#tab-attiva .subsection.active {
+    display: block;
+}
+
+/* ==================== */
+/* COMMON TEXT STYLES */
+/* ==================== */
+
+#tab-normativi strong,
+#tab-attiva strong {
+    color: #00264b;
+}
+
+/* ==================== */
+/* BACK TO TOP BUTTON */
+/* ==================== */
+
+#tab-normativi .back-to-top,
+#tab-attiva .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #3b82f6;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+#tab-normativi .back-to-top:hover,
+#tab-attiva .back-to-top:hover {
+    background: #60a5fa;
+    transform: translateY(-4px);
+}
+
+/* ==================== */
+/* RESPONSIVE - TABLET */
+/* ==================== */
+
+@media (max-width: 1024px) {
+    #tab-normativi .navigation-dropdowns,
+    #tab-attiva .navigation-dropdowns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* ==================== */
+/* RESPONSIVE - MOBILE */
+/* ==================== */
+
+@media (max-width: 768px) {
+    #tab-normativi .navigation-dropdowns,
+    #tab-attiva .navigation-dropdowns {
+        grid-template-columns: 1fr;
+    }
+    
+    #tab-normativi .container,
+    #tab-attiva .container {
+        padding: 0;
+    }
+    
+    #tab-normativi .toc,
+    #tab-normativi .content,
+    #tab-attiva .toc,
+    #tab-attiva .content1 {
+        margin: 0 10px 2rem 10px;
+        padding: 1rem;
+    }
+    
+    #tab-normativi .header h1,
+    #tab-attiva .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    #tab-normativi .nav-select,
+    #tab-attiva .nav-select {
+        font-size: 0.8rem;
+        padding: 0.625rem 0.75rem;
+    }
+}
+
+/* ==================== */
+/* CRITICAL FIX */
+/* Previene conflitti con i modal principali */
+/* ==================== */
+
+/* Assicura che i modal della dashboard continuino a funzionare */
+.modal-content.details-modal,
+.modal-content.table-modal,
+.modal-content.info-modal {
+    display: flex !important;
+}
+
+.modal.show {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.modal.flex {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Assicura che le sezioni della dashboard non siano influenzate */
+.content-section {
+    display: block !important;
+}
+
+.modal-tab-content {
+    display: none !important;
+}
+
+.modal-tab-content.active {
+    display: block !important;
+}
+
+/* ==================== */
+/* PRINT STYLES */
+/* ==================== */
+
+@media print {
+    #tab-normativi .back-to-top,
+    #tab-attiva .back-to-top,
+    #tab-normativi .toc,
+    #tab-attiva .toc {
+        display: none;
+    }
+
+    #tab-normativi .capo,
+    #tab-attiva .section {
+        page-break-inside: avoid;
+    }
+}
+
+/* ==================== */
+/* MKDOCS LAYOUT        */
+/* ==================== */
+
+.mkdocs-layout {
+    display: grid;
+    grid-template-columns: 255px 1fr 215px;
+    grid-template-areas: "nav content toc";
+    align-items: start;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* SIDEBAR SINISTRA */
+.mkdocs-nav {
+    grid-area: nav;
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - var(--header-height, 130px));
+    overflow-y: auto;
+    background: transparent;
+    border-right: 1px solid var(--color-gray-200);
+    padding: 1.25rem 0 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.mkdocs-nav::-webkit-scrollbar { width: 4px; }
+.mkdocs-nav::-webkit-scrollbar-track { background: transparent; }
+.mkdocs-nav::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 2px; }
+
+.mkdocs-nav-section-title {
+    padding: 0 1.25rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gray-500);
+    border-bottom: 1px solid var(--color-gray-200);
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+}
+
+.mkdocs-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mkdocs-nav-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.45rem 1.25rem 0.45rem 1rem;
+    font-size: 0.8rem;
+    color: var(--color-gray-600);
+    text-decoration: none;
+    line-height: 1.4;
+    border-left: 3px solid transparent;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.mkdocs-nav-link:hover {
+    color: var(--color-accent);
+    background: var(--color-gray-50);
+    border-left-color: var(--color-gray-300);
+}
+
+.mkdocs-nav-link.active {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+    background: rgba(59, 130, 246, 0.07);
+    font-weight: 600;
+}
+
+.nav-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 17px;
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+    border-radius: 3px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+    letter-spacing: 0;
+}
+
+.mkdocs-nav-link.active .nav-num {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--color-accent);
+}
+
+/* AREA CONTENUTO CENTRALE */
+.mkdocs-content {
+    grid-area: content;
+    padding: 1.75rem 2rem 3rem;
+    min-width: 0;
+    background: var(--color-gray-50);
+    box-sizing: border-box;
+}
+
+/* Wrapper regolamento: stesso look di content-section */
+.mkdocs-content .content {
+    background: var(--color-white);
+    border-radius: var(--border-radius);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+/* CAPO (normativi) */
+.mkdocs-content .capo {
+    margin-bottom: 3rem;
+}
+
+.mkdocs-content .capo.hidden {
+    display: none !important;
+}
+
+.mkdocs-content .capo.visible {
+    display: block !important;
+}
+
+.mkdocs-content .capo h1 {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 3px solid var(--color-accent);
+}
+
+.mkdocs-content .articolo {
+    margin-bottom: 2rem;
+}
+
+.mkdocs-content .articolo h2 {
+    font-size: 1.0625rem;
+    color: var(--color-gray-800);
+    margin-bottom: 0.875rem;
+    font-weight: 600;
+}
+
+.mkdocs-content .articolo ol,
+.mkdocs-content .articolo ul {
+    margin-left: 1.5rem;
+}
+
+.mkdocs-content .articolo li {
+    margin-bottom: 0.625rem;
+}
+
+/* SECTION (attiva) */
+.mkdocs-content .section {
+    display: none;
+}
+
+.mkdocs-content .section.active {
+    display: block;
+}
+
+.mkdocs-content .section h1 {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 3px solid var(--color-accent);
+}
+
+.mkdocs-content .section h2 {
+    font-size: 1.2rem;
+    color: #003d82;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.mkdocs-content .section h3 {
+    font-size: 1rem;
+    color: #444;
+    margin-top: 1.5rem;
+    margin-bottom: 0.625rem;
+    font-weight: 600;
+}
+
+.mkdocs-content .section h4 {
+    font-size: 0.9375rem;
+    color: #555;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.mkdocs-content .section ul,
+.mkdocs-content .section ol {
+    padding-left: 1.5rem;
+    margin: 0.875rem 0;
+}
+
+.mkdocs-content .section li {
+    margin: 0.625rem 0;
+}
+
+.mkdocs-content .section p {
+    margin: 0.875rem 0;
+}
+
+.mkdocs-content .subsection {
+    display: none;
+}
+
+.mkdocs-content .subsection.active {
+    display: block;
+}
+
+/* SIDEBAR DESTRA: TOC */
+.mkdocs-toc {
+    grid-area: toc;
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - var(--header-height, 130px));
+    overflow-y: auto;
+    background: transparent;
+    border-left: 1px solid var(--color-gray-200);
+    padding: 1.25rem 1rem 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.mkdocs-toc::-webkit-scrollbar { width: 4px; }
+.mkdocs-toc::-webkit-scrollbar-track { background: transparent; }
+.mkdocs-toc::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 2px; }
+
+.mkdocs-toc-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gray-500);
+    padding-bottom: 0.625rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.mkdocs-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mkdocs-toc-list li a {
+    display: block;
+    padding: 0.3rem 0 0.3rem 0.75rem;
+    font-size: 0.775rem;
+    color: var(--color-gray-500);
+    text-decoration: none;
+    line-height: 1.4;
+    border-left: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.mkdocs-toc-list li a:hover {
+    color: var(--color-accent);
+    border-left-color: var(--color-gray-300);
+}
+
+.mkdocs-toc-list li a.toc-active {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+    font-weight: 600;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .mkdocs-layout {
+        grid-template-columns: 240px 1fr;
+        grid-template-areas: "nav content";
+    }
+    .mkdocs-toc { display: none; }
+}
+
+@media (max-width: 768px) {
+    .mkdocs-layout {
+        grid-template-columns: 1fr;
+        grid-template-areas: "content";
+    }
+    .mkdocs-nav { display: none; }
+    .mkdocs-content {
+        padding: 1rem;
+    }
+}
