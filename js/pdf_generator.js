@@ -121,14 +121,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Genera il PDF
             const element = document.getElementById('pdf-template');
+
+            // html2canvas posiziona la camera basandosi sul suo CSS parser (non inline styles).
+            // Nel clone (windowWidth=794), margin:0 auto → elemento a x=0.
+            // La camera è a x=live_left (posizione nel DOM live con margini naturali).
+            // scrollX = -live_left sposta la camera a x=0, allineandola all'elemento nel clone.
             element.style.display = 'block';
 
-            // Poiché è un documento lungo (4 pagine), la scala può influire molto
+            const liveRect = element.getBoundingClientRect();
+            const liveScrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            const cameraOffset = liveRect.left + liveScrollX;
+            console.log('live rect:', JSON.stringify({left: liveRect.left, w: liveRect.width, h: liveRect.height}));
+            console.log('cameraOffset:', cameraOffset, '→ scrollX:', -cameraOffset);
+
             const opt = {
-                margin:       [0, 0, 0, 0], // Margini gestiti via CSS per controllo preciso sulle pagine
+                margin:       [0, 0, 0, 0],
                 filename:     `Istanza_Patto_${document.getElementById("nome_cognome").value.replace(/\s+/g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                image:        { type: 'png' },
+                html2canvas:  {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    windowWidth: 794,
+                    scrollX: cameraOffset,
+                    scrollY: 0,
+                    logging: true
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -137,14 +155,19 @@ document.addEventListener("DOMContentLoaded", function() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generazione in corso...';
             submitBtn.disabled = true;
 
-            html2pdf().set(opt).from(element).save().then(() => {
+            const restoreElement = () => {
                 element.style.display = 'none';
+            };
+
+            console.log('Avvio html2pdf...');
+            html2pdf().set(opt).from(element).save().then(() => {
+                restoreElement();
                 submitBtn.innerHTML = originalBtnHtml;
                 submitBtn.disabled = false;
                 alert("Il PDF è stato generato e scaricato con successo!\nRicordati di firmarlo e inviarlo via PEC o consegnarlo a mano.");
             }).catch(err => {
                 console.error("Errore durante la generazione del PDF:", err);
-                element.style.display = 'none';
+                restoreElement();
                 submitBtn.innerHTML = originalBtnHtml;
                 submitBtn.disabled = false;
                 alert("Si è verificato un errore durante la generazione del PDF. Riprova.");

@@ -34,12 +34,35 @@
         .btn-submit { background: var(--primary-color, #004080); color: white; border: none; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.3s; margin-top: 1rem;}
         .btn-submit:hover { background: #002d5a; }
         .form-check { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .form-check input { width: 1.2rem; height: 1.2rem; }
+        .form-check input[type="checkbox"],
+        .form-check input[type="radio"] { width: 1.2rem; height: 1.2rem; min-width: 1.2rem; min-height: 1.2rem; flex-shrink: 0; cursor: pointer; accent-color: var(--primary-color, #004080); }
         .form-check label { margin-bottom: 0; font-weight: normal; color: inherit; }
         .section-box { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; background: #fff; }
+        sup.fn {
+            font-size: 0.72rem; color: var(--primary-color, #004080); font-weight: bold;
+            margin-left: 2px; cursor: help; position: relative; vertical-align: super;
+        }
+        sup.fn::after {
+            content: attr(data-note);
+            position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: #1a1a2e; color: #fff; padding: 8px 12px; border-radius: 6px;
+            font-size: 0.78rem; font-weight: normal; font-style: italic;
+            white-space: normal; width: 280px; z-index: 9999;
+            visibility: hidden; opacity: 0; transition: opacity 0.2s;
+            pointer-events: none; line-height: 1.45;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        sup.fn::before {
+            content: ''; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            border: 6px solid transparent; border-top-color: #1a1a2e;
+            visibility: hidden; opacity: 0; transition: opacity 0.2s; z-index: 9999;
+        }
+        sup.fn:hover::after, sup.fn:hover::before { visibility: visible; opacity: 1; }
+        .sub-qualita { padding-left: 1.8rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-left: 2px solid #ddd; margin-left: 0.6rem; margin-bottom: 0.5rem; opacity: 0.45; transition: opacity 0.25s; }
+        .sub-qualita.active { opacity: 1; border-left-color: var(--primary-color, #004080); }
         
         /* Stili PDF */
-        #pdf-template { display: none; background: white; padding: 10mm 15mm; color: black; font-family: 'Times New Roman', serif; line-height: 1.4; font-size: 11pt;}
+        #pdf-template { display: none; background: white; width: 794px; margin: 0 auto; padding: 20mm 20mm; color: black; font-family: 'Times New Roman', serif; line-height: 1.4; font-size: 11pt; box-sizing: border-box;}
         .pdf-header { text-align: center; margin-bottom: 15px; font-weight: bold; }
         .pdf-destinatario { text-align: left; margin-top: 20px; margin-bottom: 20px; line-height: 1.2;}
         .pdf-title { text-align: center; font-size: 14pt; font-weight: bold; margin: 15px 0; text-transform: uppercase;}
@@ -94,28 +117,29 @@
                     
                     <div class="form-check" style="margin-top: 10px;">
                         <input type="radio" name="in_qualita_di" id="qualita_gruppo" value="Rappresentante gruppo informale">
-                        <label for="qualita_gruppo">Rappresentante gruppo informale</label>
+                        <label for="qualita_gruppo">Rappresentante gruppo informale:</label>
                     </div>
-                    <div id="dati_gruppo" style="display: none; padding-left: 2rem; margin-bottom: 10px;">
-                        <input type="text" id="gruppo_nome" class="form-control" placeholder="Denominato" style="margin-bottom: 5px;">
-                        <textarea id="gruppo_composizione" class="form-control" placeholder="Composto da (elenco nomi)"></textarea>
+                    <div id="dati_gruppo" class="sub-qualita">
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.9rem;">Denominato</label><input type="text" id="gruppo_nome" class="form-control"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label style="font-size:0.9rem;">Composto da</label><textarea id="gruppo_composizione" class="form-control" style="min-height:60px;"></textarea></div>
                     </div>
-                    
-                    <div class="form-check">
+
+                    <div class="form-check" style="margin-top: 10px;">
                         <input type="radio" name="in_qualita_di" id="qualita_ente" value="Legale rappresentante dell'associazione/ente/società">
-                        <label for="qualita_ente">Legale rappresentante dell'associazione / ente / società</label>
+                        <label for="qualita_ente">Legale rappresentante dell'associazione / ente / società:</label>
                     </div>
-                    <div id="dati_ente" style="display: none; padding-left: 2rem;">
-                        <input type="text" id="ente_nome" class="form-control" placeholder="Denominata" style="margin-bottom: 5px;">
-                        <div class="form-row">
-                            <div class="form-col"><input type="text" id="ente_cf_piva" class="form-control" placeholder="C.F. / Partita IVA"></div>
-                            <div class="form-col"><input type="text" id="ente_sede" class="form-control" placeholder="Con sede in (Città)"></div>
-                            <div class="form-col"><input type="text" id="ente_via" class="form-control" placeholder="Via"></div>
+                    <div id="dati_ente" class="sub-qualita">
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.9rem;">Denominata</label><input type="text" id="ente_nome" class="form-control"></div>
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.9rem;">codice fiscale / Partita iva</label><input type="text" id="ente_cf_piva" class="form-control"></div>
+                        <div class="form-row" style="margin-bottom:0;">
+                            <div class="form-col"><label style="font-size:0.9rem;">Con sede in</label><input type="text" id="ente_sede" class="form-control"></div>
+                            <div class="form-col"><label style="font-size:0.9rem;">Via</label><input type="text" id="ente_via" class="form-control"></div>
                         </div>
                     </div>
                 </div>
 
                 <h4 class="section-subtitle" style="margin-top: 1rem;">Contatti</h4>
+                <p style="font-size:0.9rem; color:#555; margin-bottom:0.75rem;">Indirizzi di posta elettronica e numeri telefonici ai quali chiede di essere contattato:</p>
                 <div class="form-row">
                     <div class="form-col"><label>Email</label><input type="email" id="contatto_email" class="form-control"></div>
                     <div class="form-col"><label>PEC</label><input type="email" id="contatto_pec" class="form-control"></div>
@@ -126,20 +150,38 @@
                 </div>
             </div>
 
+            <div class="section-box" style="background:#f8f9fa; border-left: 4px solid var(--primary-color, #004080);">
+                <p style="font-size:0.9rem; color:#444; margin:0; text-align:justify;">
+                    <strong>Considerato che</strong> l'art. 7 del regolamento sulla "Collaborazione tra cittadini e amministrazione per la cura, e la rigenerazione e la gestione condivisa dei beni comuni", approvato con deliberazione del Consiglio Comunale n. 31 del 20/04/2023, indicata, a mero titolo esemplificativo e non esaustivo, i seguenti interventi che si possono realizzare sui beni comuni materiali: Pulizia, imbiancatura, piccola manutenzione ordinaria, giardinaggio, allestimenti, decorazioni, attività di animazione territoriale, aggregazione sociale, comunicazione, attività culturali e formative, etc.
+                </p>
+            </div>
+
             <div class="section-box">
                 <h4 class="section-subtitle">PROPONE</h4>
                 <p>La realizzazione di un intervento di cura di rigenerazione urbana tramite patto di collaborazione come di seguito descritto.</p>
                 
-                <div class="form-group"><label>Titolo della proposta *</label><input type="text" id="prop_titolo" class="form-control" required></div>
-                <div class="form-group"><label>Bene comune richiesto *</label><input type="text" id="prop_bene" class="form-control" required></div>
-                <div class="form-group"><label>Descrizione dell’idea progettuale, degli obiettivi e dei risultati attesi *</label><textarea id="prop_idea" class="form-control" required></textarea></div>
-                <div class="form-group"><label>Descrizione delle attività previste, specificando le fasi, le modalità e i tempi di realizzazione *</label><textarea id="prop_attivita" class="form-control" required></textarea></div>
-                <div class="form-group"><label>Destinatari / beneficiari delle attività da realizzare *</label><textarea id="prop_destinatari" class="form-control" required></textarea></div>
-                <div class="form-group"><label>Modello partecipativo utilizzato e stakeholder coinvolti *</label><textarea id="prop_modello" class="form-control" required></textarea></div>
-                
+                <div class="form-group">
+                    <h4 class="section-subtitle"><strong>1)</strong> Titolo della proposta *<sup class="fn" data-note="Assegnare un titolo coerente con le attività che si intendono realizzare.">1</sup></h4>
+                    <input type="text" id="prop_titolo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <h4 class="section-subtitle"><strong>2)</strong> Bene comune richiesto per l’attuazione della proposta di collaborazione *<sup class="fn" data-note="Precisare l’ubicazione del bene comune, indicando la via o gli elementi che consentano di individuare la porzione del territorio oggetto dell’intervento, allegando immagini di mappe stradali.">2</sup></h4>
+                    <input type="text" id="prop_bene" class="form-control" required>
+                </div>
+                <div class="form-group"><h4 class="section-subtitle"><strong>3)</strong> Descrizione dell’idea progettuale, degli obiettivi e dei risultati attesi *</h4><textarea id="prop_idea" class="form-control" required></textarea></div>
+                <div class="form-group">
+                    <h4 class="section-subtitle"><strong>4)</strong> Descrizione delle attività previste, specificando le fasi, le modalità e i tempi di realizzazione *<sup class="fn" data-note="Descrivere in maniera esatta e puntuale l’intervento specificando attività, fasi, modalità e tempi, con l’utilizzo di elaborati grafici in scala e quotato in formato pdf (se necessarie).">3</sup></h4>
+                    <textarea id="prop_attivita" class="form-control" required></textarea>
+                </div>
+                <div class="form-group"><h4 class="section-subtitle"><strong>5)</strong> Destinatari / beneficiari delle attività da realizzare *</h4><textarea id="prop_destinatari" class="form-control" required></textarea></div>
+                <div class="form-group">
+                    <h4 class="section-subtitle"><strong>6)</strong> Modello partecipativo utilizzato e stakeholder coinvolti *<sup class="fn" data-note="Indicare quali soggetti pubblico/privati portatori di interessi sono stati coinvolti nella redazione del progetto e con quali modalità.">4</sup></h4>
+                    <textarea id="prop_modello" class="form-control" required></textarea>
+                </div>
+
                 <div class="form-row">
                     <div class="form-col">
-                        <label>Durata del progetto</label>
+                        <h4 class="section-subtitle"><strong>7)</strong> Durata del progetto e periodicità di utilizzo del bene comune<sup class="fn" data-note="Indicare per quanto tempo il proponente intende impegnarsi con l’Amministrazione specificando con quale cadenza / periodicità sarà utilizzato il bene comune.">5</sup></h4>
                         <select id="prop_durata" class="form-control">
                             <option value="Breve termine (6 mesi-1 anno)">Breve termine (6 mesi-1 anno)</option>
                             <option value="Medio termine (2 anni)">Medio termine (2 anni)</option>
@@ -158,13 +200,16 @@
             </div>
 
             <div class="section-box">
-                <h4 class="section-subtitle">Risorse che il proponente intende mettere a disposizione</h4>
+                <h4 class="section-subtitle"><strong>8)</strong> Risorse che il proponente intende mettere a disposizione</h4>
                 <div class="form-group"><label>Risorse proprie (Euro)</label><div style="display:flex;gap:10px;"><input type="text" id="ris_euro" class="form-control" placeholder="pari a euro..."><input type="text" id="ris_euro_per" class="form-control" placeholder="per..."></div></div>
                 <div class="form-group"><label>Risorse strumentali</label><textarea id="ris_strumentali" class="form-control"></textarea></div>
                 <div class="form-group"><label>Risorse umane</label><textarea id="ris_umane" class="form-control"></textarea></div>
 
-                <h4 class="section-subtitle" style="margin-top: 2rem;">Forme di sostegno richieste al Comune</h4>
-                <div class="form-group"><label>Utilizzo spazi comunali</label><textarea id="sost_spazi" class="form-control"></textarea></div>
+                <h4 class="section-subtitle" style="margin-top: 2rem;"><strong>9)</strong> Forme di sostegno richieste al Comune</h4>
+                <div class="form-group">
+                    <label>Utilizzo spazi comunali<sup class="fn" data-note="Specificare le dimensioni e la localizzazione precisa degli spazi richiesti.">6</sup></label>
+                    <textarea id="sost_spazi" class="form-control"></textarea>
+                </div>
                 <div class="form-group"><label>Fornitura beni strumentali/materiali di consumo</label><textarea id="sost_beni" class="form-control"></textarea></div>
                 <div class="form-group"><label>Formazione</label><textarea id="sost_formazione" class="form-control"></textarea></div>
                 <div class="form-group"><label>Affiancamento del personale comunale</label><textarea id="sost_personale" class="form-control"></textarea></div>
@@ -172,31 +217,31 @@
             </div>
 
             <div class="section-box">
-                <h4 class="section-subtitle">DICHIARA</h4>
+                <h4 class="section-subtitle"><strong>10)</strong> DICHIARA</h4>
                 <div class="form-check"><input type="checkbox" id="dich_1" checked required><label>che non sussistono, nei propri confronti, motivi di esclusione di cui agli artt. 94, 95, 96, 97, 98 del D.Lgs. n. 36/2023;</label></div>
                 
                 <div style="margin: 10px 0; padding: 10px; border-left: 3px solid var(--primary-color, #004080); background: #f9f9f9;">
-                    <div class="form-check"><input type="radio" name="contenzioso" id="cont_no" value="no" checked><label>che <b>non sussiste</b> alcun contenzioso tributario tra il sottoscritto e il Comune di Palermo</label></div>
-                    <div class="form-check"><input type="radio" name="contenzioso" id="cont_si" value="si"><label>che <b>sussiste</b> un contenzioso tributario, dimostrato dal documento:</label></div>
+                    <div class="form-check"><input type="radio" name="contenzioso" id="cont_no" value="no" checked><label>che <b>non sussiste</b> alcun contenzioso tributario tra il sottoscritto e il Comune di Palermo, in relazione a debiti insoluti di qualunque genere (pagamenti di canoni, affitti, sanzioni, altro);</label></div>
+                    <div class="form-check"><input type="radio" name="contenzioso" id="cont_si" value="si"><label>che <b>sussiste</b> un contenzioso tributario tra il sottoscritto e il Comune di Palermo, come dimostrato dal documento così identificato:<sup class="fn" data-note="Specificare il n° di cartella o n° di protocollo del provvedimento e l'ufficio comunale presso il quale è in trattazione il caso.">7</sup></label></div>
                     <input type="text" id="cont_doc" class="form-control" placeholder="Identificativo documento" style="margin-top:5px; margin-left: 25px; width: calc(100% - 25px);" disabled>
                 </div>
 
-                <div class="form-check"><input type="checkbox" id="dich_3" checked required><label>di aver preso visione e di accettare tutte le condizioni previste dal Regolamento... (Deliberazione n. 31 del 20 aprile 2023);</label></div>
-                <div class="form-check"><input type="checkbox" id="dich_4" checked required><label>di autorizzare la pubblicazione della proposta di collaborazione sulla pagina web dedicata;</label></div>
-                <div class="form-check"><input type="checkbox" id="dich_5" checked required><label>di essere a conoscenza che l'Amministrazione non può destinare contributi in denaro a favore dei cittadini... né danno vita ad un rapporto di lavoro/committenza;</label></div>
-                <div class="form-check"><input type="checkbox" id="dich_6" checked required><label>di autorizzare al trattamento dei dati personali (RGPD-UE 2016/679 e D.Lgs. 196/2003).</label></div>
+                <div class="form-check"><input type="checkbox" id="dich_3" checked required><label>di aver preso visione e di accettare tutte le condizioni previste dal Regolamento che disciplina le forme di collaborazione tra cittadini/e attivi/e e il Comune di Palermo per la cura, la rigenerazione e la gestione condivisa dei beni comuni, approvato con Deliberazione di Consiglio comunale n. 31 del 20 aprile 2023;</label></div>
+                <div class="form-check"><input type="checkbox" id="dich_4" checked required><label>di autorizzare la pubblicazione della proposta di collaborazione sulla pagina web dedicata ai beni comuni del sito istituzionale del Comune di Palermo;</label></div>
+                <div class="form-check"><input type="checkbox" id="dich_5" checked required><label>di essere a conoscenza che, nell'ambito dei patti di collaborazione, l'Amministrazione non può in alcun modo destinare contributi in denaro a favore dei cittadini attivi e che le attività di cura, rigenerazione e gestione condivisa dei beni comuni svolte dai cittadini attivi, non comportano in alcun modo la costituzione di un rapporto di lavoro con il Comune, né danno vita ad un rapporto di committenza da parte del Comune ai soggetti realizzatori (ai sensi dell'art. 10 comma 2 del Regolamento);</label></div>
+                <div class="form-check"><input type="checkbox" id="dich_6" checked required><label>di autorizzare al trattamento dei dati personali ai sensi e per gli effetti degli artt. 13 e seg. del Regolamento Generale sulla Protezione dei Dati (RGPD-UE 2016/679) e del nuovo Codice Privacy - D.Lgs. 196/2003 aggiornato al D. Lgs.101/2018.</label></div>
             </div>
 
             <div class="section-box">
-                <h4 class="section-subtitle">Si allegano alla presente:</h4>
-                <div class="form-check"><input type="checkbox" id="all_1" value="Documento di riconoscimento"><label>Documento di riconoscimento del proponente (se non firmata digitalmente)</label></div>
-                <div class="form-check"><input type="checkbox" id="all_2" value="Mappa stradale"><label>Mappa stradale per l’identificazione dell’area (pdf)</label></div>
-                <div class="form-check"><input type="checkbox" id="all_3" value="Elaborato grafico"><label>Elaborato grafico dell’idea progettuale (pdf)</label></div>
-                <div class="form-check"><input type="checkbox" id="all_4" value="Documentazione fotografica"><label>Documentazione fotografica stato di fatto (jpg/png)</label></div>
+                <h4 class="section-subtitle"><strong>11)</strong> Si allegano alla presente:</h4>
+                <div class="form-check"><input type="checkbox" id="all_1" value="Documento di riconoscimento"><label>Documento di riconoscimento del proponente (allegare soltanto se l’istanza non è firmata digitalmente);</label></div>
+                <div class="form-check"><input type="checkbox" id="all_2" value="Mappa stradale"><label>Mappa stradale per l’identificazione dell’area interessata in formato pdf;</label></div>
+                <div class="form-check"><input type="checkbox" id="all_3" value="Elaborato grafico"><label>Elaborato grafico dell’idea progettuale in scala e quotato in formato pdf;</label></div>
+                <div class="form-check"><input type="checkbox" id="all_4" value="Documentazione fotografica"><label>Documentazione fotografica dello stato di fatto dei luoghi (formato jpg o png)</label></div>
                 <div class="form-check"><input type="checkbox" id="all_5" value="Planimetria catastale"><label>Planimetria catastale</label></div>
-                <div class="form-check"><input type="checkbox" id="all_6" value="Atto costitutivo"><label>Atto costitutivo e Statuto in caso di associazione</label></div>
-                <div class="form-check"><input type="checkbox" id="all_7" value="Percorsi partecipazione"><label>Documentazione relativa ai percorsi di partecipazione</label></div>
-                <div class="form-check"><input type="checkbox" id="all_8" value="Verbale gruppo informale"><label>Verbale del gruppo informale con indicazione del Rappresentante</label></div>
+                <div class="form-check"><input type="checkbox" id="all_6" value="Atto costitutivo"><label>Atto costitutivo e Statuto in caso di associazione;</label></div>
+                <div class="form-check"><input type="checkbox" id="all_7" value="Percorsi partecipazione"><label>Documentazione relativa ai percorsi di partecipazione attivati;</label></div>
+                <div class="form-check"><input type="checkbox" id="all_8" value="Verbale gruppo informale"><label>Verbale del gruppo informale con indicazione del Rappresentante individuato</label></div>
                 <div class="form-row" style="margin-top: 10px;">
                     <div class="form-check"><input type="checkbox" id="all_9"><label>Altro</label></div>
                     <input type="text" id="all_altro_testo" class="form-control" style="flex:1;">
@@ -215,7 +260,13 @@
 <!-- ================== TEMPLATE PDF NASCOSTO ================== -->
 <div id="pdf-template">
     <!-- PAGE 1 -->
-    <div class="pdf-header">Comune di Palermo</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <img src="img/logo_citta_palermo.png" alt="Città di Palermo" style="height:80px; width:auto;">
+        <div style="text-align:center; flex:1; padding:0 10px;">
+            <div style="font-weight:bold; font-size:13pt;">Comune di Palermo</div>
+        </div>
+        <img src="img/logo_festino_palermo.png" alt="Festino di Santa Rosalia" style="height:80px; width:auto;">
+    </div>
     
     <div class="pdf-title" style="font-size: 13pt;">
         Istanza per PATTO DI COLLABORAZIONE<br>
@@ -255,7 +306,7 @@
         <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_ente"></span><span>Legale rappresentante dell'associazione / ente / società:</span></div>
         <div style="padding-left: 20px;">
             Denominata: <span class="pdf-field" id="pdf_ente_nome" style="width: 75%;"></span><br>
-            C.F. / Partita IVA: <span class="pdf-field" id="pdf_ente_cf" style="width: 70%;"></span><br>
+            codice fiscale / Partita iva: <span class="pdf-field" id="pdf_ente_cf" style="width: 65%;"></span><br>
             Con sede in: <span class="pdf-field" id="pdf_ente_sede" style="width: 30%;"></span> 
             via: <span class="pdf-field" id="pdf_ente_via" style="width: 45%;"></span>
         </div>
@@ -281,34 +332,34 @@
     <!-- PAGE 2 -->
     <div class="page-break"></div>
 
-    <div class="pdf-section">Titolo della proposta:
+    <div class="pdf-section">Titolo della proposta<sup style="font-size:8pt;">1</sup>:
         <div class="pdf-textarea-field" id="pdf_prop_titolo"></div>
     </div>
-    <div class="pdf-section">Bene comune richiesto per l’attuazione della proposta di collaborazione:
+    <div class="pdf-section">Bene comune richiesto per l’attuazione della proposta di collaborazione<sup style="font-size:8pt;">2</sup>:
         <div class="pdf-textarea-field" id="pdf_prop_bene"></div>
     </div>
     <div class="pdf-section">Descrizione dell’idea progettuale, degli obiettivi e dei risultati attesi:
         <div class="pdf-textarea-field" id="pdf_prop_idea" style="min-height: 80px;"></div>
     </div>
-    <div class="pdf-section">Descrizione delle attività previste, specificando le fasi, le modalità e i tempi di realizzazione:
+    <div class="pdf-section">Descrizione delle attività previste, specificando le fasi, le modalità e i tempi di realizzazione<sup style="font-size:8pt;">3</sup>:
         <div class="pdf-textarea-field" id="pdf_prop_attivita" style="min-height: 80px;"></div>
     </div>
     <div class="pdf-section">Destinatari / beneficiari delle attività da realizzare:
         <div class="pdf-textarea-field" id="pdf_prop_destinatari" style="min-height: 40px;"></div>
     </div>
-    <div class="pdf-section">Modello partecipativo utilizzato e stakeholder coinvolti:
+    <div class="pdf-section">Modello partecipativo utilizzato e stakeholder coinvolti<sup style="font-size:8pt;">4</sup>:
         <div class="pdf-textarea-field" id="pdf_prop_modello" style="min-height: 40px;"></div>
     </div>
-    
+
     <div class="pdf-section">
-        Durata del progetto e periodicità di utilizzo del bene comune:<br>
+        Durata del progetto e periodicità di utilizzo del bene comune<sup style="font-size:8pt;">5</sup>:<br>
         <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_breve"></span><span>Breve termine (6 mesi-1 anno)</span></div>
         <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_medio"></span><span>Medio termine (2 anni)</span></div>
         <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_lungo"></span><span>Lungo termine (3-4 anni)</span></div>
         <br>
-        Tipo di utilizzo: 
-        <span class="pdf-checkbox" id="chk_continuativo"></span> continuativo &nbsp;&nbsp;&nbsp;
-        <span class="pdf-checkbox" id="chk_periodico"></span> periodico: <span class="pdf-field" id="pdf_prop_utilizzo_dett" style="width: 50%;"></span>
+        Tipo di utilizzo:<br>
+        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_continuativo"></span><span>continuativo</span></div>
+        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_periodico"></span><span>periodico: <span class="pdf-field" id="pdf_prop_utilizzo_dett" style="width: 200px;"></span></span></div>
     </div>
 
     <!-- PAGE 3 -->
@@ -325,7 +376,7 @@
 
     <div class="pdf-section" style="margin-top: 15px;">
         <strong>Forme di sostegno richieste al Comune:</strong><br><br>
-        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_sost_spazi"></span><span>Utilizzo spazi comunali:</span></div>
+        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_sost_spazi"></span><span>Utilizzo spazi comunali<sup style="font-size:8pt;">6</sup>:</span></div>
         <div class="pdf-textarea-field" id="pdf_sost_spazi" style="min-height: 30px;"></div>
         
         <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_sost_beni"></span><span>Fornitura beni strumentali/materiali di consumo:</span></div>
@@ -350,7 +401,7 @@
         
         <div class="pdf-check-text" style="margin-top: 10px;"><span class="pdf-checkbox" id="chk_cont_no"></span><span>che non sussiste alcun contenzioso tributario tra il sottoscritto e il Comune di Palermo, in relazione a debiti insoluti di qualunque genere (pagamenti di canoni, affitti, sanzioni, altro);</span></div>
         <div style="margin: 10px 0; text-align: center;">Ovvero</div>
-        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_cont_si"></span><span>che sussiste un contenzioso tributario tra il sottoscritto e il Comune di Palermo, come dimostrato dal documento così identificato: <span class="pdf-field" id="pdf_cont_doc" style="width: 100%;"></span></span></div>
+        <div class="pdf-check-text"><span class="pdf-checkbox" id="chk_cont_si"></span><span>che sussiste un contenzioso tributario tra il sottoscritto e il Comune di Palermo, come dimostrato dal documento così identificato<sup style="font-size:8pt;">7</sup>: <span class="pdf-field" id="pdf_cont_doc" style="width: 95%;"></span></span></div>
         
         <div class="pdf-check-text" style="margin-top: 10px;"><span class="pdf-checkbox">X</span><span>di aver preso visione e di accettare tutte le condizioni previste dal Regolamento che disciplina le forme di collaborazione tra cittadini/e attivi/e e il Comune di Palermo per la cura, la rigenerazione e la gestione condivisa dei beni comuni, approvato con Deliberazione di Consiglio comunale n. 31 del 20 aprile 2023;</span></div>
         <div class="pdf-check-text"><span class="pdf-checkbox">X</span><span>di autorizzare la pubblicazione della proposta di collaborazione sulla pagina web dedicata ai beni comuni del sito istituzionale del Comune di Palermo;</span></div>
@@ -380,6 +431,18 @@
             <div class="pdf-signature-line"></div>
         </div>
     </div>
+
+    <!-- NOTE A PIÈ DI PAGINA -->
+    <div class="page-break"></div>
+    <div style="border-top: 1px solid #000; padding-top: 8px; font-size: 8pt; font-family: 'Times New Roman', serif; color: #000; line-height: 1.4;">
+        <div><sup>1</sup> Assegnare un titolo alla proposta di collaborazione che sia coerente con le attività che si intendono realizzare.</div>
+        <div><sup>2</sup> Precisare l'ubicazione del bene comune, indicando la via o gli elementi che consentano di individuare la porzione del territorio oggetto dell'intervento, allegando delle immagini di mappe stradali.</div>
+        <div><sup>3</sup> Descrivere in maniera esatta e puntuale l'intervento che si intende realizzare specificando attività, fasi, modalità e tempi di realizzazione, con l'utilizzo di elaborati grafici in scala e quotato in formato pdf (se necessarie).</div>
+        <div><sup>4</sup> Indicare quali soggetti pubblico/privati portatori di interessi sono stati coinvolti nella redazione del progetto e con quali modalità.</div>
+        <div><sup>5</sup> Indicare per quanto tempo il proponente intende impegnarsi con l'Amministrazione per lo svolgimento delle attività previste dal progetto specificando con quale cadenza / periodicità sarà utilizzato il bene comune.</div>
+        <div><sup>6</sup> Specificare le dimensioni e la localizzazione precisa degli spazi richiesti.</div>
+        <div><sup>7</sup> Specificare il n° di cartella o n° di protocollo del provvedimento e l'ufficio comunale presso il quale è in trattazione il caso.</div>
+    </div>
 </div>
 
 <script defer src="js/back_to_top.js"></script>
@@ -389,8 +452,8 @@
 <script>
     document.querySelectorAll('input[name="in_qualita_di"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            document.getElementById('dati_gruppo').style.display = this.value === 'Rappresentante gruppo informale' ? 'block' : 'none';
-            document.getElementById('dati_ente').style.display = this.value === 'Legale rappresentante dell\'associazione/ente/società' ? 'block' : 'none';
+            document.getElementById('dati_gruppo').classList.toggle('active', this.value === 'Rappresentante gruppo informale');
+            document.getElementById('dati_ente').classList.toggle('active', this.value === 'Legale rappresentante dell\'associazione/ente/società');
         });
     });
 
