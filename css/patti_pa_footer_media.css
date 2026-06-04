@@ -520,6 +520,7 @@
     .footer-copyright {
         font-size: var(--font-size-xs);
         color: #64748b;
+		display: none;
     }
 
     .footer-credits {
