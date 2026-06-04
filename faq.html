@@ -61,42 +61,42 @@
             <h4 class="section-subtitle">Domande poste frequentemente</h4>
 
             <div class="steps-container">
-                <details class="faq-details">
+                <details class="faq-details" id="faq-beni-comuni">
                     <summary><span class="faq-number">1</span>Cosa sono i beni comuni a cui si riferisce il Regolamento?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>I beni comuni, come definiti dal Regolamento, sono beni materiali e immateriali che i cittadini e l'Amministrazione Comunale di Palermo riconoscono come essenziali per il benessere della comunità. Questi beni, in linea con l'articolo 118 comma 4 della Costituzione Italiana, contribuiscono all'esercizio dei diritti fondamentali delle persone, con particolare attenzione all'interesse delle future generazioni.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-cittadini-attivi">
                     <summary><span class="faq-number">2</span>Chi sono i "cittadini attivi" e come possono partecipare alla cura dei beni comuni?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>I cittadini attivi sono individui, associazioni o gruppi, anche informali, che desiderano contribuire attivamente alla cura, rigenerazione e gestione condivisa dei beni comuni. Non è richiesta la residenza o la cittadinanza, e la partecipazione può essere a tempo determinato. L'importante è l'impegno etico e la mancanza di scopo di lucro nelle attività legate ai beni comuni.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-patto-collaborazione">
                     <summary><span class="faq-number">3</span>Cos'è un Patto di Collaborazione e cosa contiene?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>Il Patto di Collaborazione è un accordo formale tra il Comune di Palermo e i cittadini attivi che definisce le modalità di collaborazione per la cura dei beni comuni. Il Patto definisce gli obiettivi, le azioni, la durata, gli impegni economici, gli strumenti di gestione, il monitoraggio, la valutazione, la comunicazione e le responsabilità.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-patti-ordinari-complessi">
                     <summary><span class="faq-number">4</span>Che differenza c'è tra Patti di Collaborazione ordinari e complessi?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>I Patti ordinari riguardano interventi di cura di modesta entità, come pulizia, giardinaggio o piccole manutenzioni. I Patti complessi, invece, si applicano a beni di valore storico, culturale o economico significativo, e prevedono interventi di rigenerazione e gestione continuata nel tempo.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-uso-civico">
                     <summary><span class="faq-number">5</span>Cosa si intende per "uso civico e collettivo urbano e territoriale"?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>L'uso civico e collettivo urbano e territoriale è un modello di gestione partecipata e democratica di un bene comune da parte della comunità e dell'Ente Locale. Non si riferisce al tradizionale concetto di uso civico come diritto reale, ma a un nuovo strumento per l'utilizzo condiviso di un bene, pubblico o privato.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-dichiarazione-uso-civico">
                     <summary><span class="faq-number">6</span>Che ruolo ha la "Dichiarazione di uso civico e collettivo"?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>La Dichiarazione di uso civico e collettivo definisce le regole per la partecipazione, l'uso, la fruizione, l'accesso e la gestione di un bene comune. Viene elaborata dalla comunità di riferimento e approvata dall'Amministrazione Comunale, garantendo un utilizzo non esclusivo, accessibile, inclusivo e imparziale del bene, a beneficio anche delle generazioni future.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-sostegno-economico">
                     <summary><span class="faq-number">7</span>Quali forme di sostegno economico può fornire il Comune ai cittadini attivi?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>Il Comune, nei limiti delle risorse disponibili, può sostenere le attività dei cittadini attivi attraverso la fruizione gratuita degli spazi, la copertura delle spese per utenze e manutenzioni, la fornitura di beni strumentali e materiali di consumo, l'affiancamento di dipendenti comunali e la promozione di iniziative di autofinanziamento.</p></div>
                 </details>
 
-                <details class="faq-details">
+                <details class="faq-details" id="faq-valutazione-risultati">
                     <summary><span class="faq-number">8</span>Come vengono valutati i risultati dei Patti di Collaborazione?<i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></summary>
                     <div class="faq-answer"><p>La valutazione dei Patti di Collaborazione si basa su principi di chiarezza, comparabilità, periodicità e verificabilità. I risultati vengono documentati e resi pubblici attraverso il sito web del Comune, conferenze stampa, convegni e altri eventi. La valutazione considera obiettivi, azioni, risultati e risorse utilizzate.</p></div>
                 </details>
@@ -109,5 +109,23 @@
 
 <script defer src="js/back_to_top.js"></script>
 <script defer src="js/mobile-nav.js"></script>
-<script defer src="js/slim-header.js"></script></body>
+<script defer src="js/slim-header.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const hash = location.hash.slice(1);
+    if (hash) {
+        const el = document.getElementById(hash);
+        if (el && el.tagName === 'DETAILS') {
+            el.open = true;
+            setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        }
+    }
+    document.querySelectorAll('details[id]').forEach(det => {
+        det.addEventListener('toggle', () => {
+            if (det.open) history.replaceState(null, '', '#' + det.id);
+            else if (location.hash === '#' + det.id) history.replaceState(null, '', location.pathname);
+        });
+    });
+});
+</script></body>
 </html>

@@ -66,6 +66,7 @@ function aggiornaTOC(capoId) {
             e.preventDefault();
             const target = document.getElementById(a.id);
             if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + a.id);
             tocList.querySelectorAll('a').forEach(l => l.classList.remove('toc-active'));
             link.classList.add('toc-active');
         });
@@ -80,10 +81,31 @@ function attivaNavLink(capoId) {
     if (active) active.classList.add('active');
 }
 
-// Inizializzazione
-mostraCapitolo('capo1');
-aggiornaTOC('capo1');
-attivaNavLink('capo1');
+// Mappa inversa artId → capoId per deep link agli articoli
+const artToCapo = {};
+Object.entries(articoliPerCapo).forEach(([capo, arts]) => {
+    arts.forEach(a => { artToCapo[a.id] = capo; });
+});
+
+function initFromHash() {
+    const hash = location.hash.slice(1);
+    if (articoliPerCapo[hash]) {
+        mostraCapitolo(hash); aggiornaTOC(hash); attivaNavLink(hash);
+        return;
+    }
+    const capo = artToCapo[hash];
+    if (capo) {
+        mostraCapitolo(capo); aggiornaTOC(capo); attivaNavLink(capo);
+        setTimeout(() => {
+            const el = document.getElementById(hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        return;
+    }
+    mostraCapitolo('capo1'); aggiornaTOC('capo1'); attivaNavLink('capo1');
+}
+
+initFromHash();
 
 // Click sulla nav sinistra
 document.querySelectorAll('.mkdocs-nav-link[data-capo]').forEach(link => {
@@ -93,6 +115,7 @@ document.querySelectorAll('.mkdocs-nav-link[data-capo]').forEach(link => {
         mostraCapitolo(capoId);
         aggiornaTOC(capoId);
         attivaNavLink(capoId);
+        history.replaceState(null, '', '#' + capoId);
         const el = document.getElementById(capoId);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });

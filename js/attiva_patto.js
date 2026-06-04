@@ -81,10 +81,15 @@ function attivaNavLink(capId) {
     if (active) active.classList.add('active');
 }
 
-// Inizializzazione
-mostraCapitolo('cap1');
-aggiornaTOC('cap1');
-attivaNavLink('cap1');
+function initFromHash() {
+    const hash = location.hash.slice(1);
+    const capId = paragrafiPerCapitolo[hash] ? hash : 'cap1';
+    mostraCapitolo(capId);
+    aggiornaTOC(capId);
+    attivaNavLink(capId);
+}
+
+initFromHash();
 
 // Click sulla nav sinistra
 document.querySelectorAll('.mkdocs-nav-link[data-cap]').forEach(link => {
@@ -94,6 +99,7 @@ document.querySelectorAll('.mkdocs-nav-link[data-cap]').forEach(link => {
         mostraCapitolo(capId);
         aggiornaTOC(capId);
         attivaNavLink(capId);
+        history.replaceState(null, '', '#' + capId);
         const el = document.getElementById(capId);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
