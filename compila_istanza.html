@@ -249,7 +249,7 @@
             </div>
 
             <div style="text-align: center;">
-                <button type="submit" class="btn-submit"><i class="fas fa-file-pdf"></i> Genera e Scarica PDF Ufficiale</button>
+                <button type="button" class="btn-submit" onclick="showWipModal()" style="opacity:.55; cursor:not-allowed;"><i class="fas fa-file-pdf"></i> Genera e Scarica PDF Ufficiale</button>
             </div>
         </form>
     </div>
@@ -444,6 +444,23 @@
         <div><sup>7</sup> Specificare il n° di cartella o n° di protocollo del provvedimento e l'ufficio comunale presso il quale è in trattazione il caso.</div>
     </div>
 </div>
+
+<!-- WIP Modal -->
+<div id="wip-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:36px 40px; max-width:440px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,.25);">
+        <i class="fas fa-screwdriver-wrench" style="font-size:2.8rem; color:#f0a500; margin-bottom:16px; display:block;"></i>
+        <h3 style="margin:0 0 10px; color:#004080; font-family:'Titillium Web',sans-serif;">Funzionalità in sviluppo</h3>
+        <p style="margin:0 0 24px; color:#555; font-size:.95rem; line-height:1.5;">La generazione automatica del PDF è attualmente in fase di sviluppo e sarà disponibile a breve.<br>Nel frattempo puoi scaricare il modulo dalla pagina <strong>Modulistica</strong> e compilarlo manualmente.</p>
+        <button onclick="document.getElementById('wip-modal').style.display='none'" style="background:#004080; color:#fff; border:none; padding:10px 28px; border-radius:4px; font-size:1rem; cursor:pointer; font-family:'Titillium Web',sans-serif;">Chiudi</button>
+    </div>
+</div>
+<script>
+function showWipModal() {
+    const m = document.getElementById('wip-modal');
+    m.style.display = 'flex';
+    m.addEventListener('click', function(e){ if(e.target===m) m.style.display='none'; });
+}
+</script>
 
 <script defer src="js/back_to_top.js"></script>
 <script defer src="js/mobile-nav.js"></script>
