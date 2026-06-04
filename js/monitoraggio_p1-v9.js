@@ -422,7 +422,7 @@ map = L.map('map', {
 // ==========================================
 async function loadData() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/PalermoHub/Dashboard-Monitoraggio/refs/heads/main/dati/monit_patti_pa.csv');
+        const response = await fetch('dati/monit_patti_pa.csv');
         const csvText = await response.text();
         
         allData = parseCSV(csvText);
