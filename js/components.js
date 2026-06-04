@@ -18,6 +18,9 @@
         'laboratori.html':  'laboratori',
         'about.html':       'about',
         'info.html':        'info',
+        'privacy.html':     'privacy',
+        'cookie.html':      'cookie',
+        'accessibilita.html': 'accessibilita',
     };
 
     // ─── CONFIGURAZIONE NAV TABS ──────────────────────────────
@@ -303,6 +306,56 @@
         const footerEl = document.getElementById('app-footer');
         if (footerEl) {
             footerEl.innerHTML = buildFooter();
+        }
+
+        // --- Cookie Banner Init ---
+        if (!localStorage.getItem('cookieConsent')) {
+            const banner = document.createElement('div');
+            banner.id = 'cookie-consent-banner';
+            banner.setAttribute('role', 'dialog');
+            banner.setAttribute('aria-live', 'polite');
+            
+            Object.assign(banner.style, {
+                position: 'fixed', bottom: '0', left: '0', width: '100%',
+                backgroundColor: '#00264b', color: '#ffffff',
+                padding: '16px 24px', boxShadow: '0 -4px 10px rgba(0,0,0,0.2)',
+                display: 'flex', flexDirection: 'row', alignItems: 'center',
+                justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px',
+                zIndex: '99999', fontFamily: "'Titillium Web', sans-serif"
+            });
+
+            banner.innerHTML = `
+                <div style="flex: 1; min-width: 280px; font-size: 0.9rem; line-height: 1.5;">
+                    Questo sito utilizza cookie tecnici e analitici con IP anonimizzato per migliorare l'esperienza di navigazione. 
+                    Cliccando su "Accetta" acconsenti all'uso dei cookie. 
+                    <a href="cookie.html" style="color: #60a5fa; text-decoration: underline; margin-left: 5px;">Maggiori info</a>
+                </div>
+                <div style="display: flex; gap: 10px; flex-shrink: 0;">
+                    <button id="btn-reject-cookie" style="background: transparent; color: #fff; border: 1px solid #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: 600; transition: background 0.2s;">Rifiuta</button>
+                    <button id="btn-accept-cookie" style="background: #3b82f6; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: 600; transition: background 0.2s;">Accetta</button>
+                </div>
+            `;
+
+            document.body.appendChild(banner);
+
+            const btnReject = document.getElementById('btn-reject-cookie');
+            const btnAccept = document.getElementById('btn-accept-cookie');
+            
+            btnReject.onmouseover = () => btnReject.style.background = 'rgba(255,255,255,0.1)';
+            btnReject.onmouseout = () => btnReject.style.background = 'transparent';
+            
+            btnAccept.onmouseover = () => btnAccept.style.background = '#2563eb';
+            btnAccept.onmouseout = () => btnAccept.style.background = '#3b82f6';
+
+            btnAccept.addEventListener('click', () => {
+                localStorage.setItem('cookieConsent', 'accepted');
+                banner.remove();
+            });
+
+            btnReject.addEventListener('click', () => {
+                localStorage.setItem('cookieConsent', 'rejected');
+                banner.remove();
+            });
         }
     }());
 
