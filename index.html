@@ -739,22 +739,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function () {
-  var KEY = 'disclaimer_seen_v1';
   var overlay = document.getElementById('disclaimerOverlay');
   var closeBtn = document.getElementById('disclaimerClose');
-  // Mostra ogni sessione (sessionStorage si azzera alla chiusura del tab)
-  if (sessionStorage.getItem(KEY)) {
-    overlay.style.display = 'none';
-  } else {
-    // Sposta focus sul bottone per accessibilità
-    setTimeout(function () { if (closeBtn) closeBtn.focus(); }, 100);
-  }
+  setTimeout(function () { if (closeBtn) closeBtn.focus(); }, 100);
   function dismiss() {
-    sessionStorage.setItem(KEY, '1');
     overlay.style.display = 'none';
   }
   if (closeBtn) closeBtn.addEventListener('click', dismiss);
-  // Chiude anche con Escape
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && overlay.style.display !== 'none') dismiss();
   });
