@@ -1606,19 +1606,41 @@ function updateTable() {
         const tableHeader = document.getElementById('tableHeader');
         if (tableHeader) {
             tableHeader.innerHTML = '';
-            
+
+            const colWidths = {
+                'id': '44px',
+                'titolo proposta': '240px',
+                'proponente': '140px',
+                'rappresentante': '170px',
+                'indirizzo': '190px',
+                'stato di avanzamento': '140px',
+                'nota per attività conclusive': '220px',
+                'scarica patto': '110px',
+                'ambito': '130px',
+                'data': '110px',
+            };
+
             orderedKeys.forEach(key => {
                 const th = document.createElement('th');
                 th.className = 'tbl-th';
                 th.textContent = key;
+                const kl = key.toLowerCase().trim();
+                const matchedWidth = Object.entries(colWidths).find(([k]) => kl.includes(k) || k.includes(kl));
+                if (matchedWidth) th.style.minWidth = matchedWidth[1];
+                if (kl === 'id') {
+                    th.style.minWidth = '44px';
+                    th.style.maxWidth = '52px';
+                    th.style.width = '44px';
+                    th.style.textAlign = 'center';
+                }
                 tableHeader.appendChild(th);
             });
 
             const actionTh = document.createElement('th');
             actionTh.className = 'tbl-th';
             actionTh.textContent = 'Azioni';
+            actionTh.style.minWidth = '80px';
             tableHeader.appendChild(actionTh);
-            
         }
 
         // === AGGIORNA BODY ===
@@ -1634,7 +1656,13 @@ function updateTable() {
                     orderedKeys.forEach(key => {
                         const td = document.createElement('td');
                         td.className = 'tbl-td';
-                        
+                        if (key.toLowerCase().trim() === 'id') {
+                            td.style.minWidth = '44px';
+                            td.style.maxWidth = '52px';
+                            td.style.width = '44px';
+                            td.style.textAlign = 'center';
+                        }
+
                         let value = item[key] || 'N/A';
                         
                         // ✅ GESTIONE COLONNA STATO (con colori)
@@ -1669,7 +1697,7 @@ function updateTable() {
                                        onmouseover="this.style.opacity='0.8'; this.style.transform='translateY(-1px)'"
                                        onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'">
                                         <i data-lucide="download" style="width: 12px; height: 12px;"></i>
-                                        Patto nÂ° ${pattoId}
+                                        Patto n° ${pattoId}
                                     </a>
                                 `;
                             } else {

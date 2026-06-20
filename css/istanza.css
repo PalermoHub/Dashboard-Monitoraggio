@@ -1,0 +1,77 @@
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--primary-color, #004080); }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1rem; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        .form-control:focus { outline: none; border-color: var(--primary-color, #004080); box-shadow: 0 0 0 2px rgba(0,64,128,0.2); }
+        .form-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .form-col { flex: 1; min-width: 250px; }
+        .btn-submit { background: var(--primary-color, #004080); color: white; border: none; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.3s; margin-top: 1rem;}
+        .btn-submit:hover { background: #002d5a; }
+        .form-check { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .form-check input[type="checkbox"],
+        .form-check input[type="radio"] { width: 1.2rem; height: 1.2rem; min-width: 1.2rem; min-height: 1.2rem; flex-shrink: 0; cursor: pointer; accent-color: var(--primary-color, #004080); }
+        .form-check label { margin-bottom: 0; font-weight: normal; color: inherit; }
+        .section-box { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; /*background: #fff; */}
+        .field-error { border-color: #dc3545 !important; box-shadow: 0 0 0 2px rgba(220,53,69,0.25) !important; }
+        .form-check.field-error label { color: #dc3545; }
+        sup.fn {
+            font-size: 0.72rem; color: var(--primary-color, #004080); font-weight: bold;
+            margin-left: 2px; cursor: help; position: relative; vertical-align: super;
+        }
+        sup.fn::after {
+            content: attr(data-note);
+            position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: #1a1a2e; color: #fff; padding: 8px 12px; border-radius: 6px;
+            font-size: 0.78rem; font-weight: normal; font-style: italic;
+            white-space: normal; width: 280px; z-index: 9999;
+            visibility: hidden; opacity: 0; transition: opacity 0.2s;
+            pointer-events: none; line-height: 1.45;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        sup.fn::before {
+            content: ''; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            border: 6px solid transparent; border-top-color: #1a1a2e;
+            visibility: hidden; opacity: 0; transition: opacity 0.2s; z-index: 9999;
+        }
+        sup.fn:hover::after, sup.fn:hover::before { visibility: visible; opacity: 1; }
+        .sub-qualita { padding-left: 1.8rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-left: 2px solid #ddd; margin-left: 0.6rem; margin-bottom: 0.5rem; opacity: 0.45; transition: opacity 0.25s; }
+        .sub-qualita.active { opacity: 1; border-left-color: var(--primary-color, #004080); }
+        
+        /* Stili PDF */
+        #pdf-template { display: none; background: white; width: 794px; margin: 0 auto; padding: 20mm 20mm; color: black; font-family: 'Times New Roman', serif; line-height: 1.4; font-size: 11pt; box-sizing: border-box;}
+
+        @media print {
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            html, body {
+                margin: 0 !important; padding: 0 !important;
+                width: auto !important; height: auto !important;
+                overflow: visible !important;
+                min-height: unset !important;
+            }
+            body > *:not(#pdf-template) { display: none !important; }
+            #pdf-template {
+                display: block !important;
+                position: static !important;
+                width: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            .page-break { page-break-before: always; break-before: page; }
+            .pdf-section { page-break-inside: avoid; break-inside: avoid; }
+            @page { size: A4 portrait; margin: 20mm; }
+        }
+        .pdf-header { text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .pdf-destinatario { text-align: left; margin-top: 20px; margin-bottom: 20px; line-height: 1.2;}
+        .pdf-title { text-align: center; font-size: 14pt; font-weight: bold; margin: 15px 0; text-transform: uppercase;}
+        .pdf-section { margin-bottom: 10px; text-align: justify; page-break-inside: avoid; }
+        .pdf-field { border-bottom: 1px solid black; display: inline-block; min-width: 50px; padding: 0 5px; font-family: 'Arial', sans-serif;}
+        .pdf-textarea-field { border: 1px solid black; padding: 5px; min-height: 40px; margin-top: 5px; margin-bottom: 10px; font-family: 'Arial', sans-serif;}
+        .pdf-checkbox { display: inline-block; width: 12px; height: 12px; border: 1px solid black; margin-right: 5px; text-align: center; line-height: 12px; font-size: 10px; font-family: 'Arial', sans-serif;}
+        .pdf-check-text { display: flex; align-items: flex-start; margin-bottom: 5px; gap: 5px;}
+        .pdf-check-text span:first-child { margin-top: 3px; }
+        .pdf-signature { margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+        .pdf-signature-box { text-align: center; width: 40%; }
+        .pdf-signature-line { border-bottom: 1px solid black; margin-top: 30px; margin-bottom: 5px; }
+        .page-break { page-break-before: always; }

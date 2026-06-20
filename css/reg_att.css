@@ -514,12 +514,14 @@
 
 /* Wrapper regolamento: stesso look di content-section */
 .mkdocs-content .content {
-    background: var(--color-white);
+ /*   background: var(--color-white);
     border-radius: var(--border-radius);
+	 border: 1px solid var(--border-color);
+	*/
     padding: var(--space-6);
     margin-bottom: var(--space-6);
     box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
+   
 }
 
 /* CAPO (normativi) */
